@@ -10,7 +10,7 @@ trait SlackAuth {
 object SlackAuth {
   trait Service[R] {
     def test: ZIO[R with SlackEnv, SlackError, Boolean] =
-      sendM(request("api.test")) >>= SlackHelpers.isOk
+      sendM(request("api.test")) >>= SlackExtractors.isOk
 
     def testAuth: ZIO[R with SlackEnv, SlackError, AuthIdentity] =
       sendM(request("auth.test")) >>= as[AuthIdentity]

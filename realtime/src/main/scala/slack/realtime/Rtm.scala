@@ -55,23 +55,26 @@ object Rtm {
     private def readMessage(ws: WebSocket[Task]): ZIO[Any, Throwable, Take[Nothing, SlackEvent]] =
       ws.receiveText().flatMap(_.fold(_ => ZIO.succeed(Take.End), value => parseMessage(value).map(Take.Value(_))))
 
+    private val openAndHandshake: ZIO[SlackRealtimeEnv, SlackError, WebSocket[Task]] = for {
+      ws <- realtime.openWebsocket
+      // After the socket has been opened the first message we expect is the "hello" message
+      // Chew that off the front of the socket, if we don't receive it we should return an exception
+      _ <- readMessage(ws).filterOrFail {
+            case Take.Value(Hello(_)) => true
+            case _                    => false
+          }(SlackException.ProtocolError("Protocol error did not receive hello as first message"))
+    } yield ws
+
     def connect(
       outbound: ZStream[R, Nothing, OutboundMessage]
-    ): ZIO[R with SlackRealtimeEnv, SlackError, MessageStream] =
+    ): ZManaged[R with SlackRealtimeEnv, SlackError, MessageStream] =
       for {
-        ws <- realtime.openWebsocket
-        // After the socket has been opened the first message we expect is the "hello" message
-        // Chew that off the front of the socket, if we don't receive it we should return an exception
-        _ <- readMessage(ws).filterOrFail {
-              case Take.Value(Hello(_)) => true
-              case _                    => false
-            }(SlackException.ProtocolError("Protocol error did not receive hello as first message"))
+        ws <- openAndHandshake.toManaged_
         // Reads the messages being sent from the caller and buffers them while we wait to send them
         // to slack
         _ <- (for {
-              queue <- Queue.unbounded[Take[Nothing, OutboundMessage]]
-              _     <- outbound.into(queue).fork
-              _ <- ZStream.fromQueue(queue).forever.unTake.zipWithIndex.foreach {
+              queue <- outbound.toQueueUnbounded[SlackError, OutboundMessage]
+              _ <- ZStream.fromQueue(queue).forever.unTake.zipWithIndex.foreachManaged {
                     case (event, idx) =>
                       ws.send(WebSocketFrame.text(event.asJson.deepMerge(Json.obj("id" -> idx.asJson)).noSpaces))
                   }

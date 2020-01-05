@@ -1,5 +1,6 @@
 package basic
 
+import common.EnrichedManaged
 import pureconfig._
 import pureconfig.error.ConfigReaderException
 import pureconfig.generic.semiauto._
@@ -20,7 +21,7 @@ object BasicConfig {
   implicit val configReader: ConfigReader[BasicConfig] = deriveReader[BasicConfig]
 }
 
-object BasicApp extends ManagedApp {
+object BasicApp extends ManagedApp with EnrichedManaged {
   override def run(args: List[String]): ZManaged[zio.ZEnv, Nothing, Int] =
     (for {
       backend <- AsyncHttpClientZioBackend().toManaged(_.close.ignore)
@@ -33,20 +34,20 @@ object BasicApp extends ManagedApp {
       accessToken  = AccessToken.make(config.token)
       env          = ZManaged.environment[ZEnv] @@ enrichWithM(client) @@ enrichWithM(accessToken) @@ enrichWithM(withRealtime)
       resp         <- testApi(config).provideSomeManaged(env).toManaged_
-      _            <- testRealtime(config).provideSomeManaged(env).toManaged_
+      _            <- testRealtime(config).provideSomeManaged(env)
     } yield resp).either.flatMap {
       case Left(value)  => putStrLn(value.getMessage) as 1 toManaged_
       case Right(value) => putStrLn(value) as 0 toManaged_
     }
 
-  def testRealtime(config: BasicConfig): ZIO[SlackRealtimeEnv with Console, SlackError, Unit] =
+  def testRealtime(config: BasicConfig): ZManaged[SlackRealtimeEnv with Console, SlackError, Unit] =
     for {
       // Test that we can receive messages
       receiver <- slack.realtime.realtime.connect(ZStream(SendMessage(config.channel, "Hi realtime!")))
       _ <- receiver.collectM {
             case UserTyping(channel, user) => putStrLn(s"User $user is typing in $channel")
             case _                         => ZIO.unit
-          }.runDrain
+          }.runDrain.toManaged_
     } yield ()
 
   def testApi(config: BasicConfig): ZIO[SlackEnv, SlackError, String] =

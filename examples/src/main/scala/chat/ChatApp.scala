@@ -1,40 +1,20 @@
 package chat
 
 import basic.BasicConfig
+import common.EnrichedManaged
 import pureconfig.ConfigSource
 import pureconfig.error.ConfigReaderException
-import slack.{ AccessToken, SlackClient }
-import slack.realtime.SlackRealtimeClient
-import sttp.client.asynchttpclient.zio.AsyncHttpClientZioBackend
-import zio.{ ManagedApp, NeedsEnv, Queue, ZIO, ZManaged }
-import zio.console._
-import slack.realtime._
-import slack.realtime.models.{ Message, OutboundMessage, SendMessage }
-import zio.stream.ZStream
-import zio.macros.delegate.syntax._
-import zio.macros.delegate._
-import slack.users._
 import slack.channels._
-
-/**
- * Pretend we have the next version of ZIO
- */
-trait EnrichedManaged {
-
-  implicit def managedOps[R, E, A](managed: ZManaged[R, E, A]): EnrichedManaged.Ops[R, E, A] =
-    new EnrichedManaged.Ops[R, E, A](managed)
-
-}
-
-object EnrichedManaged {
-  class Ops[-R, +E, +A](managed: ZManaged[R, E, A]) {
-    def provideSomeM[R0, E1 >: E](r0: ZIO[R0, E1, R])(implicit ev: NeedsEnv[R]): ZManaged[R0, E1, A] =
-      r0.toManaged_.flatMap(managed.provide)
-
-    def provideSomeManaged[R0, E1 >: E](r0: ZManaged[R0, E1, R])(implicit ev: NeedsEnv[R]): ZManaged[R0, E1, A] =
-      r0.flatMap(managed.provide)
-  }
-}
+import slack.realtime.{ SlackRealtimeClient, _ }
+import slack.realtime.models.{ Message, OutboundMessage, SendMessage }
+import slack.users._
+import slack.{ AccessToken, SlackClient }
+import sttp.client.asynchttpclient.zio.AsyncHttpClientZioBackend
+import zio.console._
+import zio.macros.delegate._
+import zio.macros.delegate.syntax._
+import zio.stream.ZStream
+import zio.{ ManagedApp, Queue, ZIO, ZManaged }
 
 /**
  * A simple interactive application to show how to use slack zio for much profit
@@ -79,7 +59,7 @@ object ChatApp extends ManagedApp with EnrichedManaged {
             socketFiber <- (for {
                             receiver <- realtime.connect(ZStream.fromQueue(outgoing).forever)
                             _ <- receiver.collectM {
-                                  case Message(ts, channel, user, text, is_starred, thread_ts) =>
+                                  case Message(_, channel, user, text, _, _) =>
                                     val references = ZIO.traverse(findReferences(text)) { ref =>
                                       getUserInfo(ref).map { ref -> _.name }
                                     }
@@ -87,8 +67,8 @@ object ChatApp extends ManagedApp with EnrichedManaged {
                                       case (c, (u, r)) =>
                                         putStrLn(s"${c.name}: ${u.name} -> ${replaceReferences(text, r)}")
                                     }
-                                }.runDrain
-                          } yield ()).toManaged_.fork
+                                }.runDrain.toManaged_
+                          } yield ()).fork
             _ <- putStrLn("Ready for input!").toManaged_
             _ <- (senderFiber <*> socketFiber).join.toManaged_
           } yield ()).provideSomeM(env)

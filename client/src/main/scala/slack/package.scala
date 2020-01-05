@@ -3,16 +3,13 @@ import io.circe.Json
 import slack.SlackClient.RequestEntity
 import sttp.client._
 import sttp.client.circe._
-import zio.{UIO, URIO, ZIO}
+import zio.{ UIO, URIO, ZIO }
 
-package object slack extends SlackHelpers {
+package object slack extends SlackExtractors {
 
   type SlackResponse[T] = Either[ResponseError[circe.Error], Json]
-  type SlackError = Throwable
-  type SlackEnv = SlackClient with AccessToken
-
-  def withAuth[R, U[_], T, S](request: RequestT[U, T, S]): URIO[AccessToken, RequestT[U, T, S]] =
-    ZIO.accessM[AccessToken](_.accessToken.authenticate(request))
+  type SlackError       = Throwable
+  type SlackEnv         = SlackClient with AccessToken
 
   def requestJson(method: String, body: Json): UIO[Request[SlackResponse[Json], Nothing]] =
     UIO.succeed(
@@ -41,6 +38,6 @@ package object slack extends SlackHelpers {
   )
 
   def sendM[R, T](request: URIO[R, Request[SlackResponse[T], Nothing]]): ZIO[R with SlackEnv, Throwable, Json] =
-    request >>= withAuth >>= SlackClient.send[T]
+    request >>= AccessToken.authenticateM >>= SlackClient.send[T]
 
 }
