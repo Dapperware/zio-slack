@@ -4,7 +4,7 @@ import io.circe.Json
 import io.circe.parser._
 import io.circe.syntax._
 import slack.realtime.models.{ Hello, OutboundMessage, SlackEvent }
-import slack.{ as, request, sendM, SlackEnv, SlackError }
+import slack.{ as, request, sendM, SlackEnv, SlackError, SlackException }
 import sttp.client._
 import sttp.client.asynchttpclient.WebSocketHandler
 import sttp.client.asynchttpclient.zio.ZioWebSocketHandler
@@ -24,13 +24,12 @@ object SlackRealtimeClient {
 
   def make(backend: SttpBackend[Task, Nothing, WebSocketHandler]): UIO[SlackRealtimeClient] =
     UIO.effectTotal(new SlackRealtimeClient {
-      implicit private val b = backend
       override val slackRealtimeClient: Service[Any] = new Service[Any] {
-        override def openWebsocket: ZIO[SlackEnv, SlackError, WebSocket[Task]] =
+        private[slack] override def openWebsocket: ZIO[SlackEnv, SlackError, WebSocket[Task]] =
           for {
             url <- sendM(request("rtm.connect")) >>= as[String]("url")
             r <- ZioWebSocketHandler().flatMap { handler =>
-                  basicRequest.get(uri"$url").openWebsocket(handler)
+                  backend.openWebsocket(basicRequest.get(uri"$url"), handler)
                 }
           } yield r.result
       }
@@ -62,11 +61,11 @@ object Rtm {
       for {
         ws <- realtime.openWebsocket
         // After the socket has been opened the first message we expect is the "hello" message
-        // Chew that off the front of the socket
+        // Chew that off the front of the socket, if we don't receive it we should return an exception
         _ <- readMessage(ws).filterOrFail {
               case Take.Value(Hello(_)) => true
               case _                    => false
-            }(new Exception("Protocol error did not receive hello as first message"))
+            }(SlackException.ProtocolError("Protocol error did not receive hello as first message"))
         // Reads the messages being sent from the caller and buffers them while we wait to send them
         // to slack
         _ <- (for {
@@ -90,7 +89,7 @@ object Rtm {
 
 object realtime extends SlackRealtimeClient.Service[SlackRealtimeClient] with Rtm.Service[SlackRealtimeEnv] {
 
-  override def openWebsocket: ZIO[SlackRealtimeEnv, SlackError, WebSocket[Task]] =
+  private[slack] override def openWebsocket: ZIO[SlackRealtimeEnv, SlackError, WebSocket[Task]] =
     ZIO.accessM(_.slackRealtimeClient.openWebsocket)
 
 }

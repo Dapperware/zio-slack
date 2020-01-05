@@ -20,7 +20,7 @@ object BasicConfig {
   implicit val configReader: ConfigReader[BasicConfig] = deriveReader[BasicConfig]
 }
 
-object Basic extends ManagedApp {
+object BasicApp extends ManagedApp {
   override def run(args: List[String]): ZManaged[zio.ZEnv, Nothing, Int] =
     (for {
       backend <- AsyncHttpClientZioBackend().toManaged(_.close.ignore)
@@ -30,11 +30,10 @@ object Basic extends ManagedApp {
                  .mapError(ConfigReaderException(_))
       client       = SlackClient.make(backend)
       withRealtime = SlackRealtimeClient.make(backend)
-      accessToken = AccessToken
-        .make(config.token)
-      env  = ZManaged.environment[ZEnv] @@ enrichWithM(client) @@ enrichWithM(accessToken) @@ enrichWithM(withRealtime)
-      resp <- testApi(config).provideSomeManaged(env).toManaged_
-      _    <- testRealtime(config).provideSomeManaged(env).toManaged_
+      accessToken  = AccessToken.make(config.token)
+      env          = ZManaged.environment[ZEnv] @@ enrichWithM(client) @@ enrichWithM(accessToken) @@ enrichWithM(withRealtime)
+      resp         <- testApi(config).provideSomeManaged(env).toManaged_
+      _            <- testRealtime(config).provideSomeManaged(env).toManaged_
     } yield resp).either.flatMap {
       case Left(value)  => putStrLn(value.getMessage) as 1 toManaged_
       case Right(value) => putStrLn(value) as 0 toManaged_

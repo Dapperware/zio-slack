@@ -23,6 +23,8 @@ object SlackException {
     implicit val decoder: Decoder[ResponseError] = io.circe.generic.semiauto.deriveDecoder[ResponseError]
   }
 
+  case class ProtocolError(error: String) extends Exception(s"Slack protocol Error: $error") with SlackException
+
   /**
    * Indicates an error that occurred while attempting to make a network request
    * this usually indicates a problem with the local configuration or the that slack may be down or under maintenance
