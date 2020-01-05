@@ -2,7 +2,7 @@ package slack
 
 import io.circe.Json
 import zio.ZIO
-import zio.macros.annotation.{accessible, mockable}
+import zio.macros.annotation.mockable
 
 @mockable
 //@accessible

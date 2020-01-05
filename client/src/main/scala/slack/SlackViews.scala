@@ -1,9 +1,9 @@
 package slack
 
-import io.circe.{Codec, Json}
-import io.circe.syntax._
 import io.circe.generic.semiauto._
-import slack.models.{Block, PlainTextObject}
+import io.circe.syntax._
+import io.circe.{ Codec, Json }
+import slack.models.{ Block, PlainTextObject }
 import zio.ZIO
 
 trait SlackViews {
@@ -19,7 +19,7 @@ object SlackViews {
           "views.open",
           Json.obj(
             "trigger_id" -> triggerId.asJson,
-            "view" -> view.asJson
+            "view"       -> view.asJson
           )
         )
       ) >>= as[View]("view")
@@ -30,8 +30,8 @@ object SlackViews {
           "views.publish",
           Json.obj(
             "user_id" -> userId.asJson,
-            "view" -> view.asJson,
-            "hash" -> hash.asJson
+            "view"    -> view.asJson,
+            "hash"    -> hash.asJson
           )
         )
       ) >>= as[View]("view")
@@ -42,7 +42,7 @@ object SlackViews {
           "views.push",
           Json.obj(
             "trigger_id" -> triggerId.asJson,
-            "view" -> view.asJson
+            "view"       -> view.asJson
           )
         )
       ) >>= as[View]("view")
@@ -55,10 +55,10 @@ object SlackViews {
         requestJson(
           "views.update",
           Json.obj(
-            "view" -> view.asJson,
+            "view"        -> view.asJson,
             "external_id" -> externalId.asJson,
-            "hash" -> hash.asJson,
-            "view_id" -> viewId.asJson
+            "hash"        -> hash.asJson,
+            "view_id"     -> viewId.asJson
           )
         )
       ) >>= as[View]("view")
@@ -80,7 +80,6 @@ case class View(
 )
 
 object View {
-  import slack.models.TextObject.plainTextFmt
 
   implicit val codec: Codec[View] = deriveCodec[View]
 }

@@ -1,6 +1,8 @@
 package slack
 
-import slack.models.{Reaction, ReactionsResponse}
+import io.circe.Json
+import io.circe.syntax._
+import slack.models.{ Reaction, ReactionsResponse }
 import zio.ZIO
 
 //@mockable
@@ -12,15 +14,17 @@ trait SlackReactions {
 object SlackReactions {
 
   trait Service[R] {
-    def addReaction(emojiName: String,
-                    file: Option[String],
-                    fileComment: Option[String],
-                    channelId: Option[String],
-                    timestamp: Option[String]): ZIO[R with SlackEnv, SlackError, Boolean] = ???
-
     def addReactionToMessage(emojiName: String,
                              channelId: String,
-                             timestamp: String): ZIO[R with SlackEnv, SlackError, Boolean] = ???
+                             timestamp: String): ZIO[R with SlackEnv, SlackError, Boolean] =
+      sendM(
+        requestJson("reactions.add",
+                    Json.obj(
+                      "name"      -> emojiName.asJson,
+                      "channel"   -> channelId.asJson,
+                      "timestamp" -> timestamp.asJson
+                    ))
+      ) >>= isOk
 
     def removeReaction(
       emojiName: String,
@@ -28,7 +32,19 @@ object SlackReactions {
       fileComment: Option[String] = None,
       channelId: Option[String] = None,
       timestamp: Option[String] = None
-    ): ZIO[R with SlackEnv, SlackError, Boolean] = ???
+    ): ZIO[R with SlackEnv, SlackError, Boolean] =
+      sendM(
+        requestJson(
+          "reactions.remove",
+          Json.obj(
+            "name"         -> emojiName.asJson,
+            "file"         -> file.asJson,
+            "file_comment" -> fileComment.asJson,
+            "timestamp"    -> timestamp.asJson,
+            "channel"      -> channelId.asJson
+          )
+        )
+      ) >>= isOk
 
     def getReactions(file: Option[String] = None,
                      fileComment: Option[String] = None,
@@ -37,11 +53,11 @@ object SlackReactions {
                      full: Option[Boolean]): ZIO[R with SlackEnv, SlackError, Seq[Reaction]] =
       sendM(
         request("reactions.get",
-                "file" -> file,
+                "file"         -> file,
                 "file_comment" -> fileComment,
-                "channel" -> channelId,
-                "timestamp" -> timestamp,
-                "full" -> full)
+                "channel"      -> channelId,
+                "timestamp"    -> timestamp,
+                "full"         -> full)
       ) >>= as[Seq[Reaction]]
 
     def getReactionsForMessage(channelId: String,

@@ -1,4 +1,4 @@
-package slack.realtime.models.rtm
+package slack.realtime.models
 
 import io.circe.Decoder.Result
 import io.circe._
