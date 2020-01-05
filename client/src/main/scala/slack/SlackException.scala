@@ -17,7 +17,7 @@ object SlackException {
   /**
    * An error that was returned from Slack while trying to process a request
    */
-  case class ResponseError(code: String) extends Exception(s"Slack API Error: $code") with SlackException
+  case class ResponseError(error: String) extends Exception(s"Slack API Error: $error") with SlackException
 
   object ResponseError {
     implicit val decoder: Decoder[ResponseError] = io.circe.generic.semiauto.deriveDecoder[ResponseError]

@@ -71,12 +71,12 @@ object Rtm {
         // to slack
         _ <- (for {
               queue <- Queue.unbounded[Take[Nothing, OutboundMessage]]
-              _     <- outbound.into(queue)
-              _ <- ZStream.fromQueue(queue).unTake.zipWithIndex.foreach {
+              _     <- outbound.into(queue).fork
+              _ <- ZStream.fromQueue(queue).forever.unTake.zipWithIndex.foreach {
                     case (event, idx) =>
                       ws.send(WebSocketFrame.text(event.asJson.deepMerge(Json.obj("id" -> idx.asJson)).noSpaces))
                   }
-            } yield queue.take).fork
+            } yield ()).fork
         // We set up the stream to begin receiving text messages
         // We map each of the events into a Take to model the possible end of the stream
         receive = ZStream

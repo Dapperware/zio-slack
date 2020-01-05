@@ -1,6 +1,6 @@
 package slack
 
-import slack.models.{Channel, HistoryChunk, RepliesChunk}
+import slack.models.{ Channel, HistoryChunk, RepliesChunk }
 import zio.ZIO
 
 trait SlackChannels {
@@ -25,15 +25,15 @@ object SlackChannels {
     ): ZIO[R with SlackEnv, SlackError, HistoryChunk] =
       sendM(
         request("channels.history",
-                "channel" -> channelId,
-                "latest" -> latest,
-                "oldest" -> oldest,
+                "channel"   -> channelId,
+                "latest"    -> latest,
+                "oldest"    -> oldest,
                 "inclusive" -> inclusive,
-                "count" -> count)
+                "count"     -> count)
       ) >>= as[HistoryChunk]
 
     def getChannelInfo(channelId: String): ZIO[R with SlackEnv, SlackError, Channel] =
-      sendM(request("channels.info", "channel" -> channelId)) >>= as[Channel]
+      sendM(request("channels.info", "channel" -> channelId)) >>= as[Channel]("channel")
 
     def inviteToChannel(channelId: String, userId: String): ZIO[R with SlackEnv, SlackError, Channel] =
       sendM(request("channels.invite", "channel" -> channelId, "user" -> userId)) >>= as[Channel]("channel")
