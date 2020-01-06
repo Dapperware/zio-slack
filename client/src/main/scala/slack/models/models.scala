@@ -26,27 +26,27 @@ package object models {
       }
     )
 
-  implicit val confirmFieldFmt = deriveCodec[ConfirmField]
-  implicit val actionFieldFmt = deriveCodec[ActionField]
-  implicit val attachmentFieldFmt = deriveCodec[AttachmentField]
-  implicit val attachmentFmt = deriveCodec[Attachment]
-  implicit val authIdentityFmt = deriveCodec[AuthIdentity]
-  implicit val teamFmt = deriveCodec[Team]
-  implicit val channelValueFmt = deriveCodec[ChannelValue]
-  implicit val groupValueFmt = deriveCodec[GroupValue]
-  implicit val imFmt = deriveCodec[Im]
-  implicit val channelFmt = deriveCodec[Channel]
-  implicit val groupFmt = deriveCodec[Group]
-  implicit val userProfileFmt = deriveCodec[UserProfile]
-  implicit val userFmt = deriveCodec[User]
-  implicit val reactionFmt = deriveCodec[Reaction]
-  implicit val slackCommentFmt = deriveCodec[SlackComment]
-  implicit val slackFileFmt = deriveCodec[SlackFile]
-  implicit val slackFileIdFmt = deriveCodec[SlackFileId]
-  implicit val updateResponseFmt = deriveCodec[UpdateResponse]
-  implicit val appFmt = deriveCodec[App]
-  implicit val reactionMsgFmt = deriveCodec[ReactionItemMessage]
-  implicit val reactionFileFmt = deriveCodec[ReactionItemFile]
+  implicit val confirmFieldFmt        = deriveCodec[ConfirmField]
+  implicit val actionFieldFmt         = deriveCodec[ActionField]
+  implicit val attachmentFieldFmt     = deriveCodec[AttachmentField]
+  implicit val attachmentFmt          = deriveCodec[Attachment]
+  implicit val authIdentityFmt        = deriveCodec[AuthIdentity]
+  implicit val teamFmt                = deriveCodec[Team]
+  implicit val channelValueFmt        = deriveCodec[ChannelValue]
+  implicit val groupValueFmt          = deriveCodec[GroupValue]
+  implicit val imFmt                  = deriveCodec[Im]
+  implicit val channelFmt             = deriveCodec[Channel]
+  implicit val groupFmt               = deriveCodec[Group]
+  implicit val userProfileFmt         = deriveCodec[UserProfile]
+  implicit val userFmt                = deriveCodec[User]
+  implicit val reactionFmt            = deriveCodec[Reaction]
+  implicit val slackCommentFmt        = deriveCodec[SlackComment]
+  implicit val slackFileFmt           = deriveCodec[SlackFile]
+  implicit val slackFileIdFmt         = deriveCodec[SlackFileId]
+  implicit val updateResponseFmt      = deriveCodec[UpdateResponse]
+  implicit val appFmt                 = deriveCodec[App]
+  implicit val reactionMsgFmt         = deriveCodec[ReactionItemMessage]
+  implicit val reactionFileFmt        = deriveCodec[ReactionItemFile]
   implicit val reactionFileCommentFmt = deriveCodec[ReactionItemFileComment]
   implicit val reactionItemReads = new Decoder[ReactionItem] {
 
@@ -54,11 +54,11 @@ package object models {
       for {
         typ <- c.downField("type").as[String]
         result <- typ match {
-          case "message"      => c.as[ReactionItemMessage]
-          case "file"         => c.as[ReactionItemFile]
-          case "file_comment" => c.as[ReactionItemFileComment]
-          case t: String      => Left(DecodingFailure(s"Invalid type property, $t", List.empty))
-        }
+                   case "message"      => c.as[ReactionItemMessage]
+                   case "file"         => c.as[ReactionItemFile]
+                   case "file_comment" => c.as[ReactionItemFileComment]
+                   case t: String      => Left(DecodingFailure(s"Invalid type property, $t", List.empty))
+                 }
       } yield result
   }
   implicit val reactionItemWrites = Encoder.instance[ReactionItem] {
@@ -67,18 +67,20 @@ package object models {
     case i: ReactionItemFileComment => i.asJson
   }
 
+  implicit val reminderCodec = deriveCodec[Reminder]
+
   implicit val optionElementFmt = deriveCodec[OptionElement]
   implicit val selectElementFmt = deriveCodec[SelectElement]
-  implicit val textElementFmt = deriveCodec[TextElement]
+  implicit val textElementFmt   = deriveCodec[TextElement]
 
   implicit val dialogElementReads = new Decoder[DialogElement] {
     def apply(json: HCursor): Decoder.Result[DialogElement] =
       for {
         rType <- json.downField("type").as[String]
         element <- rType match {
-          case "select" => json.as[SelectElement]
-          case _        => json.as[TextElement]
-        }
+                    case "select" => json.as[SelectElement]
+                    case _        => json.as[TextElement]
+                  }
       } yield element
   }
   implicit val dialogElementWrites = new Encoder[DialogElement] {
