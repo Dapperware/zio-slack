@@ -1,6 +1,6 @@
 name in ThisBuild := "zio-slack"
 organization in ThisBuild := "com.github.dapperware"
-version in ThisBuild := "0.1"
+version in ThisBuild := "0.2"
 
 val mainScala = "2.12.10"
 val allScala = Seq("2.13.1", mainScala)
@@ -31,7 +31,7 @@ inThisBuild(
   )
 )
 
-scalaVersion := mainScala
+scalaVersion in ThisBuild := mainScala
 
 val circeV = "0.12.3"
 val zioV = "1.0.0-RC17"
