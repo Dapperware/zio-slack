@@ -1,27 +1,43 @@
 name in ThisBuild := "zio-slack"
 organization in ThisBuild := "com.github.dapperware"
-
-inThisBuild(
-  developers := List(
-    Developer(
-      "paulpdaniels",
-      "Paul Daniels",
-      "",
-      url("https://github.com/paulpdaniels")
-    )
-  )
-)
-
 version in ThisBuild := "0.1"
 
 val mainScala = "2.12.10"
 val allScala = Seq("2.13.1", mainScala)
+
+inThisBuild(
+  List(
+    licenses := List(
+      "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")
+    ),
+    pgpPassphrase := sys.env.get("PGP_PASSWORD").map(_.toArray),
+    pgpPublicRing := file("/tmp/public.asc"),
+    pgpSecretRing := file("/tmp/secret.asc"),
+    scmInfo := Some(
+      ScmInfo(
+        url("https://github.com/dapperware/zio-slack/"),
+        "scm:git:git@github.com:dapperware/zio-slack.git"
+      )
+    ),
+    developers := List(
+      Developer(
+        "paulpdaniels",
+        "Paul Daniels",
+        "",
+        url("https://github.com/paulpdaniels")
+      )
+    ),
+    crossScalaVersions := allScala
+  )
+)
 
 scalaVersion := mainScala
 
 val circeV = "0.12.3"
 val zioV = "1.0.0-RC17"
 val sttpV = "2.0.0-RC5"
+
+publishTo in ThisBuild := sonatypePublishToBundle.value
 
 lazy val root = (project in file("."))
   .aggregate(client, realtime, examples)
