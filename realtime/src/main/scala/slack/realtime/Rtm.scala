@@ -65,15 +65,15 @@ object Rtm {
           }(SlackException.ProtocolError("Protocol error did not receive hello as first message"))
     } yield ws
 
-    def connect(
-      outbound: ZStream[R, Nothing, OutboundMessage]
-    ): ZManaged[R with SlackRealtimeEnv, SlackError, MessageStream] =
+    def connect[R0 <: R, E1 >: SlackError](
+      outbound: ZStream[R0, E1, OutboundMessage]
+    ): ZManaged[R0 with SlackRealtimeEnv, E1, MessageStream] =
       for {
         ws <- openAndHandshake.toManaged_
         // Reads the messages being sent from the caller and buffers them while we wait to send them
         // to slack
         _ <- (for {
-              queue <- outbound.toQueueUnbounded[SlackError, OutboundMessage]
+              queue <- outbound.toQueueUnbounded[E1, OutboundMessage]
               _ <- ZStream.fromQueue(queue).forever.unTake.zipWithIndex.foreachManaged {
                     case (event, idx) =>
                       ws.send(WebSocketFrame.text(event.asJson.deepMerge(Json.obj("id" -> idx.asJson)).noSpaces))
