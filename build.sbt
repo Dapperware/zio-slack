@@ -39,11 +39,6 @@ val sttpV = "2.0.0-RC5"
 
 publishTo in ThisBuild := sonatypePublishToBundle.value
 
-val paradise: Seq[Def.Setting[Seq[ModuleID]]] = CrossVersion.partialVersion(scalaVersion.value) match {
-  case Some((2, 13)) => List.empty
-  case _ => List(addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full))
-}
-
 lazy val root = (project in file("."))
   .aggregate(client, realtime, examples)
   .settings(skip in publish := true)
@@ -51,7 +46,6 @@ lazy val root = (project in file("."))
 lazy val client = project.in(file("client"))
     .settings(name := "zio-slack-client")
     .settings(commonSettings)
-    .settings(paradise: _*)
     .settings(
       testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
       libraryDependencies ++= Seq(
@@ -74,7 +68,6 @@ lazy val realtime = project.in(file("realtime"))
   .dependsOn(client)
     .settings(name := "zio-slack-realtime")
     .settings(commonSettings)
-    .settings(paradise: _*)
     .settings(
       testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
       libraryDependencies ++= Seq(
@@ -89,7 +82,6 @@ lazy val realtime = project.in(file("realtime"))
       ),
       addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.10.3"),
       addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"),
-      addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full)
     )
   .configs(IntegrationTest)
   .settings(Defaults.itSettings)
@@ -97,7 +89,6 @@ lazy val realtime = project.in(file("realtime"))
 lazy val examples = project.in(file("examples"))
     .dependsOn(client, realtime)
     .settings(commonSettings)
-    .settings(paradise: _*)
     .settings(
       skip in publish := true,
       libraryDependencies += "com.github.pureconfig" %% "pureconfig" % "0.12.2"
@@ -117,6 +108,10 @@ scalacOptions ++= Seq(
 
 
 val commonSettings = Def.settings(
+  libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, 13)) => Nil
+    case _ => compilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full) :: Nil
+  }),
   scalacOptions ++= Seq(
     "-deprecation",
     "-encoding",
