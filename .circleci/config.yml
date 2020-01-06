@@ -4,39 +4,66 @@
 #
 version: 2
 jobs:
-  build:
+  test212_jdk8:
     docker:
-      # specify the version you desire here
       - image: circleci/openjdk:8-jdk
-
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
-
-    working_directory: ~/repo
-
-    environment:
-      # Customize the JVM maximum heap limit
-      JVM_OPTS: -Xmx3200m
-      TERM: dumb
-
     steps:
       - checkout
-
-      # Download and cache dependencies
       - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "build.sbt" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
-
-      - run: cat /dev/null | sbt test:compile
-
+          key: sbtcache
+      - run: sbt ++2.12.10! client/test realtime/test examples/compile
       - save_cache:
+          key: sbtcache
           paths:
-            - ~/.m2
-          key: v1-dependencies--{{ checksum "build.sbt" }}
+            - "~/.ivy2/cache"
+            - "~/.sbt"
+            - "~/.m2"
+  test213_jdk11:
+    docker:
+      - image: circleci/openjdk:8-jdk
+    steps:
+      - checkout
+      - restore_cache:
+          key: sbtcache
+      - run: sbt ++2.13.1! client/test realtime/test examples/compile
+      - save_cache:
+          key: sbtcache
+          paths:
+            - "~/.ivy2/cache"
+            - "~/.sbt"
+            - "~/.m2"
+  release:
+    docker:
+      - image: circleci/openjdk:8-jdk
+    steps:
+      - checkout
+      - run: git fetch --tags
+      - restore_cache:
+          key: sbtcache
+      - run: echo "credentials += Credentials(\"Sonatype Nexus Repository Manager\", \"oss.sonatype.org\", \"$SONATYPE_USER\", \"$SONATYPE_PASSWORD\")" > ~/.sbt/1.0/sonatype.sbt
+      - run: echo -n "${PGP_PUBLIC}" | base64 -d > /tmp/public.asc
+      - run: echo -n "${PGP_SECRET}" | base64 -d > /tmp/secret.asc
+      - run: sbt ++${SCALA_VERSION}! clean sonatypeBundleClean +publishSigned sonatypeBundleRelease
 
-      # run tests!
-      - run: cat /dev/null | sbt test:test
+workflows:
+  version: 2
+  build:
+    jobs:
+      - test212_jdk8:
+          filters:
+            tags:
+              only: /^v[0-9]+(\.[0-9]+)*$/
+      - test213_jdk11:
+          filters:
+            tags:
+              only: /^v[0-9]+(\.[0-9]+)*$/
+      - release:
+          context: Sonatype
+          requires:
+            - test212_jdk8
+            - test213_jdk11
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v[0-9]+(\.[0-9]+)*$/
