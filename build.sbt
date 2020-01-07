@@ -42,6 +42,7 @@ publishTo in ThisBuild := sonatypePublishToBundle.value
 lazy val root = (project in file("."))
   .aggregate(client, realtime, examples)
   .settings(skip in publish := true)
+  .settings(historyPath := None)
 
 lazy val client = project.in(file("client"))
     .settings(name := "zio-slack-client")
