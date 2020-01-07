@@ -1,4 +1,4 @@
-package slack
+package slack.api
 
 trait SlackUserGroups {
   val slackUserGroups: SlackUserGroups.Service[Any]

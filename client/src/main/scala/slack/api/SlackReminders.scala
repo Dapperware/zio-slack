@@ -1,9 +1,10 @@
-package slack
+package slack.api
 
 import io.circe.Json
-import slack.models.Reminder
-import zio.ZIO
 import io.circe.syntax._
+import slack.models.Reminder
+import slack._
+import zio.ZIO
 
 trait SlackReminders {
   val slackReminders: SlackReminders.Service[Any]

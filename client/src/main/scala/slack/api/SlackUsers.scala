@@ -1,6 +1,7 @@
-package slack
+package slack.api
 
 import slack.models.User
+import slack._
 import zio.ZIO
 import zio.macros.annotation.mockable
 

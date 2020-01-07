@@ -7,7 +7,7 @@ import pureconfig.error.ConfigReaderException
 import slack.api.channels._
 import slack.realtime.models.{ Message, OutboundMessage, SendMessage }
 import slack.realtime.{ SlackRealtimeClient, _ }
-import slack.users._
+import slack.api.users._
 import slack.{ AccessToken, SlackClient, SlackError }
 import sttp.client.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio.console._

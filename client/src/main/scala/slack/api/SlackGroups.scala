@@ -1,10 +1,12 @@
-package slack
+package slack.api
 
-import slack.models.{Group, HistoryChunk}
+import slack.models.{ Group, HistoryChunk }
+import slack.{ as, isOk, request, sendM, SlackEnv, SlackError }
 import zio.ZIO
+import zio.macros.annotation.mockable
 
 //@accessible
-//@mockable
+@mockable
 trait SlackGroups {
   val slackGroups: SlackGroups.Service[Any]
 }
@@ -32,11 +34,11 @@ object SlackGroups {
                         count: Option[Int] = None): ZIO[R with SlackEnv, SlackError, HistoryChunk] =
       sendM(
         request("groups.history",
-                "channel" -> channelId,
-                "latest" -> latest,
-                "oldest" -> oldest,
+                "channel"   -> channelId,
+                "latest"    -> latest,
+                "oldest"    -> oldest,
                 "inclusive" -> inclusive,
-                "count" -> count)
+                "count"     -> count)
       ) >>= as[HistoryChunk]
 
     def getGroupInfo(channelId: String): ZIO[R with SlackEnv, SlackError, Group] =

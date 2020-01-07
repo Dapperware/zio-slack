@@ -1,17 +1,5 @@
 package slack.api
 
-import slack.{
-  SlackFiles,
-  SlackGroups,
-  SlackIms,
-  SlackReactions,
-  SlackReminders,
-  SlackSearch,
-  SlackStars,
-  SlackTeams,
-  SlackUsers
-}
-
 /**
  * A service that interacts with slack and provides various messaging capabilities
  */

@@ -1,9 +1,10 @@
-package slack
+package slack.api
 
 import io.circe.generic.semiauto._
 import io.circe.syntax._
 import io.circe.{ Codec, Json }
 import slack.models.{ Block, PlainTextObject }
+import slack.{ as, requestJson, sendM, SlackEnv, SlackError }
 import zio.ZIO
 
 trait SlackViews {

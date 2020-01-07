@@ -1,6 +1,7 @@
-package slack
+package slack.api
 
-import slack.models.{HistoryChunk, Im}
+import slack.models.{ HistoryChunk, Im }
+import slack.{ as, isOk, request, sendM, SlackEnv, SlackError }
 import zio.ZIO
 import zio.macros.annotation.mockable
 
@@ -23,11 +24,11 @@ object SlackIms {
       sendM(
         request(
           "im.history",
-          "channel" -> channelId,
-          "latest" -> latest,
-          "oldest" -> oldest,
+          "channel"   -> channelId,
+          "latest"    -> latest,
+          "oldest"    -> oldest,
           "inclusive" -> inclusive,
-          "count" -> count
+          "count"     -> count
         )
       ).flatMap(as[HistoryChunk])
 
@@ -40,7 +41,7 @@ object SlackIms {
     def openIm(userId: String): ZIO[R with SlackEnv, SlackError, String] =
       for {
         res <- sendM(request("im.open", "user" -> userId))
-        id <- ZIO.fromEither(res.hcursor.downField("channel").downField("id").as[String])
+        id  <- ZIO.fromEither(res.hcursor.downField("channel").downField("id").as[String])
       } yield id
 
   }
