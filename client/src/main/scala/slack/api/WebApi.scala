@@ -1,25 +1,27 @@
-package slack
+package slack.api
+
+import slack.{
+  SlackAuth,
+  SlackChannels,
+  SlackChats,
+  SlackConversations,
+  SlackDialogs,
+  SlackDnd,
+  SlackEmojis,
+  SlackFiles,
+  SlackGroups,
+  SlackIms,
+  SlackReactions,
+  SlackReminders,
+  SlackSearch,
+  SlackStars,
+  SlackTeams,
+  SlackUsers
+}
 
 /**
  * A service that interacts with slack and provides various messaging capabilities
  */
-trait SlackApi
-    extends SlackAuth
-    with SlackChannels
-    with SlackChats
-    with SlackConversations
-    with SlackDialogs
-    with SlackDnd
-    with SlackEmojis
-    with SlackFiles
-    with SlackGroups
-    with SlackIms
-    with SlackReactions
-    with SlackSearch
-    with SlackStars
-    with SlackTeams
-    with SlackUsers
-
 trait WebApi[R]
     extends SlackAuth.Service[R]
     with SlackChannels.Service[R]
@@ -37,7 +39,3 @@ trait WebApi[R]
     with SlackStars.Service[R]
     with SlackTeams.Service[R]
     with SlackUsers.Service[R]
-
-object api {
-  object web extends WebApi[SlackEnv]
-}
