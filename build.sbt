@@ -7,6 +7,7 @@ val allScala = Seq("2.13.1", mainScala)
 
 inThisBuild(
   List(
+    homepage := Some(url("https://github.com/dapperware/zio-slack")),
     licenses := List(
       "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")
     ),
