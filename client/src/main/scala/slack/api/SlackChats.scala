@@ -1,8 +1,9 @@
-package slack
+package slack.api
 
 import io.circe.Json
 import io.circe.syntax._
-import slack.models.{Attachment, Block, UpdateResponse}
+import slack.models.{ Attachment, Block, UpdateResponse }
+import slack.{ as, isOk, request, requestJson, sendM, SlackEnv, SlackError }
 import zio.ZIO
 
 //@accessible
@@ -32,16 +33,16 @@ object SlackChats {
           Json
             .obj(
               "channel" -> Json.fromString(channelId),
-              "text" -> Json.fromString(text),
-              "user" -> Json.fromString(user)
+              "text"    -> Json.fromString(text),
+              "user"    -> Json.fromString(user)
             )
             .deepMerge(
               Json.fromFields(
                 Seq(
-                  asUser.map("as_user" -> Json.fromBoolean(_)),
-                  parse.map("parse" -> Json.fromString(_)),
+                  asUser.map("as_user"          -> Json.fromBoolean(_)),
+                  parse.map("parse"             -> Json.fromString(_)),
                   attachments.map("attachments" -> _.asJson),
-                  blocks.map("blocks" -> _.asJson)
+                  blocks.map("blocks"           -> _.asJson)
                 ).flatten
               )
             )
@@ -70,22 +71,22 @@ object SlackChats {
         requestJson(
           "chat.postMessage",
           Json.obj(
-            "channel" -> channelId.asJson,
-            "text" -> text.asJson,
-            "username" -> username.asJson,
-            "as_user" -> asUser.asJson,
-            "parse" -> parse.asJson,
-            "link_names" -> linkNames.asJson,
-            "attachments" -> attachments.asJson,
-            "blocks" -> blocks.asJson,
-            "unfurl_links" -> unfurlLinks.asJson,
-            "unfurl_media" -> unfurlMedia.asJson,
-            "icon_url" -> iconUrl.asJson,
-            "icon_emoji" -> iconEmoji.asJson,
+            "channel"          -> channelId.asJson,
+            "text"             -> text.asJson,
+            "username"         -> username.asJson,
+            "as_user"          -> asUser.asJson,
+            "parse"            -> parse.asJson,
+            "link_names"       -> linkNames.asJson,
+            "attachments"      -> attachments.asJson,
+            "blocks"           -> blocks.asJson,
+            "unfurl_links"     -> unfurlLinks.asJson,
+            "unfurl_media"     -> unfurlMedia.asJson,
+            "icon_url"         -> iconUrl.asJson,
+            "icon_emoji"       -> iconEmoji.asJson,
             "replace_original" -> replaceOriginal.asJson,
-            "delete_original" -> deleteOriginal.asJson,
-            "thread_ts" -> threadTs.asJson,
-            "reply_broadcast" -> replyBroadcast.asJson
+            "delete_original"  -> deleteOriginal.asJson,
+            "thread_ts"        -> threadTs.asJson,
+            "reply_broadcast"  -> replyBroadcast.asJson
           )
         )
       ) >>= as[String]("ts")
@@ -103,15 +104,15 @@ object SlackChats {
         requestJson(
           "chat.update",
           Json.obj(
-            "channel" -> channelId.asJson,
-            "ts" -> ts.asJson,
-            "text" -> text.asJson,
+            "channel"     -> channelId.asJson,
+            "ts"          -> ts.asJson,
+            "text"        -> text.asJson,
             "attachments" -> attachments.asJson,
-            "blocks" -> blocks.asJson,
-            "parse" -> parse.asJson,
-            "link_names" -> linkNames.asJson,
-            "as_user" -> asUser.asJson,
-            "thread_ts" -> threadTs.asJson
+            "blocks"      -> blocks.asJson,
+            "parse"       -> parse.asJson,
+            "link_names"  -> linkNames.asJson,
+            "as_user"     -> asUser.asJson,
+            "thread_ts"   -> threadTs.asJson
           )
         )
       ) >>= as[UpdateResponse]

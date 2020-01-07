@@ -1,13 +1,6 @@
 package slack.api
 
 import slack.{
-  SlackAuth,
-  SlackChannels,
-  SlackChats,
-  SlackConversations,
-  SlackDialogs,
-  SlackDnd,
-  SlackEmojis,
   SlackFiles,
   SlackGroups,
   SlackIms,

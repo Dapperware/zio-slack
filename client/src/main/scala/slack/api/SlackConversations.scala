@@ -1,8 +1,9 @@
-package slack
+package slack.api
 
 import io.circe.Json
 import io.circe.syntax._
-import slack.models.{Channel, Conversation, Message}
+import slack.models.{ Channel, Conversation, Message }
+import slack.{ as, isOk, request, requestJson, sendM, ChannelLike, ChannelLikeId, SlackEnv, SlackError }
 import zio.ZIO
 
 trait SlackConversations {
@@ -21,9 +22,9 @@ object SlackConversations {
                            userIds: Option[List[String]]): ZIO[R with SlackEnv, SlackError, Conversation] =
       sendM(
         request("conversations.create",
-                "name" -> name,
+                "name"       -> name,
                 "is_private" -> isPrivate,
-                "user_ids" -> userIds.map(_.mkString(",")))
+                "user_ids"   -> userIds.map(_.mkString(",")))
       ) >>= as[Conversation]("channel")
 //    def getConversationHistory(channelId: String,
 //                               cursor: Option[String] = None,
@@ -36,8 +37,8 @@ object SlackConversations {
                             includeNumMembers: Option[Boolean] = None): ZIO[R with SlackEnv, Throwable, Channel] =
       sendM(
         request("conversations.info",
-                "channel" -> channel,
-                "include_locale" -> includeLocale,
+                "channel"             -> channel,
+                "include_locale"      -> includeLocale,
                 "include_num_members" -> includeNumMembers)
       ) >>= as[Channel]("channel")
 
@@ -57,10 +58,10 @@ object SlackConversations {
                           types: Option[List[String]] = None): ZIO[R with SlackEnv, Throwable, List[Channel]] =
       sendM(
         request("conversations.list",
-                "cursor" -> cursor,
+                "cursor"           -> cursor,
                 "exclude_archived" -> excludeArchived,
-                "limit" -> limit,
-                "types" -> types.map(_.mkString(",")))
+                "limit"            -> limit,
+                "types"            -> types.map(_.mkString(",")))
       ) >>= as[List[Channel]]("channels")
 
     def getConversationMembers(channel: String, cursor: Option[String] = None, limit: Option[Int] = None) =
@@ -68,8 +69,8 @@ object SlackConversations {
         request(
           "conversations.members",
           "channel" -> channel,
-          "cursor" -> cursor,
-          "limit" -> limit
+          "cursor"  -> cursor,
+          "limit"   -> limit
         )
       ) >>= as[List[String]]("members")
 
@@ -80,9 +81,9 @@ object SlackConversations {
         requestJson(
           "conversations.open",
           Json.obj(
-            "channel" -> channel.asJson,
+            "channel"   -> channel.asJson,
             "return_im" -> returnIm.isFull.asJson,
-            "users" -> users.map(_.mkString(",")).asJson
+            "users"     -> users.map(_.mkString(",")).asJson
           )
         )
       ) >>= (returnIm.extract(_, "channel"))
@@ -99,13 +100,13 @@ object SlackConversations {
                                oldest: Option[String] = None): ZIO[R with SlackEnv, Throwable, List[Message]] =
       sendM(
         request("conversations.replies",
-                "channel" -> channel,
-                "ts" -> ts,
-                "cursor" -> cursor,
+                "channel"   -> channel,
+                "ts"        -> ts,
+                "cursor"    -> cursor,
                 "inclusive" -> inclusive,
-                "latest" -> latest,
-                "limit" -> limit,
-                "oldest" -> oldest)
+                "latest"    -> latest,
+                "limit"     -> limit,
+                "oldest"    -> oldest)
       ) >>= as[List[Message]]("messages")
     def setConversationPurpose(
       channel: String,

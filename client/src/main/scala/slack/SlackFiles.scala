@@ -2,8 +2,8 @@ package slack
 
 import java.io.File
 
-import slack.SlackClient.RequestEntity
-import slack.models.{FileInfo, FilesResponse, SlackFile}
+import SlackClient.RequestEntity
+import slack.models.{ FileInfo, FilesResponse, SlackFile }
 import zio.ZIO
 
 //@accessible
@@ -33,12 +33,12 @@ object SlackFiles {
       sendM(
         request(
           "files.list",
-          "user" -> userId,
+          "user"    -> userId,
           "ts_from" -> tsFrom,
-          "ts_to" -> tsTo,
-          "types" -> types.map(_.mkString(",")),
-          "count" -> count,
-          "page" -> page
+          "ts_to"   -> tsTo,
+          "types"   -> types.map(_.mkString(",")),
+          "count"   -> count,
+          "page"    -> page
         )
       ) >>= as[FilesResponse]
 
@@ -68,12 +68,12 @@ object SlackFiles {
       sendM(
         requestEntity(
           "files.upload",
-          "filetype" -> filetype,
-          "filename" -> filename,
-          "title" -> title,
+          "filetype"        -> filetype,
+          "filename"        -> filename,
+          "title"           -> title,
           "initial_comment" -> initialComment,
-          "channels" -> channels.map(_.mkString(",")),
-          "thread_ts" -> thread_ts
+          "channels"        -> channels.map(_.mkString(",")),
+          "thread_ts"       -> thread_ts
         )(entity)
       ) >>= as[SlackFile]("file")
   }

@@ -1,7 +1,8 @@
-package slack
+package slack.api
 
 import io.circe.Decoder
 import io.circe.generic.semiauto._
+import slack._
 import zio.ZIO
 
 trait SlackDnd {

@@ -4,7 +4,7 @@ import basic.BasicConfig
 import common.EnrichedManaged
 import pureconfig.ConfigSource
 import pureconfig.error.ConfigReaderException
-import slack.channels._
+import slack.api.channels._
 import slack.realtime.models.{ Message, OutboundMessage, SendMessage }
 import slack.realtime.{ SlackRealtimeClient, _ }
 import slack.users._
