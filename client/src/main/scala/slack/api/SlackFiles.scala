@@ -6,10 +6,9 @@ import slack.SlackClient.RequestEntity
 import slack.models.{ FileInfo, FilesResponse, SlackFile }
 import slack.{ as, isOk, request, requestEntity, sendM, SlackEnv, SlackError }
 import zio.ZIO
-import zio.macros.annotation.mockable
 
 //@accessible
-@mockable
+//@mockable
 trait SlackFiles {
   val slackFiles: SlackFiles.Service[Any]
 }

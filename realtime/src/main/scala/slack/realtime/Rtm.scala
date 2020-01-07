@@ -3,38 +3,13 @@ package slack.realtime
 import io.circe.Json
 import io.circe.parser._
 import io.circe.syntax._
+import slack.api.realtime
 import slack.realtime.models.{ Hello, OutboundMessage, SlackEvent }
-import slack.{ as, request, sendM, SlackEnv, SlackError, SlackException }
-import sttp.client._
-import sttp.client.asynchttpclient.WebSocketHandler
-import sttp.client.asynchttpclient.zio.ZioWebSocketHandler
+import slack.{ SlackError, SlackException }
 import sttp.client.ws.WebSocket
 import sttp.model.ws.WebSocketFrame
 import zio._
 import zio.stream.{ Take, ZStream }
-
-trait SlackRealtimeClient {
-  val slackRealtimeClient: SlackRealtimeClient.Service[Any]
-}
-
-object SlackRealtimeClient {
-  trait Service[R] {
-    private[slack] def openWebsocket: ZIO[R with SlackEnv, SlackError, WebSocket[Task]]
-  }
-
-  def make(backend: SttpBackend[Task, Nothing, WebSocketHandler]): UIO[SlackRealtimeClient] =
-    UIO.effectTotal(new SlackRealtimeClient {
-      override val slackRealtimeClient: Service[Any] = new Service[Any] {
-        private[slack] override def openWebsocket: ZIO[SlackEnv, SlackError, WebSocket[Task]] =
-          for {
-            url <- sendM(request("rtm.connect")) >>= as[String]("url")
-            r <- ZioWebSocketHandler().flatMap { handler =>
-                  backend.openWebsocket(basicRequest.get(uri"$url"), handler)
-                }
-          } yield r.result
-      }
-    })
-}
 
 trait Rtm {
   val rtm: Rtm.Service[Any]
@@ -88,11 +63,4 @@ object Rtm {
       } yield receive
 
   }
-}
-
-object realtime extends SlackRealtimeClient.Service[SlackRealtimeClient] with Rtm.Service[SlackRealtimeEnv] {
-
-  private[slack] override def openWebsocket: ZIO[SlackRealtimeEnv, SlackError, WebSocket[Task]] =
-    ZIO.accessM(_.slackRealtimeClient.openWebsocket)
-
 }
