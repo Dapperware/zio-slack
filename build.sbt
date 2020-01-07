@@ -1,6 +1,6 @@
 name in ThisBuild := "zio-slack"
 organization in ThisBuild := "com.github.dapperware"
-version in ThisBuild := "0.2"
+
 
 val mainScala = "2.12.10"
 val allScala = Seq("2.13.1", mainScala)
@@ -28,11 +28,12 @@ inThisBuild(
         url("https://github.com/paulpdaniels")
       )
     ),
-    crossScalaVersions := allScala
+    crossScalaVersions := allScala,
   )
 )
 
 scalaVersion in ThisBuild := mainScala
+gitVersioningSnapshotLowerBound in ThisBuild := "0.2.0"
 
 val circeV = "0.12.3"
 val zioV = "1.0.0-RC17"
