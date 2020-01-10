@@ -11,7 +11,7 @@ jobs:
       - checkout
       - restore_cache:
           key: sbtcache
-      - run: sbt ++2.12.10! client/test realtime/test examples/compile
+      - run: sbt ++2.12.10! core/test client/test realtime/test examples/compile
       - save_cache:
           key: sbtcache
           paths:
@@ -25,7 +25,7 @@ jobs:
       - checkout
       - restore_cache:
           key: sbtcache
-      - run: sbt ++2.13.1! client/test realtime/test examples/compile
+      - run: sbt ++2.13.1! core/test client/test realtime/test examples/compile
       - save_cache:
           key: sbtcache
           paths:
