@@ -5,7 +5,7 @@ import sttp.client._
 import sttp.client.circe._
 import zio.{ UIO, URIO, ZIO }
 
-package object slack extends SlackExtractors with SlackEnvDefinition {
+package object slack extends SlackEnvDefinition with SlackExtractors {
 
   type SlackResponse[T] = Either[ResponseError[circe.Error], Json]
   type SlackError       = Throwable

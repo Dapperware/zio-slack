@@ -5,7 +5,7 @@ import java.io.File
 import io.circe.Json
 import slack.SlackParamMagnet.StringParamMagnet
 import sttp.client.{ SttpBackend, _ }
-import zio.{ Task, UIO, ZIO }
+import zio.{ Managed, Task, UIO, ZIO }
 
 import scala.language.{ higherKinds, implicitConversions }
 
@@ -30,6 +30,9 @@ object SlackClient {
           } yield json
       }
     })
+
+  def makeManaged(backend: SttpBackend[Task, Nothing, NothingT]): Managed[Nothing, SlackClient] =
+    make(backend).toManaged_
 
   sealed trait RequestEntity {
     private[slack] def apply[U[_], T, S](request: RequestT[U, T, S]): RequestT[U, T, S]
