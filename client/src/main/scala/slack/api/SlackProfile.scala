@@ -1,4 +1,4 @@
-package slack
+package slack.api
 
 trait SlackProfile {
   val slackProfile: SlackProfile.Service[Any]

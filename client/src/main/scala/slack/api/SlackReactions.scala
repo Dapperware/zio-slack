@@ -1,8 +1,9 @@
-package slack
+package slack.api
 
 import io.circe.Json
 import io.circe.syntax._
 import slack.models.{ Reaction, ReactionsResponse }
+import slack._
 import zio.ZIO
 
 //@mockable

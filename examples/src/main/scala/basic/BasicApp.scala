@@ -4,7 +4,7 @@ import common.EnrichedManaged
 import pureconfig._
 import pureconfig.error.ConfigReaderException
 import pureconfig.generic.semiauto._
-import slack.api.web
+import slack.api.{ realtime, web }
 import slack.realtime.models.{ SendMessage, UserTyping }
 import slack.realtime.{ SlackRealtimeClient, SlackRealtimeEnv }
 import slack.{ AccessToken, SlackClient, SlackEnv, SlackError }
@@ -43,7 +43,7 @@ object BasicApp extends ManagedApp with EnrichedManaged {
   def testRealtime(config: BasicConfig): ZManaged[SlackRealtimeEnv with Console, SlackError, Unit] =
     for {
       // Test that we can receive messages
-      receiver <- slack.realtime.realtime.connect(ZStream(SendMessage(config.channel, "Hi realtime!")))
+      receiver <- realtime.connect(ZStream(SendMessage(config.channel, "Hi realtime!")))
       _ <- receiver.collectM {
             case UserTyping(channel, user) => putStrLn(s"User $user is typing in $channel")
             case _                         => ZIO.unit

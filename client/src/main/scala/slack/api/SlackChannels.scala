@@ -1,6 +1,7 @@
-package slack
+package slack.api
 
 import slack.models.{ Channel, HistoryChunk, RepliesChunk }
+import slack._
 import zio.ZIO
 
 trait SlackChannels {

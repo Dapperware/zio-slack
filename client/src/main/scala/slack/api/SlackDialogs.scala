@@ -1,7 +1,8 @@
-package slack
+package slack.api
 
 import io.circe.syntax._
 import slack.models.Dialog
+import slack.{ isOk, request, sendM, SlackEnv, SlackError }
 import zio.ZIO
 
 //@accessible

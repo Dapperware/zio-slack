@@ -5,11 +5,10 @@ import sttp.client._
 import sttp.client.circe._
 import zio.{ UIO, URIO, ZIO }
 
-package object slack extends SlackExtractors {
+package object slack extends SlackEnvDefinition with SlackExtractors {
 
   type SlackResponse[T] = Either[ResponseError[circe.Error], Json]
   type SlackError       = Throwable
-  type SlackEnv         = SlackClient with AccessToken
 
   def requestJson(method: String, body: Json): UIO[Request[SlackResponse[Json], Nothing]] =
     UIO.succeed(

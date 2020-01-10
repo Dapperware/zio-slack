@@ -1,6 +1,7 @@
-package slack
+package slack.api
 
 import io.circe.Json
+import slack.{ request, sendM, SlackEnv, SlackError }
 import zio.ZIO
 
 //@mockable
@@ -22,12 +23,12 @@ object SlackSearch {
       sendM(
         request(
           "search.all",
-          "query" -> query,
-          "sort" -> sort,
-          "sortDir" -> sortDir,
+          "query"     -> query,
+          "sort"      -> sort,
+          "sortDir"   -> sortDir,
           "highlight" -> highlight,
-          "count" -> count,
-          "page" -> page
+          "count"     -> count,
+          "page"      -> page
         )
       )
 
@@ -41,12 +42,12 @@ object SlackSearch {
       sendM(
         request(
           "search.files",
-          "query" -> query,
-          "sort" -> sort,
-          "sortDir" -> sortDir,
+          "query"     -> query,
+          "sort"      -> sort,
+          "sortDir"   -> sortDir,
           "highlight" -> highlight,
-          "count" -> count,
-          "page" -> page
+          "count"     -> count,
+          "page"      -> page
         )
       )
 
@@ -60,12 +61,12 @@ object SlackSearch {
       sendM(
         request(
           "search.messages",
-          "query" -> query,
-          "sort" -> sort,
-          "sortDir" -> sortDir,
+          "query"     -> query,
+          "sort"      -> sort,
+          "sortDir"   -> sortDir,
           "highlight" -> highlight,
-          "count" -> count,
-          "page" -> page
+          "count"     -> count,
+          "page"      -> page
         )
       )
   }

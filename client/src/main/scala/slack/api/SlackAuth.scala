@@ -1,6 +1,7 @@
-package slack
+package slack.api
 
 import slack.models.AuthIdentity
+import slack.{ as, request, sendM, SlackEnv, SlackError, SlackExtractors }
 import zio.ZIO
 
 trait SlackAuth {

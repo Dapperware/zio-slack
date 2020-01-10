@@ -4,10 +4,10 @@ import java.io.File
 
 import io.circe.Json
 import slack.SlackParamMagnet.StringParamMagnet
-import sttp.client.{SttpBackend, _}
-import zio.{Task, UIO, ZIO}
+import sttp.client.{ SttpBackend, _ }
+import zio.{ Managed, Task, UIO, ZIO }
 
-import scala.language.{higherKinds, implicitConversions}
+import scala.language.{ higherKinds, implicitConversions }
 
 //@mockable
 trait SlackClient {
@@ -26,17 +26,20 @@ object SlackClient {
         override def send[T](request: Request[SlackResponse[T], Nothing]): ZIO[Any, Throwable, Json] =
           for {
             result <- request.send()
-            json <- ZIO.fromEither(result.body)
+            json   <- ZIO.fromEither(result.body)
           } yield json
       }
     })
+
+  def makeManaged(backend: SttpBackend[Task, Nothing, NothingT]): Managed[Nothing, SlackClient] =
+    make(backend).toManaged_
 
   sealed trait RequestEntity {
     private[slack] def apply[U[_], T, S](request: RequestT[U, T, S]): RequestT[U, T, S]
   }
 
   object RequestEntity {
-    def apply(file: File): RequestEntity = FileEntity(file)
+    def apply(file: File): RequestEntity                                          = FileEntity(file)
     def apply(array: Array[Byte], fileName: Option[String] = None): RequestEntity = ByteArrayEntity(array, fileName)
   }
 

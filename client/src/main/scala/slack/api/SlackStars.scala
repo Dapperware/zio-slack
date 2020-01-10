@@ -1,6 +1,7 @@
-package slack
+package slack.api
 
 import io.circe.Json
+import slack.{ request, sendM, SlackEnv, SlackError }
 import zio.ZIO
 import zio.macros.annotation.mockable
 
