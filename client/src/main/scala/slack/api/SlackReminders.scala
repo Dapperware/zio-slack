@@ -39,3 +39,5 @@ object SlackReminders {
 
   }
 }
+
+object reminders extends SlackReminders.Service[SlackEnv]

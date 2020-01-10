@@ -1,13 +1,14 @@
 import io.circe
 import io.circe.Json
-import slack.SlackClient.RequestEntity
+import slack.core.{ AccessToken, SlackClient }
+import slack.core.SlackClient.RequestEntity
 import sttp.client._
 import sttp.client.circe._
 import zio.{ UIO, URIO, ZIO }
 
 package object slack extends SlackEnvDefinition with SlackExtractors {
 
-  type SlackResponse[T] = Either[ResponseError[circe.Error], Json]
+  type SlackResponse[T] = Either[ResponseError[circe.Error], T]
   type SlackError       = Throwable
 
   def requestJson(method: String, body: Json): UIO[Request[SlackResponse[Json], Nothing]] =
@@ -36,7 +37,7 @@ package object slack extends SlackEnvDefinition with SlackExtractors {
       .response(asJson[Json])
   )
 
-  def sendM[R, T](request: URIO[R, Request[SlackResponse[T], Nothing]]): ZIO[R with SlackEnv, Throwable, Json] =
-    request >>= AccessToken.authenticateM >>= SlackClient.send[T]
+  def sendM[R, T](request: URIO[R, Request[SlackResponse[T], Nothing]]): ZIO[R with SlackEnv, Throwable, T] =
+    request >>= AccessToken.authenticateM >>= SlackClient.send[T, circe.Error]
 
 }

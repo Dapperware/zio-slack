@@ -1,9 +1,8 @@
 package slack.api
 
-import io.circe.generic.semiauto._
+import io.circe.Json
 import io.circe.syntax._
-import io.circe.{ Codec, Json }
-import slack.models.{ Block, PlainTextObject }
+import slack.models.View
 import slack.{ as, requestJson, sendM, SlackEnv, SlackError }
 import zio.ZIO
 
@@ -65,22 +64,4 @@ object SlackViews {
       ) >>= as[View]("view")
 
   }
-}
-
-case class View(
-  `type`: String,
-  title: PlainTextObject,
-  blocks: Seq[Block],
-  close: Option[PlainTextObject] = None,
-  submit: Option[PlainTextObject] = None,
-  privateMetaData: Option[String] = None,
-  callbackId: Option[String] = None,
-  clearOnClose: Option[Boolean] = None,
-  notifyOnClose: Option[Boolean] = None,
-  externalId: Option[String] = None
-)
-
-object View {
-
-  implicit val codec: Codec[View] = deriveCodec[View]
 }

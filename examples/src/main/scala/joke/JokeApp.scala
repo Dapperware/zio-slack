@@ -6,7 +6,7 @@ import io.circe.{ DecodingFailure, Json }
 import pureconfig.ConfigSource
 import pureconfig.error.ConfigReaderException
 import slack.api.chats._
-import slack.{ AccessToken, SlackClient }
+import slack.core.{ AccessToken, SlackClient }
 import sttp.client._
 import sttp.client.asynchttpclient.zio.AsyncHttpClientZioBackend
 import sttp.client.circe._

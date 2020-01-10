@@ -42,11 +42,25 @@ val sttpV = "2.0.0-RC6"
 publishTo in ThisBuild := sonatypePublishToBundle.value
 
 lazy val root = (project in file("."))
-  .aggregate(client, realtime, examples)
+  .aggregate(core, client, realtime, examples)
   .settings(skip in publish := true)
   .settings(historyPath := None)
 
+lazy val core = project.in(file("core"))
+  .settings(name := "zio-slack-core")
+  .settings(commonSettings)
+  .settings(
+    testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
+    libraryDependencies ++= Seq(
+      "dev.zio" %% "zio" % zioV,
+      "dev.zio" %% "zio-test" % zioV % Test,
+      "dev.zio" %% "zio-test-sbt" % zioV % Test,
+      "com.softwaremill.sttp.client" %% "core" % sttpV,
+    )
+  )
+
 lazy val client = project.in(file("client"))
+    .dependsOn(core)
     .settings(name := "zio-slack-client")
     .settings(commonSettings)
     .settings(
@@ -68,7 +82,7 @@ lazy val client = project.in(file("client"))
   .settings(Defaults.itSettings)
 
 lazy val realtime = project.in(file("realtime"))
-  .dependsOn(client)
+    .dependsOn(core, client)
     .settings(name := "zio-slack-realtime")
     .settings(commonSettings)
     .settings(

@@ -2,7 +2,7 @@ package slack.api
 
 import java.io.File
 
-import slack.SlackClient.RequestEntity
+import slack.core.SlackClient.RequestEntity
 import slack.models.{ FileInfo, FilesResponse, SlackFile }
 import slack.{ as, isOk, request, requestEntity, sendM, SlackEnv, SlackError }
 import zio.ZIO

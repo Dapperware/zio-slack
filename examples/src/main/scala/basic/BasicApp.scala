@@ -5,9 +5,10 @@ import pureconfig._
 import pureconfig.error.ConfigReaderException
 import pureconfig.generic.semiauto._
 import slack.api.{ realtime, web }
+import slack.core.{ AccessToken, SlackClient }
 import slack.realtime.models.{ SendMessage, UserTyping }
 import slack.realtime.{ SlackRealtimeClient, SlackRealtimeEnv }
-import slack.{ AccessToken, SlackClient, SlackEnv, SlackError }
+import slack.{ SlackEnv, SlackError }
 import sttp.client.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio.console.{ putStrLn, Console }
 import zio.macros.delegate.enrichWithM

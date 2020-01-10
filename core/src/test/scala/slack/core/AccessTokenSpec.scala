@@ -1,9 +1,10 @@
-package slack
+package slack.core
 
-import zio.test._
-import sttp.client._
-import Assertion._
+import sttp.client.basicRequest
 import sttp.model.Header
+import zio.test.Assertion.contains
+import zio.test.{ assert, suite, testM, DefaultRunnableSpec }
+import sttp.client._
 
 object AccessTokenSpec
     extends DefaultRunnableSpec(

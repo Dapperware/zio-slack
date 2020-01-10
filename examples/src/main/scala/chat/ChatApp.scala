@@ -9,7 +9,8 @@ import slack.api.realtime
 import slack.api.users._
 import slack.realtime.SlackRealtimeClient
 import slack.realtime.models.{ Message, OutboundMessage, SendMessage }
-import slack.{ AccessToken, SlackClient, SlackError }
+import slack.SlackError
+import slack.core.{ AccessToken, SlackClient }
 import sttp.client.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio.console._
 import zio.macros.delegate._

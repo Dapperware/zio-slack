@@ -1,4 +1,4 @@
-package slack
+package slack.core
 
 import sttp.client.RequestT
 import zio.{ Managed, UIO, URIO, ZIO }
