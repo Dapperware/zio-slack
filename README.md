@@ -4,8 +4,8 @@ An idiomatic slack client using zio
 [![Release Artifacts][Badge-SonatypeReleases]][Link-SonatypeReleases]
 [![CircleCI](https://circleci.com/gh/Dapperware/zio-slack.svg?style=svg)](https://circleci.com/gh/Dapperware/zio-slack)
 
-[Link-SonatypeReleases]: https://oss.sonatype.org/content/repositories/releases/com/github/dapperware/zio-slack-client_2.12/ "Sonatype Releases"
-[Badge-SonatypeReleases]: https://img.shields.io/nexus/r/https/oss.sonatype.org/com.github.dapperware/zio-slack-client_2.12.svg "Sonatype Releases"
+[Link-SonatypeReleases]: https://oss.sonatype.org/content/repositories/releases/com/github/dapperware/zio-slack-api-web_2.12/ "Sonatype Releases"
+[Badge-SonatypeReleases]: https://img.shields.io/nexus/r/https/oss.sonatype.org/com.github.dapperware/zio-slack-api-web_2.12.svg "Sonatype Releases"
 
 
 Installation
@@ -16,7 +16,7 @@ Add the following dependency to your project's build file
 For Scala 2.12.x and 2.13.x
 
 ```scala
-"com.github.dapperware" %% "zio-slack-client" % "0.2.1"
+"com.github.dapperware" %% "zio-slack-api-web" % "0.2.1"
 ```
 
 zio-slack is a library for interfacing with slack using an idiomatic and easily discoverable interface.

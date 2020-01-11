@@ -61,7 +61,7 @@ lazy val core = project.in(file("core"))
 
 lazy val client = project.in(file("client"))
     .dependsOn(core)
-    .settings(name := "zio-slack-client")
+    .settings(name := "zio-slack-api-web")
     .settings(commonSettings)
     .settings(
       testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
@@ -83,7 +83,7 @@ lazy val client = project.in(file("client"))
 
 lazy val realtime = project.in(file("realtime"))
     .dependsOn(core, client)
-    .settings(name := "zio-slack-realtime")
+    .settings(name := "zio-slack-api-realtime")
     .settings(commonSettings)
     .settings(
       testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
