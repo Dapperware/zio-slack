@@ -13,7 +13,7 @@ trait SlackViews {
 object SlackViews {
   trait Service[R] {
 
-    def openView(triggerId: String, view: View): ZIO[SlackEnv, SlackError, View] =
+    def openView(triggerId: String, view: View): ZIO[R with SlackEnv, SlackError, View] =
       sendM(
         requestJson(
           "views.open",
@@ -24,7 +24,7 @@ object SlackViews {
         )
       ) >>= as[View]("view")
 
-    def publishView(userId: String, view: View, hash: Option[String] = None): ZIO[SlackEnv, Throwable, View] =
+    def publishView(userId: String, view: View, hash: Option[String] = None): ZIO[R with SlackEnv, Throwable, View] =
       sendM(
         requestJson(
           "views.publish",
@@ -36,7 +36,7 @@ object SlackViews {
         )
       ) >>= as[View]("view")
 
-    def pushView(triggerId: String, view: View): ZIO[SlackEnv, Throwable, View] =
+    def pushView(triggerId: String, view: View): ZIO[R with SlackEnv, Throwable, View] =
       sendM(
         requestJson(
           "views.push",
@@ -50,7 +50,7 @@ object SlackViews {
     def updateView(view: View,
                    externalId: Option[String] = None,
                    hash: Option[String] = None,
-                   viewId: Option[String]): ZIO[SlackEnv, Throwable, View] =
+                   viewId: Option[String]): ZIO[R with SlackEnv, Throwable, View] =
       sendM(
         requestJson(
           "views.update",
