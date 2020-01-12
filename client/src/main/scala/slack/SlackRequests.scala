@@ -39,4 +39,5 @@ trait SlackRequests {
 
   def sendM[R, T](request: URIO[R, Request[SlackResponse[T], Nothing]]): ZIO[R with SlackEnv, Throwable, T] =
     request >>= AccessToken.authenticateM >>= SlackClient.send[T, circe.Error]
+
 }

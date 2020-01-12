@@ -2,7 +2,7 @@ package slack.api
 
 import io.circe.syntax._
 import slack.models.Dialog
-import slack.{ isOk, request, sendM, SlackEnv, SlackError }
+import slack.{ SlackEnv, SlackError }
 import zio.ZIO
 
 //@accessible

@@ -5,7 +5,7 @@ import java.io.File
 import sttp.client.{ SttpBackend, _ }
 import zio.{ Managed, Task, UIO, ZIO }
 
-import scala.language.{ higherKinds, implicitConversions }
+import scala.language.higherKinds
 
 //@mockable
 trait SlackClient {

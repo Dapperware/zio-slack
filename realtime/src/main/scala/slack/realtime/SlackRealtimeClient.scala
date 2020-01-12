@@ -1,6 +1,7 @@
 package slack.realtime
 
 import slack._
+import slack.api.{ as, request, sendM }
 import sttp.client._
 import sttp.client.asynchttpclient.WebSocketHandler
 import sttp.client.asynchttpclient.zio.ZioWebSocketHandler

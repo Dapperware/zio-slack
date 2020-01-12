@@ -3,7 +3,7 @@ package slack.api
 import io.circe.Json
 import io.circe.syntax._
 import slack.models.{ Attachment, Block, UpdateResponse }
-import slack.{ as, isOk, request, requestJson, sendM, SlackEnv, SlackError }
+import slack.{ SlackEnv, SlackError }
 import zio.ZIO
 
 //@accessible
