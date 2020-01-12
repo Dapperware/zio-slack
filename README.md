@@ -16,7 +16,7 @@ Add the following dependency to your project's build file
 For Scala 2.12.x and 2.13.x
 
 ```scala
-"com.github.dapperware" %% "zio-slack-api-web" % "0.2.1"
+"com.github.dapperware" %% "zio-slack-api-web" % "0.3.2"
 ```
 
 zio-slack is a library for interfacing with slack using an idiomatic and easily discoverable interface.
