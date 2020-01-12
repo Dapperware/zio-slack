@@ -3,9 +3,9 @@ package slack.api
 import java.time.Instant
 
 import io.circe.Decoder
-import slack.{ as, request, sendM, SlackEnv, SlackError }
-import zio.ZIO
 import io.circe.generic.semiauto._
+import slack.{SlackEnv, SlackError}
+import zio.ZIO
 
 trait SlackUserGroups {
   val slackUserGroups: SlackUserGroups.Service[Any]

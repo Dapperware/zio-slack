@@ -1,7 +1,7 @@
 package slack.api
 
-import slack.models.{ HistoryChunk, Im }
-import slack.{ as, isOk, request, sendM, SlackEnv, SlackError }
+import slack.models.{HistoryChunk, Im}
+import slack.{SlackEnv, SlackError}
 import zio.ZIO
 import zio.macros.annotation.mockable
 

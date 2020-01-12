@@ -1,6 +1,7 @@
-package slack
+package slack.api
 
 import io.circe.Json
+import slack.SlackError
 import slack.models.Channel
 import zio.IO
 

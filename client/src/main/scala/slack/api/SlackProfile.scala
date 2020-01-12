@@ -1,11 +1,10 @@
 package slack.api
 
 import io.circe.Json
-import slack.models.UserProfile
-import zio.ZIO
-import slack.{ SlackEnv, SlackError }
-import slack.{ as, request, requestJson, sendM }
 import io.circe.syntax._
+import slack.models.UserProfile
+import slack.{SlackEnv, SlackError}
+import zio.ZIO
 
 trait SlackProfile {
   val slackProfile: SlackProfile.Service[Any]

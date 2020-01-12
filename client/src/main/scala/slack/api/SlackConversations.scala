@@ -3,7 +3,7 @@ package slack.api
 import io.circe.Json
 import io.circe.syntax._
 import slack.models.{ Channel, Conversation, Message }
-import slack.{ as, isOk, request, requestJson, sendM, ChannelLike, ChannelLikeId, SlackEnv, SlackError }
+import slack.{ SlackEnv, SlackError }
 import zio.ZIO
 
 trait SlackConversations {
