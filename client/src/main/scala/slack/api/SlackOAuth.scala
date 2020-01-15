@@ -28,7 +28,7 @@ object SlackOAuth {
         )
       ) >>= as[FullAccessToken]
 
-    def sendRaw[T](
+    protected def sendRaw[T](
       request: URIO[R, Request[SlackResponse[T], Nothing]]
     ): ZIO[R with SlackClient with ClientSecret, Throwable, T] =
       request >>= ClientSecret.authenticateM >>= SlackClient.send[T, circe.Error]
@@ -37,11 +37,21 @@ object SlackOAuth {
 
 object oauth extends SlackOAuth.Service[SlackClient with ClientSecret]
 
+case class BotAccessToken(
+  bot_user_id: String,
+  bot_access_token: String
+)
+
+object BotAccessToken {
+  implicit val decoder: Decoder[BotAccessToken] = deriveDecoder[BotAccessToken]
+}
+
 case class FullAccessToken(access_token: String,
                            scope: String,
                            team_name: String,
                            team_id: String,
-                           enterprise_id: Option[String])
+                           enterprise_id: Option[String],
+                           bot: Option[BotAccessToken])
 
 object FullAccessToken {
   implicit val decoder: Decoder[FullAccessToken] = deriveDecoder[FullAccessToken]
