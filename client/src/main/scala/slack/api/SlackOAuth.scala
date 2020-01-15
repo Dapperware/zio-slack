@@ -35,6 +35,8 @@ object SlackOAuth {
   }
 }
 
+object oauth extends SlackOAuth.Service[SlackClient with ClientSecret]
+
 case class FullAccessToken(access_token: String,
                            scope: String,
                            team_name: String,
