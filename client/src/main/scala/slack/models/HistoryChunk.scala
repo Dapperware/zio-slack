@@ -1,9 +1,25 @@
 package slack.models
 
 import io.circe.generic.semiauto._
-import io.circe.{Decoder, Json}
+import io.circe.{ Decoder, Json }
 
-case class HistoryChunk(latest: Option[String], messages: Seq[Json], has_more: Boolean)
+case class ResponseMetadata(next_cursor: String)
+
+object ResponseMetadata {
+  implicit val decoder: Decoder[ResponseMetadata] = deriveDecoder[ResponseMetadata]
+}
+
+case class HistoryItem(`type`: String, user: String, text: String, ts: String)
+
+object HistoryItem {
+  implicit val decoder: Decoder[HistoryItem] = deriveDecoder[HistoryItem]
+}
+
+case class HistoryChunk(latest: Option[String],
+                        messages: Seq[HistoryItem],
+                        pin_count: Int,
+                        has_more: Boolean,
+                        response_metadata: Option[ResponseMetadata])
 
 object HistoryChunk {
   implicit val decoder: Decoder[HistoryChunk] = deriveDecoder[HistoryChunk]

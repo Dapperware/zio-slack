@@ -7,6 +7,7 @@ import zio.macros.annotation.mockable
 
 //@accessible
 @mockable
+@deprecated("Please use the conversations API instead", "0.3.4")
 trait SlackGroups {
   val slackGroups: SlackGroups.Service[Any]
 }
