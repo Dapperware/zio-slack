@@ -68,19 +68,19 @@ object FullAccessToken {
 }
 
 case class FullAccessTokenV2(
-  access_token: String,
-  token_type: String,
-  scope: String,
+  access_token: Option[String],
+  token_type: Option[String],
+  scope: Option[String],
   bot_user_id: Option[String],
   app_id: String,
-  team: Option[MinimalTeam],
+  team: MinimalTeam,
   enterprise: Option[MinimalTeam],
   authed_user: Option[AuthedUser]
 )
 
 case class MinimalTeam(
   id: String,
-  name: Option[String]
+  name: String
 )
 
 object MinimalTeam {
@@ -89,9 +89,9 @@ object MinimalTeam {
 
 case class AuthedUser(
   id: String,
-  scope: String,
-  access_token: String,
-  token_type: String
+  scope: Option[String],
+  access_token: Option[String],
+  token_type: Option[String]
 )
 
 object AuthedUser {
