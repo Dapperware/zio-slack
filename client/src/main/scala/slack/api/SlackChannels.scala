@@ -11,6 +11,7 @@ trait SlackChannels {
 
 object SlackChannels {
 
+  @deprecated("Please use the conversations API instead", "0.3.4")
   trait Service[R] {
     def archiveChannel(channelId: String): ZIO[R with SlackEnv, SlackError, Boolean] =
       sendM(request("channels.archive", "channel" -> channelId)) >>= isOk
@@ -72,4 +73,5 @@ object SlackChannels {
   }
 }
 
+@deprecated("Please use the conversations API instead", "0.3.4")
 object channels extends SlackChannels.Service[SlackEnv]
