@@ -2,7 +2,7 @@ package slack.api
 
 import io.circe.Json
 import io.circe.syntax._
-import slack.models.{ Channel, Conversation, Message }
+import slack.models.{ Channel, Conversation, HistoryChunk, HistoryItem, Message }
 import slack.{ SlackEnv, SlackError }
 import zio.ZIO
 
@@ -17,6 +17,7 @@ object SlackConversations {
 
     def closeConversation(channelId: String): ZIO[R with SlackEnv, SlackError, Boolean] =
       sendM(request("conversations.close", "channel_id" -> channelId)) >>= isOk
+
     def createConversation(name: String,
                            isPrivate: Option[Boolean] = None,
                            userIds: Option[List[String]]): ZIO[R with SlackEnv, SlackError, Conversation] =
@@ -26,12 +27,27 @@ object SlackConversations {
                 "is_private" -> isPrivate,
                 "user_ids"   -> userIds.map(_.mkString(",")))
       ) >>= as[Conversation]("channel")
-//    def getConversationHistory(channelId: String,
-//                               cursor: Option[String] = None,
-//                               inclusive: Option[Boolean] = None,
-//                               latest: Option[String] = None,
-//                               limit: Option[Int] = None,
-//                               oldest: Option[String] = None): ZIO[R with SlackEnv, SlackError, MessagesChunk]
+
+    def getConversationHistory(channelId: String,
+                               cursor: Option[String] = None,
+                               inclusive: Option[Boolean] = None,
+                               latest: Option[String] = None,
+                               limit: Option[Int] = None,
+                               oldest: Option[String] = None): ZIO[R with SlackEnv, SlackError, HistoryChunk] =
+      sendM(
+        request("conversations.history",
+                "channel"   -> channelId,
+                "cursor"    -> cursor,
+                "inclusive" -> inclusive,
+                "latest"    -> latest,
+                "limit"     -> limit,
+                "oldest"    -> oldest)
+      ) >>= as[HistoryChunk]
+
+    def getSingleMessage(channelId: String, ts: String): ZIO[R with SlackEnv, SlackError, Option[HistoryItem]] =
+      getConversationHistory(channelId, latest = Some(ts), inclusive = Some(true), limit = Some(1))
+        .map(_.messages.headOption)
+
     def getConversationInfo(channel: String,
                             includeLocale: Option[Boolean] = None,
                             includeNumMembers: Option[Boolean] = None): ZIO[R with SlackEnv, Throwable, Channel] =
@@ -64,7 +80,9 @@ object SlackConversations {
                 "types"            -> types.map(_.mkString(",")))
       ) >>= as[List[Channel]]("channels")
 
-    def getConversationMembers(channel: String, cursor: Option[String] = None, limit: Option[Int] = None) =
+    def getConversationMembers(channel: String,
+                               cursor: Option[String] = None,
+                               limit: Option[Int] = None): ZIO[R with SlackEnv, Throwable, List[String]] =
       sendM(
         request(
           "conversations.members",
@@ -108,6 +126,7 @@ object SlackConversations {
                 "limit"     -> limit,
                 "oldest"    -> oldest)
       ) >>= as[List[Message]]("messages")
+
     def setConversationPurpose(
       channel: String,
       purpose: String

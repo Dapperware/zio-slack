@@ -1,12 +1,13 @@
 package slack.api
 
-import slack.models.{HistoryChunk, Im}
-import slack.{SlackEnv, SlackError}
+import slack.models.{ HistoryChunk, Im }
+import slack.{ SlackEnv, SlackError }
 import zio.ZIO
 import zio.macros.annotation.mockable
 
 //@accessible
 @mockable
+@deprecated("Please use conversations api instead", "0.3.4")
 trait SlackIms {
   val slackIms: SlackIms.Service[Any]
 }
