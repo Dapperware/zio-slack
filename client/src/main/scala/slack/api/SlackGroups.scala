@@ -14,6 +14,7 @@ trait SlackGroups {
 
 object SlackGroups {
 
+  @deprecated("Please use the conversations API instead", "0.3.4")
   trait Service[R] {
 
     def archiveGroup(channelId: String): ZIO[R with SlackEnv, SlackError, Boolean] =
@@ -78,4 +79,5 @@ object SlackGroups {
   }
 }
 
+@deprecated("Please use the conversations API instead", "0.3.4")
 object groups extends SlackGroups.Service[SlackEnv]

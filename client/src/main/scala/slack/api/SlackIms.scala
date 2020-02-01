@@ -13,6 +13,7 @@ trait SlackIms {
 }
 
 object SlackIms {
+  @deprecated("Please use the conversations API instead", "0.3.4")
   trait Service[R] {
     def closeIm(channelId: String): ZIO[R with SlackEnv, SlackError, Boolean] =
       sendM(request("im.close", "channel" -> channelId)) >>= isOk
@@ -48,4 +49,5 @@ object SlackIms {
   }
 }
 
+@deprecated("Please use the conversations API instead", "0.3.4")
 object ims extends SlackIms.Service[SlackEnv]
