@@ -14,18 +14,20 @@ trait SlackChats {
 
 object SlackChats {
   trait Service[R] {
-    def deleteChat(channelId: String, ts: String, asUser: Option[Boolean]): ZIO[R with SlackEnv, SlackError, Boolean] =
+    def deleteChat(channelId: String,
+                   ts: String,
+                   asUser: Option[Boolean] = None): ZIO[R with SlackEnv, SlackError, Boolean] =
       sendM(request("chat.delete", "channel" -> channelId, "ts" -> ts, "as_user" -> asUser)) >>= isOk
 
     def postChatEphemeral(
       channelId: String,
       text: String,
       user: String,
-      asUser: Option[Boolean],
-      parse: Option[String],
-      attachments: Option[Seq[Attachment]],
-      blocks: Option[Seq[Block]],
-      linkNames: Option[Boolean]
+      asUser: Option[Boolean] = None,
+      parse: Option[String] = None,
+      attachments: Option[Seq[Attachment]] = None,
+      blocks: Option[Seq[Block]] = None,
+      linkNames: Option[Boolean] = None
     ): ZIO[R with SlackEnv, SlackError, String] =
       sendM(
         requestJson(
@@ -94,12 +96,12 @@ object SlackChats {
     def updateChatMessage(channelId: String,
                           ts: String,
                           text: String,
-                          attachments: Option[Seq[Attachment]],
-                          blocks: Option[Seq[Block]],
-                          parse: Option[String],
-                          linkNames: Option[String],
-                          asUser: Option[Boolean],
-                          threadTs: Option[String]): ZIO[R with SlackEnv, SlackError, UpdateResponse] =
+                          attachments: Option[Seq[Attachment]] = None,
+                          blocks: Option[Seq[Block]] = None,
+                          parse: Option[String] = None,
+                          linkNames: Option[String] = None,
+                          asUser: Option[Boolean] = None,
+                          threadTs: Option[String] = None): ZIO[R with SlackEnv, SlackError, UpdateResponse] =
       sendM(
         requestJson(
           "chat.update",
