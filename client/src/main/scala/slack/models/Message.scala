@@ -6,14 +6,14 @@ import io.circe.generic.semiauto._
 case class Message(
   user: String,
   text: String,
-  threadTs: String,
-  replyCount: Option[Int],
+  thread_ts: String,
+  reply_count: Option[Int],
   replies: Option[List[Reply]],
-  parentUserId: Option[String],
+  parent_user_id: Option[String],
   ts: String,
-  unreadCount: Option[Int],
+  unread_count: Option[Int],
   subscribed: Option[Boolean],
-  lastRead: Option[String],
+  last_read: Option[String],
   `type`: String = "message"
 )
 
