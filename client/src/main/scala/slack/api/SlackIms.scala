@@ -3,26 +3,25 @@ package slack.api
 import slack.models.{ HistoryChunk, Im }
 import slack.{ SlackEnv, SlackError }
 import zio.ZIO
-import zio.macros.annotation.mockable
 
 //@accessible
-@mockable
+//@mockable
 @deprecated("Please use conversations api instead", "0.3.4")
 trait SlackIms {
-  val slackIms: SlackIms.Service[Any]
+  val slackIms: SlackIms.Service
 }
 
 object SlackIms {
   @deprecated("Please use the conversations API instead", "0.3.4")
-  trait Service[R] {
-    def closeIm(channelId: String): ZIO[R with SlackEnv, SlackError, Boolean] =
+  trait Service {
+    def closeIm(channelId: String): ZIO[SlackEnv, SlackError, Boolean] =
       sendM(request("im.close", "channel" -> channelId)) >>= isOk
 
     def getImHistory(channelId: String,
                      latest: Option[String] = None,
                      oldest: Option[String] = None,
                      inclusive: Option[Int] = None,
-                     count: Option[Int] = None): ZIO[R with SlackEnv, SlackError, HistoryChunk] =
+                     count: Option[Int] = None): ZIO[SlackEnv, SlackError, HistoryChunk] =
       sendM(
         request(
           "im.history",
@@ -34,13 +33,13 @@ object SlackIms {
         )
       ).flatMap(as[HistoryChunk])
 
-    def listIms: ZIO[R with SlackEnv, SlackError, Seq[Im]] =
+    def listIms: ZIO[SlackEnv, SlackError, Seq[Im]] =
       sendM(request("im.list")).flatMap(as[Seq[Im]]("ims"))
 
-    def markIm(channelId: String, ts: String): ZIO[R with SlackEnv, SlackError, Boolean] =
+    def markIm(channelId: String, ts: String): ZIO[SlackEnv, SlackError, Boolean] =
       sendM(request("im.mark", "channel" -> channelId, "ts" -> ts)).flatMap(isOk)
 
-    def openIm(userId: String): ZIO[R with SlackEnv, SlackError, String] =
+    def openIm(userId: String): ZIO[SlackEnv, SlackError, String] =
       for {
         res <- sendM(request("im.open", "user" -> userId))
         id  <- ZIO.fromEither(res.hcursor.downField("channel").downField("id").as[String])
@@ -50,4 +49,4 @@ object SlackIms {
 }
 
 @deprecated("Please use the conversations API instead", "0.3.4")
-object ims extends SlackIms.Service[SlackEnv]
+object ims extends SlackIms.Service

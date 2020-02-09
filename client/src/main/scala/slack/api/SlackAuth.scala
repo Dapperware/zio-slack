@@ -5,17 +5,17 @@ import slack.{ SlackEnv, SlackError, SlackExtractors }
 import zio.ZIO
 
 trait SlackAuth {
-  val slackAuth: SlackAuth.Service[Any]
+  val slackAuth: SlackAuth.Service
 }
 
 object SlackAuth {
-  trait Service[R] {
-    def test: ZIO[R with SlackEnv, SlackError, Boolean] =
+  trait Service {
+    def test: ZIO[SlackEnv, SlackError, Boolean] =
       sendM(request("api.test")) >>= SlackExtractors.isOk
 
-    def testAuth: ZIO[R with SlackEnv, SlackError, AuthIdentity] =
+    def testAuth: ZIO[SlackEnv, SlackError, AuthIdentity] =
       sendM(request("auth.test")) >>= as[AuthIdentity]
   }
 }
 
-object auth extends SlackAuth.Service[SlackEnv]
+object auth extends SlackAuth.Service

@@ -3,17 +3,17 @@ package slack.api
 import io.circe.Json
 import io.circe.syntax._
 import slack.models.View
-import slack.{SlackEnv, SlackError}
+import slack.{ SlackEnv, SlackError }
 import zio.ZIO
 
 trait SlackViews {
-  val slackViews: SlackViews.Service[Any]
+  val slackViews: SlackViews.Service
 }
 
 object SlackViews {
-  trait Service[R] {
+  trait Service {
 
-    def openView(triggerId: String, view: View): ZIO[R with SlackEnv, SlackError, View] =
+    def openView(triggerId: String, view: View): ZIO[SlackEnv, SlackError, View] =
       sendM(
         requestJson(
           "views.open",
@@ -24,7 +24,7 @@ object SlackViews {
         )
       ) >>= as[View]("view")
 
-    def publishView(userId: String, view: View, hash: Option[String] = None): ZIO[R with SlackEnv, Throwable, View] =
+    def publishView(userId: String, view: View, hash: Option[String] = None): ZIO[SlackEnv, Throwable, View] =
       sendM(
         requestJson(
           "views.publish",
@@ -36,7 +36,7 @@ object SlackViews {
         )
       ) >>= as[View]("view")
 
-    def pushView(triggerId: String, view: View): ZIO[R with SlackEnv, Throwable, View] =
+    def pushView(triggerId: String, view: View): ZIO[SlackEnv, Throwable, View] =
       sendM(
         requestJson(
           "views.push",
@@ -50,7 +50,7 @@ object SlackViews {
     def updateView(view: View,
                    externalId: Option[String] = None,
                    hash: Option[String] = None,
-                   viewId: Option[String]): ZIO[R with SlackEnv, Throwable, View] =
+                   viewId: Option[String]): ZIO[SlackEnv, Throwable, View] =
       sendM(
         requestJson(
           "views.update",
@@ -65,3 +65,5 @@ object SlackViews {
 
   }
 }
+
+object views extends SlackViews.Service

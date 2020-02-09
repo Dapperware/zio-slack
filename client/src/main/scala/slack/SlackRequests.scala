@@ -2,11 +2,11 @@ package slack
 
 import io.circe
 import io.circe.Json
-import slack.core.{ AccessToken, SlackClient }
 import slack.core.SlackClient.RequestEntity
+import slack.core.{ AccessToken, SlackClient }
 import sttp.client._
 import sttp.client.circe._
-import zio.{ UIO, URIO, ZIO }
+import zio.{ UIO, ZIO }
 
 trait SlackRequests {
   type SlackResponse[T] = Either[ResponseError[circe.Error], T]
@@ -37,7 +37,7 @@ trait SlackRequests {
       .response(asJson[Json])
   )
 
-  def sendM[R, T](request: URIO[R, Request[SlackResponse[T], Nothing]]): ZIO[R with SlackEnv, Throwable, T] =
+  def sendM[T](request: UIO[Request[SlackResponse[T], Nothing]]): ZIO[SlackEnv, Throwable, T] =
     request >>= AccessToken.authenticateM >>= SlackClient.send[T, circe.Error]
 
 }

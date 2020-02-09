@@ -2,19 +2,18 @@ package slack.api
 
 import slack.{ SlackEnv, SlackError }
 import zio.ZIO
-import zio.macros.annotation.mockable
 
-@mockable
+//@mockable
 trait SlackEmojis {
-  val slackEmojis: SlackEmojis.Service[Any]
+  val slackEmojis: SlackEmojis.Service
 }
 
 object SlackEmojis {
-  trait Service[R] {
-    def listEmojis: ZIO[R with SlackEnv, SlackError, Map[String, String]] =
+  trait Service {
+    def listEmojis: ZIO[SlackEnv, SlackError, Map[String, String]] =
       sendM(request("emoji.list")) >>= as[Map[String, String]]("emoji")
   }
 
 }
 
-object emojis extends SlackEmojis.Service[SlackEnv]
+object emojis extends SlackEmojis.Service

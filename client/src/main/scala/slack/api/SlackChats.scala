@@ -9,14 +9,12 @@ import zio.ZIO
 //@accessible
 //@mockable
 trait SlackChats {
-  val slackChats: SlackChats.Service[Any]
+  val slackChats: SlackChats.Service
 }
 
 object SlackChats {
-  trait Service[R] {
-    def deleteChat(channelId: String,
-                   ts: String,
-                   asUser: Option[Boolean] = None): ZIO[R with SlackEnv, SlackError, Boolean] =
+  trait Service {
+    def deleteChat(channelId: String, ts: String, asUser: Option[Boolean] = None): ZIO[SlackEnv, SlackError, Boolean] =
       sendM(request("chat.delete", "channel" -> channelId, "ts" -> ts, "as_user" -> asUser)) >>= isOk
 
     def postChatEphemeral(
@@ -28,7 +26,7 @@ object SlackChats {
       attachments: Option[Seq[Attachment]] = None,
       blocks: Option[Seq[Block]] = None,
       linkNames: Option[Boolean] = None
-    ): ZIO[R with SlackEnv, SlackError, String] =
+    ): ZIO[SlackEnv, SlackError, String] =
       sendM(
         requestJson(
           "chat.postEphemeral",
@@ -68,7 +66,7 @@ object SlackChats {
       deleteOriginal: Option[Boolean] = None,
       threadTs: Option[String] = None,
       replyBroadcast: Option[Boolean] = None
-    ): ZIO[R with SlackEnv, SlackError, String] =
+    ): ZIO[SlackEnv, SlackError, String] =
       sendM(
         requestJson(
           "chat.postMessage",
@@ -101,7 +99,7 @@ object SlackChats {
                           parse: Option[String] = None,
                           linkNames: Option[String] = None,
                           asUser: Option[Boolean] = None,
-                          threadTs: Option[String] = None): ZIO[R with SlackEnv, SlackError, UpdateResponse] =
+                          threadTs: Option[String] = None): ZIO[SlackEnv, SlackError, UpdateResponse] =
       sendM(
         requestJson(
           "chat.update",
@@ -121,4 +119,4 @@ object SlackChats {
   }
 }
 
-object chats extends SlackChats.Service[SlackEnv]
+object chats extends SlackChats.Service

@@ -8,16 +8,16 @@ import zio.ZIO
 //@accessible
 //@mockable
 trait SlackDialogs {
-  val slackDialogs: SlackDialogs.Service[Any]
+  val slackDialogs: SlackDialogs.Service
 }
 
 object SlackDialogs {
-  trait Service[R] {
+  trait Service {
 
-    def openDialog(triggerId: String, dialog: Dialog): ZIO[R with SlackEnv, SlackError, Boolean] =
+    def openDialog(triggerId: String, dialog: Dialog): ZIO[SlackEnv, SlackError, Boolean] =
       sendM(request("dialog.open", "trigger_id" -> triggerId, "dialog" -> dialog.asJson)) >>= isOk
 
   }
 }
 
-object dialogs extends SlackDialogs.Service[SlackEnv]
+object dialogs extends SlackDialogs.Service

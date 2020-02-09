@@ -1,37 +1,36 @@
 package slack.api
 
-import slack.models.User
 import slack._
+import slack.models.User
 import zio.ZIO
-import zio.macros.annotation.mockable
 
-@mockable
+//@mockable
 trait SlackUsers {
-  val slackUsers: SlackUsers.Service[Any]
+  val slackUsers: SlackUsers.Service
 }
 
 object SlackUsers {
-  trait Service[R] {
+  trait Service {
     // TODO: Full payload for authed user: https://api.slack.com/methods/users.getPresence
-    def getUserPresence(userId: String): ZIO[R with SlackEnv, SlackError, String] =
+    def getUserPresence(userId: String): ZIO[SlackEnv, SlackError, String] =
       sendM(request("user.getPresence", "user" -> userId)) >>= as[String]("presence")
 
-    def getUserInfo(userId: String): ZIO[R with SlackEnv, SlackError, User] =
+    def getUserInfo(userId: String): ZIO[SlackEnv, SlackError, User] =
       sendM(request("users.info", "user" -> userId)) >>= as[User]("user")
 
-    def listUsers(): ZIO[R with SlackEnv, SlackError, Seq[User]] =
+    def listUsers(): ZIO[SlackEnv, SlackError, Seq[User]] =
       sendM(request("users.list")) >>= as[Seq[User]]("members")
 
-    def setUserActive(userId: String): ZIO[R with SlackEnv, SlackError, Boolean] =
+    def setUserActive(userId: String): ZIO[SlackEnv, SlackError, Boolean] =
       sendM(request("users.setActive", "user" -> userId)) >>= isOk
 
-    def setUserPresence(presence: String): ZIO[R with SlackEnv, SlackError, Boolean] =
+    def setUserPresence(presence: String): ZIO[SlackEnv, SlackError, Boolean] =
       sendM(request("users.setPresence", "presence" -> presence)) >>= isOk
 
-    def lookupUserByEmail(emailId: String): ZIO[R with SlackEnv, SlackError, User] =
+    def lookupUserByEmail(emailId: String): ZIO[SlackEnv, SlackError, User] =
       sendM(request("users.lookupByEmail", "email" -> emailId)) >>= as[User]("user")
   }
 
 }
 
-object users extends SlackUsers.Service[SlackEnv]
+object users extends SlackUsers.Service

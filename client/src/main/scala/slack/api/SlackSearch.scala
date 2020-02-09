@@ -1,25 +1,25 @@
 package slack.api
 
 import io.circe.Json
-import slack.{SlackEnv, SlackError}
+import slack.{ SlackEnv, SlackError }
 import zio.ZIO
 
 //@mockable
 //@accessible
 trait SlackSearch {
-  val slackSearch: SlackSearch.Service[Any]
+  val slackSearch: SlackSearch.Service
 }
 
 object SlackSearch {
 
-  trait Service[R] {
+  trait Service {
     // TODO: Return proper search results (not JsValue)
     def searchFiles(query: String,
                     sort: Option[String] = None,
                     sortDir: Option[String] = None,
                     highlight: Option[String] = None,
                     count: Option[Int] = None,
-                    page: Option[Int] = None): ZIO[R with SlackEnv, SlackError, Json] =
+                    page: Option[Int] = None): ZIO[SlackEnv, SlackError, Json] =
       sendM(
         request(
           "search.all",
@@ -38,7 +38,7 @@ object SlackSearch {
                   sortDir: Option[String] = None,
                   highlight: Option[String] = None,
                   count: Option[Int] = None,
-                  page: Option[Int] = None): ZIO[R with SlackEnv, SlackError, Json] =
+                  page: Option[Int] = None): ZIO[SlackEnv, SlackError, Json] =
       sendM(
         request(
           "search.files",
@@ -57,7 +57,7 @@ object SlackSearch {
                        sortDir: Option[String] = None,
                        highlight: Option[String] = None,
                        count: Option[Int] = None,
-                       page: Option[Int] = None): ZIO[R with SlackEnv, SlackError, Json] =
+                       page: Option[Int] = None): ZIO[SlackEnv, SlackError, Json] =
       sendM(
         request(
           "search.messages",
@@ -73,4 +73,4 @@ object SlackSearch {
 
 }
 
-object search extends SlackSearch.Service[SlackEnv]
+object search extends SlackSearch.Service

@@ -3,24 +3,22 @@ package slack.api
 import io.circe.Json
 import io.circe.syntax._
 import slack.models.UserProfile
-import slack.{SlackEnv, SlackError}
+import slack.{ SlackEnv, SlackError }
 import zio.ZIO
 
 trait SlackProfile {
-  val slackProfile: SlackProfile.Service[Any]
+  val slackProfile: SlackProfile.Service
 }
 
 object SlackProfile {
-  trait Service[R] {
+  trait Service {
 
-    def getProfile(includeLabel: Boolean = false,
-                   user: Option[String] = None): ZIO[R with SlackEnv, SlackError, UserProfile] =
+    def getProfile(includeLabel: Boolean = false, user: Option[String] = None): ZIO[SlackEnv, SlackError, UserProfile] =
       sendM(request("users.profile.get", "include_label" -> includeLabel, "user" -> user)) >>= as[UserProfile](
         "profile"
       )
 
-    def setProfile(profile: Map[String, String],
-                   user: Option[String] = None): ZIO[R with SlackEnv, SlackError, UserProfile] =
+    def setProfile(profile: Map[String, String], user: Option[String] = None): ZIO[SlackEnv, SlackError, UserProfile] =
       sendM(
         requestJson("users.profile.set",
                     Json.obj(
@@ -31,7 +29,7 @@ object SlackProfile {
 
     def setProfileValue(name: String,
                         value: String,
-                        user: Option[String] = None): ZIO[R with SlackEnv, SlackError, UserProfile] =
+                        user: Option[String] = None): ZIO[SlackEnv, SlackError, UserProfile] =
       sendM(
         requestJson("users.profile.set",
                     Json.obj(
@@ -44,4 +42,4 @@ object SlackProfile {
   }
 }
 
-object profiles extends SlackProfile.Service[SlackEnv]
+object profiles extends SlackProfile.Service

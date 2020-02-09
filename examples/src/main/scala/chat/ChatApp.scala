@@ -4,7 +4,7 @@ import basic.BasicConfig
 import common.EnrichedManaged
 import pureconfig.ConfigSource
 import pureconfig.error.ConfigReaderException
-import slack.api.channels._
+import slack.api.conversations._
 import slack.api.realtime
 import slack.api.users._
 import slack.realtime.SlackRealtimeClient
@@ -66,7 +66,7 @@ object ChatApp extends ManagedApp with EnrichedManaged {
                                     val references = ZIO.traverse(findReferences(text)) { ref =>
                                       getUserInfo(ref).map { ref -> _.name }
                                     }
-                                    (getChannelInfo(channel) <&> (getUserInfo(user) <&> references)).flatMap {
+                                    (getConversationInfo(channel) <&> (getUserInfo(user) <&> references)).flatMap {
                                       case (c, (u, r)) =>
                                         putStrLn(s"${c.name}: ${u.name} -> ${replaceReferences(text, r)}")
                                     }

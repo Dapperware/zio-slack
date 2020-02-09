@@ -7,20 +7,20 @@ import slack.{ SlackEnv, SlackError }
 import zio.ZIO
 
 trait SlackConversations {
-  val slackConversations: SlackConversations.Service[Any]
+  val slackConversations: SlackConversations.Service
 }
 
 object SlackConversations {
-  trait Service[R] {
-    def archiveConversation(channelId: String): ZIO[R with SlackEnv, SlackError, Boolean] =
+  trait Service {
+    def archiveConversation(channelId: String): ZIO[SlackEnv, SlackError, Boolean] =
       sendM(request("conversations.archive", "channel_id" -> channelId)) >>= isOk
 
-    def closeConversation(channelId: String): ZIO[R with SlackEnv, SlackError, Boolean] =
+    def closeConversation(channelId: String): ZIO[SlackEnv, SlackError, Boolean] =
       sendM(request("conversations.close", "channel_id" -> channelId)) >>= isOk
 
     def createConversation(name: String,
                            isPrivate: Option[Boolean] = None,
-                           userIds: Option[List[String]]): ZIO[R with SlackEnv, SlackError, Conversation] =
+                           userIds: Option[List[String]]): ZIO[SlackEnv, SlackError, Conversation] =
       sendM(
         request("conversations.create",
                 "name"       -> name,
@@ -33,7 +33,7 @@ object SlackConversations {
                                inclusive: Option[Boolean] = None,
                                latest: Option[String] = None,
                                limit: Option[Int] = None,
-                               oldest: Option[String] = None): ZIO[R with SlackEnv, SlackError, HistoryChunk] =
+                               oldest: Option[String] = None): ZIO[SlackEnv, SlackError, HistoryChunk] =
       sendM(
         request("conversations.history",
                 "channel"   -> channelId,
@@ -44,13 +44,13 @@ object SlackConversations {
                 "oldest"    -> oldest)
       ) >>= as[HistoryChunk]
 
-    def getSingleMessage(channelId: String, ts: String): ZIO[R with SlackEnv, SlackError, Option[HistoryItem]] =
+    def getSingleMessage(channelId: String, ts: String): ZIO[SlackEnv, SlackError, Option[HistoryItem]] =
       getConversationHistory(channelId, latest = Some(ts), inclusive = Some(true), limit = Some(1))
         .map(_.messages.headOption)
 
     def getConversationInfo(channel: String,
                             includeLocale: Option[Boolean] = None,
-                            includeNumMembers: Option[Boolean] = None): ZIO[R with SlackEnv, Throwable, Channel] =
+                            includeNumMembers: Option[Boolean] = None): ZIO[SlackEnv, Throwable, Channel] =
       sendM(
         request("conversations.info",
                 "channel"             -> channel,
@@ -58,20 +58,20 @@ object SlackConversations {
                 "include_num_members" -> includeNumMembers)
       ) >>= as[Channel]("channel")
 
-    def inviteToConversation(channel: String, users: List[String]): ZIO[R with SlackEnv, Throwable, Channel] =
+    def inviteToConversation(channel: String, users: List[String]): ZIO[SlackEnv, Throwable, Channel] =
       sendM(request("conversations.invite", "channel" -> channel, "users" -> users.mkString(","))) >>= as[Channel](
         "channel"
       )
-    def joinConversation(channel: String): ZIO[R with SlackEnv, Throwable, Channel] =
+    def joinConversation(channel: String): ZIO[SlackEnv, Throwable, Channel] =
       sendM(requestJson("conversations.join", Json.obj("channel" -> channel.asJson))) >>= as[Channel]("channel")
-    def kickFromConversation(channel: String, user: String): ZIO[R with SlackEnv, Throwable, Boolean] =
+    def kickFromConversation(channel: String, user: String): ZIO[SlackEnv, Throwable, Boolean] =
       sendM(requestJson("conversations.kick", Json.obj("channel" -> channel.asJson, "user" -> user.asJson))) >>= isOk
-    def leaveConversation(channel: String): ZIO[R with SlackEnv, Throwable, Boolean] =
+    def leaveConversation(channel: String): ZIO[SlackEnv, Throwable, Boolean] =
       sendM(requestJson("conversations.leave", Json.obj("channel" -> channel.asJson))) >>= isOk
     def listConversations(cursor: Option[String] = None,
                           excludeArchived: Option[Boolean] = None,
                           limit: Option[Int] = None,
-                          types: Option[List[String]] = None): ZIO[R with SlackEnv, Throwable, List[Channel]] =
+                          types: Option[List[String]] = None): ZIO[SlackEnv, Throwable, List[Channel]] =
       sendM(
         request("conversations.list",
                 "cursor"           -> cursor,
@@ -82,7 +82,7 @@ object SlackConversations {
 
     def getConversationMembers(channel: String,
                                cursor: Option[String] = None,
-                               limit: Option[Int] = None): ZIO[R with SlackEnv, Throwable, List[String]] =
+                               limit: Option[Int] = None): ZIO[SlackEnv, Throwable, List[String]] =
       sendM(
         request(
           "conversations.members",
@@ -106,7 +106,7 @@ object SlackConversations {
         )
       ) >>= (returnIm.extract(_, "channel"))
 
-    def renameConversation(channel: String, name: String): ZIO[R with SlackEnv, Throwable, Channel] =
+    def renameConversation(channel: String, name: String): ZIO[SlackEnv, Throwable, Channel] =
       sendM(request("conversations.rename", "channel" -> channel, "name" -> name)) >>= as[Channel]("channel")
 
     def getConversationReplies(channel: String,
@@ -115,7 +115,7 @@ object SlackConversations {
                                inclusive: Option[Boolean] = None,
                                latest: Option[String] = None,
                                limit: Option[Int] = None,
-                               oldest: Option[String] = None): ZIO[R with SlackEnv, Throwable, List[Message]] =
+                               oldest: Option[String] = None): ZIO[SlackEnv, Throwable, List[Message]] =
       sendM(
         request("conversations.replies",
                 "channel"   -> channel,
@@ -130,7 +130,7 @@ object SlackConversations {
     def setConversationPurpose(
       channel: String,
       purpose: String
-    ): ZIO[R with SlackEnv, Throwable, String] =
+    ): ZIO[SlackEnv, Throwable, String] =
       sendM(
         requestJson("conversations.setPurpose", Json.obj("channel" -> channel.asJson, "purpose" -> purpose.asJson))
       ) >>= as[String]("purpose")
@@ -138,7 +138,7 @@ object SlackConversations {
     def setConversationTopic(
       channel: String,
       topic: String
-    ): ZIO[R with SlackEnv, Throwable, String] =
+    ): ZIO[SlackEnv, Throwable, String] =
       sendM(
         requestJson("conversations.setTopic", Json.obj("channel" -> channel.asJson, "topic" -> topic.asJson))
       ) >>= as[String]("topic")
@@ -150,4 +150,4 @@ object SlackConversations {
   }
 }
 
-object conversations extends SlackConversations.Service[SlackEnv]
+object conversations extends SlackConversations.Service
