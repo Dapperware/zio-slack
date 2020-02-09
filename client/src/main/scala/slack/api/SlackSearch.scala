@@ -63,7 +63,7 @@ object SlackSearch {
           "search.messages",
           "query"     -> query,
           "sort"      -> sort,
-          "sortDir"   -> sortDir,
+          "sort_dir"  -> sortDir,
           "highlight" -> highlight,
           "count"     -> count,
           "page"      -> page
