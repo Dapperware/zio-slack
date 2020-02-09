@@ -4,7 +4,8 @@ package slack.api
  * A service that interacts with slack and provides various messaging capabilities
  */
 trait WebApi
-    extends SlackAuth.Service
+    extends SlackApps.Service
+    with SlackAuth.Service
     with SlackChannels.Service
     with SlackChats.Service
     with SlackConversations.Service

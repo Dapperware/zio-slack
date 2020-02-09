@@ -10,6 +10,7 @@ trait AccessToken {
 object AccessToken {
   trait Service {
     def authenticateM[U[_], T, S](request: RequestT[U, T, S]): UIO[RequestT[U, T, S]]
+    def get: UIO[String]
   }
 
   def make(token: String): UIO[AccessToken] =
@@ -17,6 +18,8 @@ object AccessToken {
       override val accessToken: Service = new Service {
         override def authenticateM[U[_], T, S](request: RequestT[U, T, S]): UIO[RequestT[U, T, S]] =
           UIO.succeed(request.auth.bearer(token))
+
+        override def get: UIO[String] = UIO.succeed(token)
       }
     })
 
@@ -25,4 +28,8 @@ object AccessToken {
 
   def authenticateM[U[_], T, S](request: RequestT[U, T, S]): URIO[AccessToken, RequestT[U, T, S]] =
     ZIO.accessM[AccessToken](_.accessToken.authenticateM(request))
+
+  def get: URIO[AccessToken, String] =
+    ZIO.accessM(_.accessToken.get)
+
 }
