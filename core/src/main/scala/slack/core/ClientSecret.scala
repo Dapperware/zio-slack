@@ -4,17 +4,17 @@ import sttp.client.RequestT
 import zio.{ Managed, UIO, URIO, ZIO }
 
 trait ClientSecret {
-  val clientSecret: ClientSecret.Service[Any]
+  val clientSecret: ClientSecret.Service
 }
 
 object ClientSecret {
-  trait Service[R] {
-    def authenticateM[U[_], T, S](request: RequestT[U, T, S]): URIO[R, RequestT[U, T, S]]
+  trait Service {
+    def authenticateM[U[_], T, S](request: RequestT[U, T, S]): URIO[Any, RequestT[U, T, S]]
   }
 
   def make(id: String, secret: String): UIO[ClientSecret] =
     UIO.succeed(new ClientSecret {
-      override val clientSecret: Service[Any] = new Service[Any] {
+      override val clientSecret: Service = new Service {
         override def authenticateM[U[_], T, S](request: RequestT[U, T, S]): URIO[Any, RequestT[U, T, S]] =
           UIO.succeed(request.auth.basic(id, secret))
       }

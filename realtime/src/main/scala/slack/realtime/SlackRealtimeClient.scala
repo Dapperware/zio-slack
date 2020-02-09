@@ -9,17 +9,17 @@ import sttp.client.ws.WebSocket
 import zio.{ Task, UIO, ZIO }
 
 trait SlackRealtimeClient {
-  val slackRealtimeClient: SlackRealtimeClient.Service[Any]
+  val slackRealtimeClient: SlackRealtimeClient.Service
 }
 
 object SlackRealtimeClient {
-  trait Service[R] {
-    private[slack] def openWebsocket: ZIO[R with SlackEnv, SlackError, WebSocket[Task]]
+  trait Service {
+    private[slack] def openWebsocket: ZIO[SlackEnv, SlackError, WebSocket[Task]]
   }
 
   def make(backend: SttpBackend[Task, Nothing, WebSocketHandler]): UIO[SlackRealtimeClient] =
     UIO.effectTotal(new SlackRealtimeClient {
-      override val slackRealtimeClient: Service[Any] = new Service[Any] {
+      override val slackRealtimeClient: Service = new Service {
         private[slack] override def openWebsocket: ZIO[SlackEnv, SlackError, WebSocket[Task]] =
           for {
             url <- sendM(request("rtm.connect")) >>= as[String]("url")

@@ -41,9 +41,9 @@ object JokeApp extends ManagedApp {
             .provideSome[Clock](
               c =>
                 new Clock with SlackClient with AccessToken {
-                  override val slackClient: SlackClient.Service[Any] = client.slackClient
-                  override val accessToken: AccessToken.Service[Any] = token.accessToken
-                  override val clock: Clock.Service[Any]             = c.clock
+                  override val slackClient: SlackClient.Service = client.slackClient
+                  override val accessToken: AccessToken.Service = token.accessToken
+                  override val clock: Clock.Service[Any]        = c.clock
               }
             )
     } yield ()).fold(ex => 1, _ => 0)

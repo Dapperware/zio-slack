@@ -9,7 +9,7 @@ import scala.language.higherKinds
 
 //@mockable
 trait SlackClient {
-  val slackClient: SlackClient.Service[Any]
+  val slackClient: SlackClient.Service
 }
 
 object SlackClient {
@@ -20,7 +20,7 @@ object SlackClient {
   def make(backend: SttpBackend[Task, Nothing, NothingT]): UIO[SlackClient] =
     UIO.effectTotal(new SlackClient {
       implicit private val b: SttpBackend[Task, Nothing, NothingT] = backend
-      override val slackClient: Service[Any] = new Service[Any] {
+      override val slackClient: Service = new Service {
         override def send[T, E](request: Request[Either[ResponseError[E], T], Nothing]): ZIO[Any, Throwable, T] =
           for {
             result <- request.send()
@@ -54,7 +54,7 @@ object SlackClient {
       )
   }
 
-  trait Service[R] {
-    def send[T, E](request: Request[Either[ResponseError[E], T], Nothing]): ZIO[R, Throwable, T]
+  trait Service {
+    def send[T, E](request: Request[Either[ResponseError[E], T], Nothing]): ZIO[Any, Throwable, T]
   }
 }

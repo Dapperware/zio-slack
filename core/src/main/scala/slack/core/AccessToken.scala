@@ -1,21 +1,21 @@
 package slack.core
 
 import sttp.client.RequestT
-import zio.{ Managed, UIO, URIO, ZIO }
+import zio._
 
 trait AccessToken {
-  val accessToken: AccessToken.Service[Any]
+  val accessToken: AccessToken.Service
 }
 
 object AccessToken {
-  trait Service[R] {
-    def authenticateM[U[_], T, S](request: RequestT[U, T, S]): URIO[R, RequestT[U, T, S]]
+  trait Service {
+    def authenticateM[U[_], T, S](request: RequestT[U, T, S]): Task[RequestT[U, T, S]]
   }
 
   def make(token: String): UIO[AccessToken] =
     UIO.succeed(new AccessToken {
-      override val accessToken: Service[Any] = new Service[Any] {
-        override def authenticateM[U[_], T, S](request: RequestT[U, T, S]): URIO[Any, RequestT[U, T, S]] =
+      override val accessToken: Service = new Service {
+        override def authenticateM[U[_], T, S](request: RequestT[U, T, S]): Task[RequestT[U, T, S]] =
           UIO.succeed(request.auth.bearer(token))
       }
     })
