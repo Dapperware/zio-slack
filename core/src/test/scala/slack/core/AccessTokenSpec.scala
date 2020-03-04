@@ -14,7 +14,7 @@ object AccessTokenSpec
             accessToken <- AccessToken.make("abc123")
             request     = basicRequest.get(uri"https://github.com/dapperware/zio-slack")
             newRequest  <- AccessToken.authenticateM(request) provide accessToken
-          } yield assert(newRequest.headers, contains(new Header("Authorization", "Bearer abc123")))
+          } yield assert(newRequest.headers)(contains(new Header("Authorization", "Bearer abc123")))
         }
       )
     )
