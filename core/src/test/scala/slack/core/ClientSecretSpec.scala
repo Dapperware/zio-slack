@@ -13,7 +13,7 @@ object ClientSecretSpec
             accessToken <- ClientSecret.make("abc123", "supersecret")
             request     = basicRequest.get(uri"https://github.com/dapperware/zio-slack")
             newRequest  <- ClientSecret.authenticateM(request) provide accessToken
-          } yield assert(newRequest.headers, contains(new Header("Authorization", "Basic YWJjMTIzOnN1cGVyc2VjcmV0")))
+          } yield assert(newRequest.headers)(contains(new Header("Authorization", "Basic YWJjMTIzOnN1cGVyc2VjcmV0")))
         }
       )
     )

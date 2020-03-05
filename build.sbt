@@ -35,9 +35,9 @@ inThisBuild(
 scalaVersion in ThisBuild := mainScala
 gitVersioningSnapshotLowerBound in ThisBuild := "0.3.3"
 
-val circeV = "0.12.3"
-val zioV = "1.0.0-RC17"
-val sttpV = "2.0.0-RC9"
+val circeV = "0.13.0"
+val zioV = "1.0.0-RC18"
+val sttpV = "2.0.1"
 
 publishTo in ThisBuild := sonatypePublishToBundle.value
 
@@ -108,7 +108,7 @@ lazy val examples = project.in(file("examples"))
     .settings(commonSettings)
     .settings(
       skip in publish := true,
-      libraryDependencies += "com.github.pureconfig" %% "pureconfig" % "0.12.2"
+      libraryDependencies += "com.github.pureconfig" %% "pureconfig" % "0.12.3"
     )
 
 scalacOptions ++= Seq(
