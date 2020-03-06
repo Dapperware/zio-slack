@@ -4,7 +4,6 @@ import slack._
 import slack.models.User
 import zio.ZIO
 
-//@mockable
 trait SlackUsers {
   val slackUsers: SlackUsers.Service
 }

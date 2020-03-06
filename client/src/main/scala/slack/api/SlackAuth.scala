@@ -4,10 +4,6 @@ import slack.models.AuthIdentity
 import slack.{ SlackEnv, SlackError, SlackExtractors }
 import zio.ZIO
 
-trait SlackAuth {
-  val slackAuth: SlackAuth.Service
-}
-
 object SlackAuth {
   trait Service {
     def test: ZIO[SlackEnv, SlackError, Boolean] =

@@ -4,12 +4,6 @@ import io.circe.Json
 import slack.{ SlackEnv, SlackError }
 import zio.ZIO
 
-//@mockable
-//@accessible
-trait SlackTeams {
-  val slackTeams: SlackTeams.Service
-}
-
 object SlackTeams {
   trait Service {
     // TODO: Parse actual result type: https://api.slack.com/methods/team.accessLogs

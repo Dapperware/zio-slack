@@ -4,10 +4,6 @@ import slack.SlackError
 import slack.core.access.{ clientId, clientSecret, ClientSecret }
 import zio.ZIO
 
-trait SlackApps {
-  val slackApps: SlackApps.Service
-}
-
 object SlackApps {
   trait Service {
     def uninstall: ZIO[slack.SlackEnv with ClientSecret, SlackError, Boolean] =

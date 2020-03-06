@@ -6,12 +6,6 @@ import slack.models.{ Attachment, Block, UpdateResponse }
 import slack.{ SlackEnv, SlackError }
 import zio.ZIO
 
-//@accessible
-//@mockable
-trait SlackChats {
-  val slackChats: SlackChats.Service
-}
-
 object SlackChats {
   trait Service {
     def deleteChat(channelId: String, ts: String, asUser: Option[Boolean] = None): ZIO[SlackEnv, SlackError, Boolean] =

@@ -4,13 +4,6 @@ import slack.models.{ HistoryChunk, Im }
 import slack.{ SlackEnv, SlackError }
 import zio.ZIO
 
-//@accessible
-//@mockable
-@deprecated("Please use conversations api instead", "0.3.4")
-trait SlackIms {
-  val slackIms: SlackIms.Service
-}
-
 object SlackIms {
   @deprecated("Please use the conversations API instead", "0.3.4")
   trait Service {

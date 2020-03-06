@@ -6,10 +6,6 @@ import slack._
 import slack.models.Reminder
 import zio.ZIO
 
-trait SlackReminders {
-  val slackReminders: SlackReminders.Service
-}
-
 object SlackReminders {
   trait Service {
 

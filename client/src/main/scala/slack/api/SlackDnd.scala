@@ -5,10 +5,6 @@ import io.circe.generic.semiauto._
 import slack._
 import zio.ZIO
 
-trait SlackDnd {
-  val slackDnd: SlackDnd.Service
-}
-
 object SlackDnd {
   trait Service {
 

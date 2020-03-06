@@ -6,12 +6,6 @@ import slack._
 import slack.models.{ Reaction, ReactionsResponse }
 import zio.ZIO
 
-//@mockable
-//@accessible
-trait SlackReactions {
-  val slackReactions: SlackReactions.Service
-}
-
 object SlackReactions {
 
   trait Service {

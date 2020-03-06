@@ -7,10 +7,6 @@ import io.circe.generic.semiauto._
 import slack.{ SlackEnv, SlackError }
 import zio.ZIO
 
-trait SlackUserGroups {
-  val slackUserGroups: SlackUserGroups.Service
-}
-
 object SlackUserGroups {
   trait Service {
 

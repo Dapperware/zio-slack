@@ -4,13 +4,6 @@ import slack.models.{ Group, HistoryChunk }
 import slack.{ SlackEnv, SlackError }
 import zio.ZIO
 
-//@accessible
-//@mockable
-@deprecated("Please use the conversations API instead", "0.3.4")
-trait SlackGroups {
-  val slackGroups: SlackGroups.Service
-}
-
 object SlackGroups {
 
   @deprecated("Please use the conversations API instead", "0.3.4")

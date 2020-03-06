@@ -6,10 +6,6 @@ import slack.models.UserProfile
 import slack.{ SlackEnv, SlackError }
 import zio.ZIO
 
-trait SlackProfile {
-  val slackProfile: SlackProfile.Service
-}
-
 object SlackProfile {
   trait Service {
 

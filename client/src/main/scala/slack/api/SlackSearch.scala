@@ -4,12 +4,6 @@ import io.circe.Json
 import slack.{ SlackEnv, SlackError }
 import zio.ZIO
 
-//@mockable
-//@accessible
-trait SlackSearch {
-  val slackSearch: SlackSearch.Service
-}
-
 object SlackSearch {
 
   trait Service {

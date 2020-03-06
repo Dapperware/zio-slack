@@ -6,10 +6,6 @@ import slack.models.{ Channel, Conversation, HistoryChunk, HistoryItem, Message 
 import slack.{ SlackEnv, SlackError }
 import zio.ZIO
 
-trait SlackConversations {
-  val slackConversations: SlackConversations.Service
-}
-
 object SlackConversations {
   trait Service {
     def archiveConversation(channelId: String): ZIO[SlackEnv, SlackError, Boolean] =

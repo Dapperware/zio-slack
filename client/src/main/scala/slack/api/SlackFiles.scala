@@ -7,10 +7,6 @@ import slack.models.{ FileInfo, FilesResponse, SlackFile }
 import slack.{ SlackEnv, SlackError }
 import zio.ZIO
 
-trait SlackFiles {
-  val slackFiles: SlackFiles.Service
-}
-
 object SlackFiles {
   trait Service {
     def deleteFile(fileId: String): ZIO[SlackEnv, SlackError, Boolean] =

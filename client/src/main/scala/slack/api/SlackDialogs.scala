@@ -5,12 +5,6 @@ import slack.models.Dialog
 import slack.{ SlackEnv, SlackError }
 import zio.ZIO
 
-//@accessible
-//@mockable
-trait SlackDialogs {
-  val slackDialogs: SlackDialogs.Service
-}
-
 object SlackDialogs {
   trait Service {
 

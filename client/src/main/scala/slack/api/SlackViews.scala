@@ -6,10 +6,6 @@ import slack.models.View
 import slack.{ SlackEnv, SlackError }
 import zio.ZIO
 
-trait SlackViews {
-  val slackViews: SlackViews.Service
-}
-
 object SlackViews {
   trait Service {
 

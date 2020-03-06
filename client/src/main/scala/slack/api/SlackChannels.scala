@@ -4,11 +4,6 @@ import slack._
 import slack.models.{ Channel, HistoryChunk, RepliesChunk }
 import zio.ZIO
 
-@deprecated("Please use the conversations API instead", "0.3.4")
-trait SlackChannels {
-  val slackChannels: SlackChannels.Service
-}
-
 object SlackChannels {
 
   @deprecated("Please use the conversations API instead", "0.3.4")
