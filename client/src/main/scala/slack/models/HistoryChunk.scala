@@ -3,12 +3,6 @@ package slack.models
 import io.circe.generic.semiauto._
 import io.circe.{ Decoder, Json }
 
-case class ResponseMetadata(next_cursor: String)
-
-object ResponseMetadata {
-  implicit val decoder: Decoder[ResponseMetadata] = deriveDecoder[ResponseMetadata]
-}
-
 case class HistoryItem(`type`: String, user: String, text: String, ts: String)
 
 object HistoryItem {

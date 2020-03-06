@@ -33,7 +33,7 @@ inThisBuild(
 )
 
 scalaVersion in ThisBuild := mainScala
-gitVersioningSnapshotLowerBound in ThisBuild := "0.3.3"
+gitVersioningSnapshotLowerBound in ThisBuild := "0.4.0"
 
 val circeV = "0.13.0"
 val zioV = "1.0.0-RC18"
@@ -67,13 +67,11 @@ lazy val client = project.in(file("client"))
       testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
       libraryDependencies ++= Seq(
         "io.circe" %% "circe-generic" % circeV,
-        "dev.zio" %% "zio-macros-core" % "0.6.2",
-        "dev.zio" %% "zio-macros-test" % "0.6.0",
         "dev.zio" %% "zio-test" % zioV % "it,test",
         "dev.zio" %% "zio-test-sbt" % zioV % "it,test",
         "com.softwaremill.sttp.client" %% "core" % sttpV,
         "com.softwaremill.sttp.client" %% "circe" % sttpV,
-        "com.softwaremill.sttp.client" %% "async-http-client-backend-zio" % sttpV
+        "com.softwaremill.sttp.client" %% "async-http-client-backend-zio" % sttpV exclude("dev.zio", "zio-streams")
       ),
       addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.10.3"),
       addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
@@ -89,13 +87,12 @@ lazy val realtime = project.in(file("realtime"))
       testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
       libraryDependencies ++= Seq(
         "io.circe" %% "circe-generic" % circeV,
-        "dev.zio" %% "zio-macros-core" % "0.6.2",
-        "dev.zio" %% "zio-macros-test" % "0.6.0",
+        "dev.zio" %% "zio-streams" % zioV,
         "dev.zio" %% "zio-test" % zioV % "it,test",
         "dev.zio" %% "zio-test-sbt" % zioV % "it,test",
         "com.softwaremill.sttp.client" %% "core" % sttpV,
         "com.softwaremill.sttp.client" %% "circe" % sttpV,
-        "com.softwaremill.sttp.client" %% "async-http-client-backend-zio" % sttpV
+        "com.softwaremill.sttp.client" %% "async-http-client-backend-zio" % sttpV exclude("dev.zio", "zio-streams")
       ),
       addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.10.3"),
       addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"),

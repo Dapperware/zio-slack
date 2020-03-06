@@ -2,7 +2,7 @@ package slack.api
 
 import io.circe.Json
 import io.circe.syntax._
-import slack.models.{ Channel, Conversation, HistoryChunk, HistoryItem, Message }
+import slack.models.{ Channel, ChannelChunk, Conversation, HistoryChunk, HistoryItem, Message }
 import slack.{ SlackEnv, SlackError }
 import zio.ZIO
 
@@ -67,14 +67,14 @@ object SlackConversations {
     def listConversations(cursor: Option[String] = None,
                           excludeArchived: Option[Boolean] = None,
                           limit: Option[Int] = None,
-                          types: Option[List[String]] = None): ZIO[SlackEnv, Throwable, List[Channel]] =
+                          types: Option[List[String]] = None): ZIO[SlackEnv, Throwable, ChannelChunk] =
       sendM(
         request("conversations.list",
                 "cursor"           -> cursor,
                 "exclude_archived" -> excludeArchived,
                 "limit"            -> limit,
                 "types"            -> types.map(_.mkString(",")))
-      ) >>= as[List[Channel]]("channels")
+      ) >>= as[ChannelChunk]
 
     def getConversationMembers(channel: String,
                                cursor: Option[String] = None,
