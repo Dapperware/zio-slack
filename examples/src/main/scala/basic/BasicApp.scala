@@ -30,7 +30,7 @@ object BasicApp extends ManagedApp {
                  .mapError(ConfigReaderException(_))
       client       = SlackClient.live(backend)
       withRealtime = SlackRealtimeClient.live(backend)
-      accessToken  = AccessToken.liveClient(config.token)
+      accessToken  = AccessToken.live(config.token)
       env          = client ++ withRealtime ++ accessToken
       resp         <- testApi(config).provideLayer(env).toManaged_
       _            <- testRealtime(config).provideSomeLayer[Console](env)

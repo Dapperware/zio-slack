@@ -1,7 +1,7 @@
 package slack.api
 
 import slack.SlackError
-import slack.core.access.{ clientId, clientSecret, ClientSecret }
+import slack.core.access.secret.{ clientId, clientSecret, ClientSecret }
 import zio.ZIO
 
 object SlackApps {

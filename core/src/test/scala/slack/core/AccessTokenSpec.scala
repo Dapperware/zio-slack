@@ -9,7 +9,7 @@ import sttp.client._
 
 object AccessTokenSpec extends DefaultRunnableSpec {
 
-  val accessToken = AccessToken.liveClient("abc123")
+  val accessToken = AccessToken.live("abc123")
 
   override def spec: ZSpec[_root_.zio.test.environment.TestEnvironment, Any] = suite("AccessToken")(
     testM("Adds auth bearer token") {

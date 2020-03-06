@@ -3,17 +3,12 @@ package slack.realtime
 import io.circe.Json
 import io.circe.parser._
 import io.circe.syntax._
-import slack.api.realtime
 import slack.realtime.models.{ Hello, OutboundMessage, SlackEvent }
 import slack.{ SlackError, SlackException }
 import sttp.client.ws.WebSocket
 import sttp.model.ws.WebSocketFrame
 import zio._
 import zio.stream.{ Take, ZStream }
-
-trait Rtm {
-  val rtm: Rtm.Service[Any]
-}
 
 object Rtm {
   type MessageStream = ZStream[Any, SlackError, SlackEvent]
@@ -25,9 +20,9 @@ object Rtm {
       } yield message
     })
 
-  trait Service[R] {
+  trait Service {
 
-    private def readMessage(ws: WebSocket[Task]): ZIO[Any, Throwable, Take[Nothing, SlackEvent]] =
+    private def readMessage(ws: WebSocket[Task]): Task[Take[Nothing, SlackEvent]] =
       ws.receiveText().flatMap(_.fold(_ => ZIO.succeed(Take.End), value => parseMessage(value).map(Take.Value(_))))
 
     private val openAndHandshake: ZIO[SlackRealtimeEnv, SlackError, WebSocket[Task]] = for {
@@ -40,9 +35,9 @@ object Rtm {
           }(SlackException.ProtocolError("Protocol error did not receive hello as first message"))
     } yield ws
 
-    def connect[R0 <: R, E1 >: SlackError](
-      outbound: ZStream[R0, E1, OutboundMessage]
-    ): ZManaged[R0 with SlackRealtimeEnv, E1, MessageStream] =
+    def connect[R, E1 >: SlackError](
+      outbound: ZStream[R, E1, OutboundMessage]
+    ): ZManaged[R with SlackRealtimeEnv, E1, MessageStream] =
       for {
         ws <- openAndHandshake.toManaged_
         // Reads the messages being sent from the caller and buffers them while we wait to send them

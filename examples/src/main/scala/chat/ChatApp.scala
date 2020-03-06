@@ -47,7 +47,7 @@ object ChatApp extends ManagedApp {
                  .mapError(ConfigReaderException(_))
       env = SlackRealtimeClient.live(backend) ++
         SlackClient.live(backend) ++
-        AccessToken.liveClient(config.token)
+        AccessToken.live(config.token)
       _ <- (for {
             outgoing <- ZStream
                          .fromEffect(for {

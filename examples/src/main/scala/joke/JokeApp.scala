@@ -29,7 +29,7 @@ object JokeApp extends ManagedApp {
       config <- ZManaged
                  .fromEither(source.at("basic").load[BasicConfig])
                  .mapError(ConfigReaderException(_))
-      environment = AccessToken.liveClient(config.token) ++ SlackClient.live(backend)
+      environment = AccessToken.live(config.token) ++ SlackClient.live(backend)
       _ <- (for {
             resp <- backend.send(getJoke)
             body <- IO.fromEither(resp.body)

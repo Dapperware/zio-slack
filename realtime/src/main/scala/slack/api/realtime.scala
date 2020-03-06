@@ -1,8 +1,5 @@
 package slack.api
 
-import slack.SlackError
-import slack.realtime.{ Rtm, SlackRealtimeEnv }
-import sttp.client.ws.WebSocket
-import zio.{ Task, ZIO }
+import slack.realtime.Rtm
 
-object realtime extends Rtm.Service[SlackRealtimeEnv] {}
+object realtime extends Rtm.Service

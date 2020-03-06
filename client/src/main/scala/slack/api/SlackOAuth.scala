@@ -4,7 +4,8 @@ import io.circe
 import io.circe.generic.semiauto._
 import io.circe.{ Decoder, Json }
 import slack.SlackError
-import slack.core.access.{ secret, ClientSecret }
+import slack.core.access.secret
+import slack.core.access.secret.ClientSecret
 import slack.core.client.{ send, SlackClient }
 import sttp.client.Request
 import zio.{ URIO, ZIO }
