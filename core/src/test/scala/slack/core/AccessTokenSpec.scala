@@ -1,20 +1,21 @@
 package slack.core
 
+import slack.core.access.AccessToken
 import sttp.client.basicRequest
 import sttp.model.Header
 import zio.test.Assertion.contains
-import zio.test.{ assert, suite, testM, DefaultRunnableSpec }
+import zio.test.{ assertM, suite, testM, DefaultRunnableSpec, ZSpec }
 import sttp.client._
 
-object AccessTokenSpec
-    extends DefaultRunnableSpec(
-      suite("AccessToken")(
-        testM("Adds auth bearer token") {
-          for {
-            accessToken <- AccessToken.make("abc123")
-            request     = basicRequest.get(uri"https://github.com/dapperware/zio-slack")
-            newRequest  <- AccessToken.authenticateM(request) provide accessToken
-          } yield assert(newRequest.headers)(contains(new Header("Authorization", "Bearer abc123")))
-        }
-      )
-    )
+object AccessTokenSpec extends DefaultRunnableSpec {
+
+  val accessToken = AccessToken.liveClient("abc123")
+
+  override def spec: ZSpec[_root_.zio.test.environment.TestEnvironment, Any] = suite("AccessToken")(
+    testM("Adds auth bearer token") {
+      val request = basicRequest.get(uri"https://github.com/dapperware/zio-slack")
+
+      assertM(access.authenticateM(request).map(_.headers))(contains(new Header("Authorization", "Bearer abc123")))
+    }.provideLayer(accessToken)
+  )
+}

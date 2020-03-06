@@ -1,20 +1,18 @@
 package basic
 
-import common.EnrichedManaged
 import pureconfig._
 import pureconfig.error.ConfigReaderException
 import pureconfig.generic.semiauto._
 import slack.api.{ realtime, web }
-import slack.core.{ AccessToken, SlackClient }
+import slack.core.access.AccessToken
+import slack.core.client.SlackClient
 import slack.realtime.models.{ SendMessage, UserTyping }
 import slack.realtime.{ SlackRealtimeClient, SlackRealtimeEnv }
 import slack.{ SlackEnv, SlackError }
 import sttp.client.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio.console.{ putStrLn, Console }
-import zio.macros.delegate.enrichWithM
-import zio.macros.delegate.syntax._
 import zio.stream.ZStream
-import zio.{ ManagedApp, ZEnv, ZIO, ZManaged }
+import zio.{ ManagedApp, ZIO, ZManaged }
 
 case class BasicConfig(token: String, channel: String)
 
@@ -22,7 +20,7 @@ object BasicConfig {
   implicit val configReader: ConfigReader[BasicConfig] = deriveReader[BasicConfig]
 }
 
-object BasicApp extends ManagedApp with EnrichedManaged {
+object BasicApp extends ManagedApp {
   override def run(args: List[String]): ZManaged[zio.ZEnv, Nothing, Int] =
     (for {
       backend <- AsyncHttpClientZioBackend().toManaged(_.close.ignore)
@@ -30,12 +28,12 @@ object BasicApp extends ManagedApp with EnrichedManaged {
       config <- ZManaged
                  .fromEither(source.at("basic").load[BasicConfig])
                  .mapError(ConfigReaderException(_))
-      client       = SlackClient.make(backend)
-      withRealtime = SlackRealtimeClient.make(backend)
-      accessToken  = AccessToken.make(config.token)
-      env          = ZManaged.environment[ZEnv] @@ enrichWithM(client) @@ enrichWithM(accessToken) @@ enrichWithM(withRealtime)
-      resp         <- testApi(config).provideSomeManaged(env).toManaged_
-      _            <- testRealtime(config).provideSomeManaged(env)
+      client       = SlackClient.live(backend)
+      withRealtime = SlackRealtimeClient.live(backend)
+      accessToken  = AccessToken.liveClient(config.token)
+      env          = client ++ withRealtime ++ accessToken
+      resp         <- testApi(config).provideLayer(env).toManaged_
+      _            <- testRealtime(config).provideSomeLayer[Console](env)
     } yield resp).either.flatMap {
       case Left(value)  => putStrLn(value.getMessage) as 1 toManaged_
       case Right(value) => putStrLn(value) as 0 toManaged_

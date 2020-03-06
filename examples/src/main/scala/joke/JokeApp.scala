@@ -6,7 +6,8 @@ import io.circe.{ DecodingFailure, Json }
 import pureconfig.ConfigSource
 import pureconfig.error.ConfigReaderException
 import slack.api.chats._
-import slack.core.{ AccessToken, SlackClient }
+import slack.core.access.AccessToken
+import slack.core.client.SlackClient
 import sttp.client._
 import sttp.client.asynchttpclient.zio.AsyncHttpClientZioBackend
 import sttp.client.circe._
@@ -28,8 +29,7 @@ object JokeApp extends ManagedApp {
       config <- ZManaged
                  .fromEither(source.at("basic").load[BasicConfig])
                  .mapError(ConfigReaderException(_))
-      token  <- AccessToken.makeManaged(config.token)
-      client <- SlackClient.makeManaged(backend)
+      environment = AccessToken.liveClient(config.token) ++ SlackClient.live(backend)
       _ <- (for {
             resp <- backend.send(getJoke)
             body <- IO.fromEither(resp.body)
@@ -38,13 +38,6 @@ object JokeApp extends ManagedApp {
           } yield ())
             .repeat(Schedule.fixed(3.hours))
             .toManaged_
-            .provideSome[Clock](
-              c =>
-                new Clock with SlackClient with AccessToken {
-                  override val slackClient: SlackClient.Service = client.slackClient
-                  override val accessToken: AccessToken.Service = token.accessToken
-                  override val clock: Clock.Service[Any]        = c.clock
-              }
-            )
+            .provideSomeLayer[Clock](environment)
     } yield ()).fold(ex => 1, _ => 0)
 }

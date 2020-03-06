@@ -1,7 +1,6 @@
 package chat
 
 import basic.BasicConfig
-import common.EnrichedManaged
 import pureconfig.ConfigSource
 import pureconfig.error.ConfigReaderException
 import slack.api.conversations._
@@ -10,18 +9,17 @@ import slack.api.users._
 import slack.realtime.SlackRealtimeClient
 import slack.realtime.models.{ Message, OutboundMessage, SendMessage }
 import slack.SlackError
-import slack.core.{ AccessToken, SlackClient }
+import slack.core.access.AccessToken
+import slack.core.client.SlackClient
 import sttp.client.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio.console._
-import zio.macros.delegate._
-import zio.macros.delegate.syntax._
 import zio.stream.ZStream
 import zio.{ ManagedApp, ZIO, ZManaged }
 
 /**
  * A simple interactive application to show how to use slack zio for much profit
  */
-object ChatApp extends ManagedApp with EnrichedManaged {
+object ChatApp extends ManagedApp {
   private val referenceRegex = "<@(\\w*)>".r
 
   private def findReferences(message: String): List[String] = {
@@ -47,10 +45,9 @@ object ChatApp extends ManagedApp with EnrichedManaged {
       config <- ZManaged
                  .fromEither(source.at("basic").load[BasicConfig])
                  .mapError(ConfigReaderException(_))
-      env = ZIO.environment[zio.ZEnv] @@
-        enrichWithM(SlackRealtimeClient.make(backend)) @@
-        enrichWithM(SlackClient.make(backend)) @@
-        enrichWithM(AccessToken.make(config.token))
+      env = SlackRealtimeClient.live(backend) ++
+        SlackClient.live(backend) ++
+        AccessToken.liveClient(config.token)
       _ <- (for {
             outgoing <- ZStream
                          .fromEffect(for {
@@ -63,7 +60,7 @@ object ChatApp extends ManagedApp with EnrichedManaged {
                             receiver <- realtime.connect(ZStream.fromQueue(outgoing).forever.unTake)
                             _ <- receiver.collectM {
                                   case Message(_, channel, user, text, _, _) =>
-                                    val references = ZIO.traverse(findReferences(text)) { ref =>
+                                    val references = ZIO.foreach(findReferences(text)) { ref =>
                                       getUserInfo(ref).map { ref -> _.name }
                                     }
                                     (getConversationInfo(channel) <&> (getUserInfo(user) <&> references)).flatMap {
@@ -74,6 +71,6 @@ object ChatApp extends ManagedApp with EnrichedManaged {
                           } yield ()).fork
             _ <- putStrLn("Ready for input!").toManaged_
             _ <- socketFiber.join.toManaged_
-          } yield ()).provideSomeM(env)
+          } yield ()).provideSomeLayer[Console](env)
     } yield ()).fold(_ => 1, _ => 0)
 }

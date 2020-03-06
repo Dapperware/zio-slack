@@ -2,8 +2,8 @@ package slack
 
 import io.circe
 import io.circe.Json
-import slack.core.SlackClient.RequestEntity
-import slack.core.{ AccessToken, SlackClient }
+import slack.core.{ access, client }
+import slack.core.client.RequestEntity
 import sttp.client._
 import sttp.client.circe._
 import zio.{ UIO, ZIO }
@@ -38,6 +38,6 @@ trait SlackRequests {
   )
 
   def sendM[T](request: UIO[Request[SlackResponse[T], Nothing]]): ZIO[SlackEnv, Throwable, T] =
-    request >>= AccessToken.authenticateM >>= SlackClient.send[T, circe.Error]
+    request >>= access.authenticateM >>= client.send[T, circe.Error]
 
 }

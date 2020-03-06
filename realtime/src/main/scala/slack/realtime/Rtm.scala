@@ -31,7 +31,7 @@ object Rtm {
       ws.receiveText().flatMap(_.fold(_ => ZIO.succeed(Take.End), value => parseMessage(value).map(Take.Value(_))))
 
     private val openAndHandshake: ZIO[SlackRealtimeEnv, SlackError, WebSocket[Task]] = for {
-      ws <- realtime.openWebsocket
+      ws <- openWebsocket
       // After the socket has been opened the first message we expect is the "hello" message
       // Chew that off the front of the socket, if we don't receive it we should return an exception
       _ <- readMessage(ws).filterOrFail {

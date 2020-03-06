@@ -3,34 +3,27 @@ package slack.core
 import java.io.File
 
 import sttp.client.{ SttpBackend, _ }
-import zio.{ Managed, Task, UIO, ZIO }
+import zio.{ Has, Task, ZIO, ZLayer }
 
-import scala.language.higherKinds
+package object client {
+  type SlackClient = Has[SlackClient.Service]
 
-//@mockable
-trait SlackClient {
-  val slackClient: SlackClient.Service
-}
+  object SlackClient {
+    trait Service {
+      def send[T, E](request: Request[Either[ResponseError[E], T], Nothing]): ZIO[Any, Throwable, T]
+    }
 
-object SlackClient {
+    val any = ZLayer.requires[SlackClient]
 
-  def send[T, E](request: Request[Either[ResponseError[E], T], Nothing]): ZIO[SlackClient, Throwable, T] =
-    ZIO.accessM(_.slackClient.send(request))
-
-  def make(backend: SttpBackend[Task, Nothing, NothingT]): UIO[SlackClient] =
-    UIO.effectTotal(new SlackClient {
-      implicit private val b: SttpBackend[Task, Nothing, NothingT] = backend
-      override val slackClient: Service = new Service {
+    def live(backend: SttpBackend[Task, Nothing, NothingT]): ZLayer.NoDeps[Nothing, SlackClient] =
+      ZLayer.succeed(new Service {
         override def send[T, E](request: Request[Either[ResponseError[E], T], Nothing]): ZIO[Any, Throwable, T] =
           for {
-            result <- request.send()
+            result <- backend.send(request)
             json   <- ZIO.fromEither(result.body)
           } yield json
-      }
-    })
-
-  def makeManaged(backend: SttpBackend[Task, Nothing, NothingT]): Managed[Nothing, SlackClient] =
-    make(backend).toManaged_
+      })
+  }
 
   sealed trait RequestEntity {
     private[slack] def apply[U[_], T, S](request: RequestT[U, T, S]): RequestT[U, T, S]
@@ -54,7 +47,7 @@ object SlackClient {
       )
   }
 
-  trait Service {
-    def send[T, E](request: Request[Either[ResponseError[E], T], Nothing]): ZIO[Any, Throwable, T]
-  }
+  def send[T, E](request: Request[Either[ResponseError[E], T], Nothing]): ZIO[SlackClient, Throwable, T] =
+    ZIO.accessM(_.get.send(request))
+
 }

@@ -4,7 +4,8 @@ import io.circe
 import io.circe.generic.semiauto._
 import io.circe.{ Decoder, Json }
 import slack.SlackError
-import slack.core.{ ClientSecret, SlackClient }
+import slack.core.access.{ authenticateM, secret, ClientSecret }
+import slack.core.client.{ send, SlackClient }
 import sttp.client.Request
 import zio.{ URIO, ZIO }
 
@@ -19,8 +20,8 @@ object SlackOAuth {
       code: String,
       redirectUri: Option[String] = None
     ): ZIO[SlackClient with ClientSecret, SlackError, FullAccessTokenV2] =
-      request("oauth.v2.access", "code" -> code, "redirect_uri" -> redirectUri) >>= ClientSecret.authenticateM >>= SlackClient
-        .send[Json, circe.Error] >>= as[FullAccessTokenV2]
+      request("oauth.v2.access", "code" -> code, "redirect_uri" -> redirectUri) >>= secret.authenticateM >>=
+        send[Json, circe.Error] >>= as[FullAccessTokenV2]
   }
 
   trait Service extends OAuthV2Service {
@@ -41,7 +42,7 @@ object SlackOAuth {
     protected def sendRaw[T](
       request: URIO[Any, Request[SlackResponse[T], Nothing]]
     ): ZIO[SlackClient with ClientSecret, Throwable, T] =
-      request >>= ClientSecret.authenticateM >>= SlackClient.send[T, circe.Error]
+      request >>= secret.authenticateM >>= send[T, circe.Error]
   }
 }
 

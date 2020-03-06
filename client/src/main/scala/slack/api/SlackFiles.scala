@@ -2,13 +2,11 @@ package slack.api
 
 import java.io.File
 
-import slack.core.SlackClient.RequestEntity
+import slack.core.client.RequestEntity
 import slack.models.{ FileInfo, FilesResponse, SlackFile }
 import slack.{ SlackEnv, SlackError }
 import zio.ZIO
 
-//@accessible
-//@mockable
 trait SlackFiles {
   val slackFiles: SlackFiles.Service
 }
