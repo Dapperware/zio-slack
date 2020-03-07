@@ -37,7 +37,7 @@ gitVersioningSnapshotLowerBound in ThisBuild := "0.4.0"
 
 val circeV = "0.13.0"
 val zioV = "1.0.0-RC18"
-val sttpV = "2.0.2"
+val sttpV = "2.0.3"
 
 publishTo in ThisBuild := sonatypePublishToBundle.value
 
@@ -56,6 +56,7 @@ lazy val core = project.in(file("core"))
       "dev.zio" %% "zio-test" % zioV % Test,
       "dev.zio" %% "zio-test-sbt" % zioV % Test,
       "com.softwaremill.sttp.client" %% "core" % sttpV,
+      "com.softwaremill.sttp.client" %% "async-http-client-backend-zio" % sttpV
     )
   )
 
@@ -71,7 +72,7 @@ lazy val client = project.in(file("client"))
         "dev.zio" %% "zio-test-sbt" % zioV % "it,test",
         "com.softwaremill.sttp.client" %% "core" % sttpV,
         "com.softwaremill.sttp.client" %% "circe" % sttpV,
-        "com.softwaremill.sttp.client" %% "async-http-client-backend-zio" % sttpV exclude("dev.zio", "zio-streams")
+        "com.softwaremill.sttp.client" %% "async-http-client-backend-zio" % sttpV
       ),
       addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.10.3"),
       addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
@@ -92,7 +93,7 @@ lazy val realtime = project.in(file("realtime"))
         "dev.zio" %% "zio-test-sbt" % zioV % "it,test",
         "com.softwaremill.sttp.client" %% "core" % sttpV,
         "com.softwaremill.sttp.client" %% "circe" % sttpV,
-        "com.softwaremill.sttp.client" %% "async-http-client-backend-zio" % sttpV exclude("dev.zio", "zio-streams")
+        "com.softwaremill.sttp.client" %% "async-http-client-backend-zio" % sttpV
       ),
       addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.10.3"),
       addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"),

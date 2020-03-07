@@ -21,19 +21,18 @@ object BasicConfig {
 }
 
 object BasicApp extends ManagedApp {
+  val layers = AsyncHttpClientZioBackend.layer() >>>
+    (SlackClient.live ++ SlackRealtimeClient.live)
+
   override def run(args: List[String]): ZManaged[zio.ZEnv, Nothing, Int] =
     (for {
-      backend <- AsyncHttpClientZioBackend().toManaged(_.close.ignore)
-      source  = ConfigSource.defaultApplication
       config <- ZManaged
-                 .fromEither(source.at("basic").load[BasicConfig])
+                 .fromEither(ConfigSource.defaultApplication.at("basic").load[BasicConfig])
                  .mapError(ConfigReaderException(_))
-      client       = SlackClient.live(backend)
-      withRealtime = SlackRealtimeClient.live(backend)
-      accessToken  = AccessToken.live(config.token)
-      env          = client ++ withRealtime ++ accessToken
-      resp         <- testApi(config).provideLayer(env).toManaged_
-      _            <- testRealtime(config).provideSomeLayer[Console](env)
+      accessToken = AccessToken.live(config.token)
+      env         = layers ++ accessToken
+      resp        <- testApi(config).provideLayer(env).toManaged_
+      _           <- testRealtime(config).provideSomeLayer[Console](env)
     } yield resp).either.flatMap {
       case Left(value)  => putStrLn(value.getMessage) as 1 toManaged_
       case Right(value) => putStrLn(value) as 0 toManaged_

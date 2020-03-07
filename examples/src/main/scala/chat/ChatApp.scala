@@ -38,16 +38,14 @@ object ChatApp extends ManagedApp {
       case (t, (ref, replace)) => t.replaceAllLiterally(s"<@$ref>", s"@$replace")
     }
 
+  private val layers = AsyncHttpClientZioBackend.layer() >>> (SlackRealtimeClient.live ++ SlackClient.live)
+
   override def run(args: List[String]): ZManaged[zio.ZEnv, Nothing, Int] =
     (for {
-      backend <- AsyncHttpClientZioBackend().toManaged(_.close().orDie)
-      source  = ConfigSource.defaultApplication
       config <- ZManaged
-                 .fromEither(source.at("basic").load[BasicConfig])
+                 .fromEither(ConfigSource.defaultApplication.at("basic").load[BasicConfig])
                  .mapError(ConfigReaderException(_))
-      env = SlackRealtimeClient.live(backend) ++
-        SlackClient.live(backend) ++
-        AccessToken.live(config.token)
+      env = layers ++ AccessToken.live(config.token)
       _ <- (for {
             outgoing <- ZStream
                          .fromEffect(for {

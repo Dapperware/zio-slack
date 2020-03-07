@@ -2,8 +2,7 @@ package slack
 
 import slack.api.{ as, request, sendM }
 import sttp.client._
-import sttp.client.asynchttpclient.WebSocketHandler
-import sttp.client.asynchttpclient.zio.ZioWebSocketHandler
+import sttp.client.asynchttpclient.zio.{ SttpClient, ZioWebSocketHandler }
 import sttp.client.ws.WebSocket
 import zio.{ Has, Task, ZIO, ZLayer }
 
@@ -16,16 +15,19 @@ package object realtime {
       private[slack] def openWebsocket: ZIO[SlackEnv, SlackError, WebSocket[Task]]
     }
 
-    def live(backend: SttpBackend[Task, Nothing, WebSocketHandler]): ZLayer.NoDeps[Nothing, SlackRealtimeClient] =
-      ZLayer.succeed(new Service {
-        private[slack] override def openWebsocket: ZIO[SlackEnv, SlackError, WebSocket[Task]] =
-          for {
-            url <- sendM(request("rtm.connect")) >>= as[String]("url")
-            r <- ZioWebSocketHandler().flatMap { handler =>
-                  backend.openWebsocket(basicRequest.get(uri"$url"), handler)
-                }
-          } yield r.result
-      })
+    def live: ZLayer[SttpClient, Nothing, SlackRealtimeClient] =
+      ZLayer.fromFunction[SttpClient, SlackRealtimeClient.Service](
+        client =>
+          new Service {
+            private[slack] override def openWebsocket: ZIO[SlackEnv, SlackError, WebSocket[Task]] =
+              for {
+                url <- sendM(request("rtm.connect")) >>= as[String]("url")
+                r <- ZioWebSocketHandler().flatMap { handler =>
+                      client.get.openWebsocket(basicRequest.get(uri"$url"), handler)
+                    }
+              } yield r.result
+        }
+      )
   }
 
   private[slack] def openWebsocket: ZIO[SlackEnv with SlackRealtimeClient, SlackError, WebSocket[Task]] =

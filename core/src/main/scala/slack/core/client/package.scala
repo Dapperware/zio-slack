@@ -2,8 +2,9 @@ package slack.core
 
 import java.io.File
 
-import sttp.client.{ SttpBackend, _ }
-import zio.{ Has, Task, ZIO, ZLayer }
+import sttp.client._
+import sttp.client.asynchttpclient.zio.SttpClient
+import zio.{ Has, ZIO, ZLayer }
 
 package object client {
   type SlackClient = Has[SlackClient.Service]
@@ -15,14 +16,17 @@ package object client {
 
     val any = ZLayer.requires[SlackClient]
 
-    def live(backend: SttpBackend[Task, Nothing, NothingT]): ZLayer.NoDeps[Nothing, SlackClient] =
-      ZLayer.succeed(new Service {
-        override def send[T, E](request: Request[Either[ResponseError[E], T], Nothing]): ZIO[Any, Throwable, T] =
-          for {
-            result <- backend.send(request)
-            json   <- ZIO.fromEither(result.body)
-          } yield json
-      })
+    def live: ZLayer[SttpClient, Nothing, SlackClient] =
+      ZLayer.fromFunction[SttpClient, SlackClient.Service](
+        client =>
+          new Service {
+            override def send[T, E](request: Request[Either[ResponseError[E], T], Nothing]): ZIO[Any, Throwable, T] =
+              for {
+                result <- client.get.send(request)
+                json   <- ZIO.fromEither(result.body)
+              } yield json
+        }
+      )
   }
 
   sealed trait RequestEntity {

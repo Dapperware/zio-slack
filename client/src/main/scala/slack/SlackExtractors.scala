@@ -2,7 +2,6 @@ package slack
 
 import cats.Show
 import io.circe.{ ACursor, Decoder, DecodingFailure, Json }
-import slack.models.ResponseMetadata
 import zio.{ IO, ZIO }
 
 trait SlackExtractors {
