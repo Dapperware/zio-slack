@@ -15,7 +15,7 @@ trait SlackRequests {
     UIO.succeed(
       basicRequest
         .post(uri"https://slack.com/api/$method")
-        .body(body)
+        .body(body.deepDropNullValues)
         .response(asJson[Json])
     )
 
