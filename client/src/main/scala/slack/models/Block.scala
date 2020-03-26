@@ -94,9 +94,9 @@ case class ImageElement(image_url: String, alt_text: String, `type`: String = "i
 
 case class ButtonElement(text: PlainTextObject,
                          action_id: String,
-                         url: Option[String],
-                         value: Option[String],
-                         confirm: Option[ConfirmationObject])
+                         url: Option[String] = None,
+                         value: Option[String] = None,
+                         confirm: Option[ConfirmationObject] = None)
     extends BlockElement {
   override val `type`: String = "button"
 }
@@ -105,33 +105,33 @@ case class StaticSelectElement(placeholder: PlainTextObject,
                                action_id: String,
                                options: Seq[OptionObject],
                                option_groups: Seq[OptionGroupObject],
-                               initial_option: Option[Either[OptionObject, OptionGroupObject]],
-                               confirm: Option[ConfirmationObject])
+                               initial_option: Option[Either[OptionObject, OptionGroupObject]] = None,
+                               confirm: Option[ConfirmationObject] = None)
     extends BlockElement {
   override val `type`: String = "static_select"
 }
 
 case class ExternalSelectElement(placeholder: PlainTextObject,
                                  action_id: String,
-                                 min_query_length: Option[Int],
-                                 initial_option: Option[Either[OptionObject, OptionGroupObject]],
-                                 confirm: Option[ConfirmationObject])
+                                 min_query_length: Option[Int] = None,
+                                 initial_option: Option[Either[OptionObject, OptionGroupObject]] = None,
+                                 confirm: Option[ConfirmationObject] = None)
     extends BlockElement {
   override val `type`: String = "external_select"
 }
 
 case class UserSelectElement(placeholder: PlainTextObject,
                              action_id: String,
-                             initial_user: Option[String],
-                             confirm: Option[ConfirmationObject])
+                             initial_user: Option[String] = None,
+                             confirm: Option[ConfirmationObject] = None)
     extends BlockElement {
   override val `type`: String = "users_select"
 }
 
 case class ChannelSelectElement(placeholder: PlainTextObject,
                                 action_id: String,
-                                initial_channel: Option[String],
-                                confirm: Option[ConfirmationObject])
+                                initial_channel: Option[String] = None,
+                                confirm: Option[ConfirmationObject] = None)
     extends BlockElement {
   override val `type`: String = "channels_select"
 }
@@ -144,15 +144,15 @@ case class ConversationSelectElement(placeholder: PlainTextObject,
   override val `type`: String = "conversations_select"
 }
 
-case class OverflowElement(action_id: String, options: Seq[OptionObject], confirm: Option[ConfirmationObject])
+case class OverflowElement(action_id: String, options: Seq[OptionObject], confirm: Option[ConfirmationObject] = None)
     extends BlockElement {
   override val `type`: String = "overflow"
 }
 
 case class DatePickerElement(action_id: String,
                              placeholder: PlainTextObject,
-                             initial_date: Option[String],
-                             confirm: Option[ConfirmationObject])
+                             initial_date: Option[String] = None,
+                             confirm: Option[ConfirmationObject] = None)
     extends BlockElement {
   override val `type`: String = "datepicker"
 }

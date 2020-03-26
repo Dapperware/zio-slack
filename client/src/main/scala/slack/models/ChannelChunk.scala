@@ -5,7 +5,7 @@ import io.circe.generic.semiauto._
 
 case class ChannelChunk(
   channels: Seq[Channel],
-  response_metadata: Option[ResponseMetadata]
+  response_metadata: Option[ResponseMetadata] = None
 )
 
 object ChannelChunk {

@@ -6,6 +6,6 @@ case class Reminder(
   user: String,
   text: String,
   recurring: Boolean,
-  time: Option[Long],
-  complete_ts: Option[Long]
+  time: Option[Long] = None,
+  complete_ts: Option[Long] = None
 )
