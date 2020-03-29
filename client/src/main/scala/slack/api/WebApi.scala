@@ -4,24 +4,24 @@ package slack.api
  * A service that interacts with slack and provides various messaging capabilities
  */
 trait WebApi
-    extends SlackApps.Service
-    with SlackAuth.Service
-    with SlackChannels.Service
-    with SlackChats.Service
-    with SlackConversations.Service
-    with SlackDialogs.Service
-    with SlackDnd.Service
-    with SlackEmojis.Service
-    with SlackFiles.Service
-    with SlackGroups.Service
-    with SlackIms.Service
-    with SlackOAuth.Service
-    with SlackProfile.Service
-    with SlackReactions.Service
-    with SlackReminders.Service
-    with SlackSearch.Service
-    with SlackStars.Service
-    with SlackTeams.Service
-    with SlackUsers.Service
-    with SlackUserGroups.Service
-    with SlackViews.Service
+    extends SlackApps
+    with SlackAuth
+    with SlackChannels
+    with SlackChats
+    with SlackConversations
+    with SlackDialogs
+    with SlackDnd
+    with SlackEmojis
+    with SlackFiles
+    with SlackGroups
+    with SlackIms
+    with SlackOAuth
+    with SlackProfile
+    with SlackReactions
+    with SlackReminders
+    with SlackSearch
+    with SlackStars
+    with SlackTeams
+    with SlackUsers
+    with SlackUserGroups
+    with SlackViews
