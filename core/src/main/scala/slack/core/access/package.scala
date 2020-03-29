@@ -2,7 +2,7 @@ package slack.core
 
 import slack.core.access.AccessToken.Service
 import sttp.client.RequestT
-import zio.{ Has, UIO, URIO, ZIO, ZLayer }
+import zio.{ Has, Layer, UIO, URIO, ZIO, ZLayer }
 
 package object access {
   type AccessToken = Has[AccessToken.Service]
@@ -18,7 +18,7 @@ package object access {
         def clientSecret: UIO[String]
       }
 
-      def live(id: String, secret: String): ZLayer.NoDeps[Nothing, ClientSecret] = ZLayer.succeed {
+      def live(id: String, secret: String): Layer[Nothing, ClientSecret] = ZLayer.succeed {
         new Secret {
           override def authenticateM[U[_], T, S](request: RequestT[U, T, S]): URIO[Any, RequestT[U, T, S]] =
             UIO.succeed(request.auth.basic(id, secret))
@@ -56,7 +56,7 @@ package object access {
     val any: ZLayer[AccessToken, Nothing, AccessToken] =
       ZLayer.requires[AccessToken]
 
-    def live(token: String): ZLayer.NoDeps[Nothing, ClientToken] = ZLayer.succeed {
+    def live(token: String): Layer[Nothing, ClientToken] = ZLayer.succeed {
       new Token {
         override def authenticateM[U[_], T, S](request: RequestT[U, T, S]): UIO[RequestT[U, T, S]] =
           UIO.succeed(request.auth.bearer(token))

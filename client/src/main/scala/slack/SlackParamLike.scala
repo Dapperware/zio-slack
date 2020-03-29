@@ -1,6 +1,6 @@
 package slack
 
-import io.circe.Json
+import io.circe.{ Encoder, Json }
 import slack.SlackParamMagnet.StringParamMagnet
 
 trait SlackParamLike[T] {
@@ -30,5 +30,9 @@ object SlackParamLike {
       override def produce(t: Option[T]): SlackParamMagnet =
         StringParamMagnet(t.flatMap(spl.produce(_).produce))
     }
+
+  implicit def jsonEncoderParamLike[A: Encoder] = new SlackParamLike[A] {
+    override def produce(a: A): SlackParamMagnet = StringParamMagnet(Some(Encoder[A].apply(a).noSpaces))
+  }
 
 }
