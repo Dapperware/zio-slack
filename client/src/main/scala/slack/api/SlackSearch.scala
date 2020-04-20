@@ -15,10 +15,10 @@ trait SlackSearch {
                   page: Option[Int] = None): ZIO[SlackEnv, SlackError, Json] =
     sendM(
       request(
-        "search.all",
+        "search.files",
         "query"     -> query,
         "sort"      -> sort,
-        "sortDir"   -> sortDir,
+        "sort_dir"  -> sortDir,
         "highlight" -> highlight,
         "count"     -> count,
         "page"      -> page
@@ -34,10 +34,10 @@ trait SlackSearch {
                 page: Option[Int] = None): ZIO[SlackEnv, SlackError, Json] =
     sendM(
       request(
-        "search.files",
+        "search.all",
         "query"     -> query,
         "sort"      -> sort,
-        "sortDir"   -> sortDir,
+        "sort_dir"  -> sortDir,
         "highlight" -> highlight,
         "count"     -> count,
         "page"      -> page
