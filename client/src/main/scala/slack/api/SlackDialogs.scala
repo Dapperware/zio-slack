@@ -1,17 +1,14 @@
 package slack.api
 
-import io.circe.syntax._
 import slack.models.Dialog
 import slack.{ SlackEnv, SlackError }
 import zio.ZIO
 
-object SlackDialogs {
-  trait Service {
+trait SlackDialogs {
 
-    def openDialog(triggerId: String, dialog: Dialog): ZIO[SlackEnv, SlackError, Boolean] =
-      sendM(request("dialog.open", "trigger_id" -> triggerId, "dialog" -> dialog.asJson)) >>= isOk
+  def openDialog(triggerId: String, dialog: Dialog): ZIO[SlackEnv, SlackError, Boolean] =
+    sendM(request("dialog.open", "trigger_id" -> triggerId, "dialog" -> dialog)) >>= isOk
 
-  }
 }
 
-object dialogs extends SlackDialogs.Service
+object dialogs extends SlackDialogs

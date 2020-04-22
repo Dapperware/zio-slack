@@ -5,27 +5,25 @@ import io.circe.generic.semiauto._
 import slack._
 import zio.ZIO
 
-object SlackDnd {
-  trait Service {
+trait SlackDnd {
 
-    def endDnd(): ZIO[SlackEnv, SlackError, Boolean] =
-      sendM(request("dnd.endDnd")) >>= isOk
+  def endDnd(): ZIO[SlackEnv, SlackError, Boolean] =
+    sendM(request("dnd.endDnd")) >>= isOk
 
-    def endSnooze(): ZIO[SlackEnv, SlackError, Boolean] =
-      sendM(request("dnd.endSnooze")) >>= isOk
+  def endSnooze(): ZIO[SlackEnv, SlackError, Boolean] =
+    sendM(request("dnd.endSnooze")) >>= isOk
 
-    def getDoNotDisturbInfo(userId: Option[String] = None): ZIO[SlackEnv, SlackError, DndInfo] =
-      sendM(request("dnd.info")) >>= as[DndInfo]
+  def getDoNotDisturbInfo(userId: Option[String] = None): ZIO[SlackEnv, SlackError, DndInfo] =
+    sendM(request("dnd.info")) >>= as[DndInfo]
 
-    def setSnooze(numMinutes: Int): ZIO[SlackEnv, SlackError, SnoozeInfo] =
-      sendM(request("dnd.setSnooze", "num_minutes" -> numMinutes)) >>= as[SnoozeInfo]
+  def setSnooze(numMinutes: Int): ZIO[SlackEnv, SlackError, SnoozeInfo] =
+    sendM(request("dnd.setSnooze", "num_minutes" -> numMinutes)) >>= as[SnoozeInfo]
 
-    def getTeamDoNotDisturbInfo(users: List[String]): ZIO[SlackEnv, SlackError, Map[String, DndInfo]] =
-      sendM(request("dnd.teamInfo", "users" -> users.mkString(","))) >>= as[Map[String, DndInfo]]("users")
-  }
+  def getTeamDoNotDisturbInfo(users: List[String]): ZIO[SlackEnv, SlackError, Map[String, DndInfo]] =
+    sendM(request("dnd.teamInfo", "users" -> users.mkString(","))) >>= as[Map[String, DndInfo]]("users")
 }
 
-object dnd extends SlackDnd.Service
+object dnd extends SlackDnd
 
 case class SnoozeInfo(
   snoozeEnabled: Boolean,

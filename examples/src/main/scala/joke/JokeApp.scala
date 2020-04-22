@@ -7,7 +7,7 @@ import pureconfig.ConfigSource
 import pureconfig.error.ConfigReaderException
 import slack.api.chats._
 import slack.api.conversations._
-import slack.core.access.AccessToken
+import slack.core.AccessToken
 import slack.core.client.SlackClient
 import slack.models.Channel
 import sttp.client._
@@ -47,7 +47,7 @@ object JokeApp extends ManagedApp {
       config <- ZManaged
                  .fromEither(ConfigSource.defaultApplication.at("basic").load[BasicConfig])
                  .mapError(ConfigReaderException(_))
-      environment = AccessToken.live(config.token) ++ layers
+      environment = AccessToken.make(config.token).toLayer ++ layers
       _ <- (for {
             shuffled <- shuffledConversations
             _ <- ZIO.foreach_(shuffled) { channel =>

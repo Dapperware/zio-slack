@@ -4,46 +4,42 @@ import io.circe
 import io.circe.generic.semiauto._
 import io.circe.{ Decoder, Json }
 import slack.SlackError
+import slack.core.ClientSecret
 import slack.core.access.secret
-import slack.core.access.secret.ClientSecret
 import slack.core.client.{ send, SlackClient }
 import sttp.client.Request
-import zio.{ URIO, ZIO }
+import zio.{ Has, URIO, ZIO }
 
-object SlackOAuth {
+trait SlackOAuth {
 
-  trait OAuthV2Service {
-    def accessOAuthV2(
-      code: String,
-      redirectUri: Option[String] = None
-    ): ZIO[SlackClient with ClientSecret, SlackError, FullAccessTokenV2] =
-      request("oauth.v2.access", "code" -> code, "redirect_uri" -> redirectUri) >>= secret.authenticateM >>=
-        send[Json, circe.Error] >>= as[FullAccessTokenV2]
-  }
+  def accessOAuthV2(
+    code: String,
+    redirectUri: Option[String] = None
+  ): ZIO[SlackClient with Has[ClientSecret], SlackError, FullAccessTokenV2] =
+    request("oauth.v2.access", "code" -> code, "redirect_uri" -> redirectUri) >>= secret.authenticateM >>=
+      send[Json, circe.Error] >>= as[FullAccessTokenV2]
 
-  trait Service extends OAuthV2Service {
-    def accessOAuth(
-      code: String,
-      redirectUri: Option[String] = None,
-      singleChannel: Option[Boolean] = None
-    ): ZIO[SlackClient with ClientSecret, SlackError, FullAccessToken] =
-      sendRaw(
-        request(
-          "oauth.access",
-          "code"           -> code,
-          "redirect_uri"   -> redirectUri,
-          "single_channel" -> singleChannel
-        )
-      ) >>= as[FullAccessToken]
+  def accessOAuth(
+    code: String,
+    redirectUri: Option[String] = None,
+    singleChannel: Option[Boolean] = None
+  ): ZIO[SlackClient with Has[ClientSecret], SlackError, FullAccessToken] =
+    sendRaw(
+      request(
+        "oauth.access",
+        "code"           -> code,
+        "redirect_uri"   -> redirectUri,
+        "single_channel" -> singleChannel
+      )
+    ) >>= as[FullAccessToken]
 
-    protected def sendRaw[T](
-      request: URIO[Any, Request[SlackResponse[T], Nothing]]
-    ): ZIO[SlackClient with ClientSecret, Throwable, T] =
-      request >>= secret.authenticateM >>= send[T, circe.Error]
-  }
+  protected def sendRaw[T](
+    request: URIO[Any, Request[SlackResponse[T], Nothing]]
+  ): ZIO[SlackClient with Has[ClientSecret], Throwable, T] =
+    request >>= secret.authenticateM >>= send[T, circe.Error]
 }
 
-object oauth extends SlackOAuth.Service
+object oauth extends SlackOAuth
 
 case class BotAccessToken(
   bot_user_id: String,

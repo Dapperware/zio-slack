@@ -1,6 +1,6 @@
 package slack.core
 
-import slack.core.access.secret.{ authenticateM, ClientSecret }
+import slack.core.access.secret.{ authenticateM }
 import sttp.client._
 import sttp.model.Header
 import zio.test.Assertion.contains
@@ -8,7 +8,7 @@ import zio.test._
 
 object ClientSecretSpec extends DefaultRunnableSpec {
 
-  val token = ClientSecret.live("abc123", "supersecret")
+  val token = ClientSecret.make("abc123", "supersecret").toLayer
 
   override def spec: ZSpec[_root_.zio.test.environment.TestEnvironment, Any] =
     suite("ClientSecret")(

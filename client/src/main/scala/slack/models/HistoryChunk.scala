@@ -50,6 +50,12 @@ object PagingObject {
   implicit val decoder: Decoder[PagingObject] = deriveDecoder[PagingObject]
 }
 
+case class Pagination(first: Int, last: Int, page: Int, page_count: Int, per_page: Int, total_count: Int)
+
+object Pagination {
+  implicit val decoder: Decoder[Pagination] = deriveDecoder[Pagination]
+}
+
 case class AccessToken(access_token: String, scope: String)
 
 case class RtmStartState(url: String,
