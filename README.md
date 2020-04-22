@@ -66,13 +66,15 @@ You may have noticed that this is now returning compiler errors saying that it e
 import io.circe
 import io.circe.Json
 import slack.api.chats._
-import slack.{ AccessToken, SlackClient }
+import slack.core.AccessToken
+import slack.core.client.SlackClient
 import sttp.client._
 import sttp.client.asynchttpclient.zio.AsyncHttpClientZioBackend
 import sttp.client.circe._
 import zio.duration._
-import zio.{ IO, ManagedApp, Schedule, ZManaged }
-object JokeApp extends ManagedApp {
+import zio.{ IO, App, Schedule, ZManaged }
+
+object JokeApp extends App {
 
   val getJoke: Request[Either[ResponseError[circe.Error], Either[DecodingFailure, String]], Nothing] = basicRequest
     .get(uri"https://api.chucknorris.io/jokes/random")
@@ -81,25 +83,13 @@ object JokeApp extends ManagedApp {
 
   override def run(args: List[String]): ZManaged[zio.ZEnv, Nothing, Int] =
     (for {
-      backend <- AsyncHttpClientZioBackend().toManaged(_.close.orDie)
-      token  <- AccessToken.makeManaged("xoxb-<your-token>")
-      client <- SlackClient.makeManaged(backend)
-      _ <- (for {
             resp <- backend.send(getJoke)
             joke <- IO.fromEither(resp.body) >>= IO.fromEither
             _    <- postChatMessage("<your-channel-id>", joke)
-          } yield ())
-            .repeat(Schedule.fixed(3.hours))
-            .toManaged_
-            .provideSome[Clock](
-              c =>
-                new Clock with SlackClient with AccessToken {
-                  override val slackClient: SlackClient.Service[Any] = client.slackClient
-                  override val accessToken: AccessToken.Service[Any] = token.accessToken
-                  override val clock: Clock.Service[Any]             = c.clock
-              }
-            )
-    } yield ()).fold(ex => 1, _ => 0)
+      } yield ())
+       .repeat(Schedule.fixed(3.hours))
+       .provideCustomLayer((AsyncHttpClientZioBackend.layer() >>> SlackClient.live) ++ AccessToken.make("xoxb-<your-token>"))
+      .fold(ex => 1, _ => 0)
 }
 ```
 
