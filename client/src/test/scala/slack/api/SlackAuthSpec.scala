@@ -5,7 +5,6 @@ import zio.test._
 import Assertion._
 import TestAspect._
 import slack.SlackError
-import slack.core.access.{ AccessToken, ClientToken }
 import slack.core.client.SlackClient
 import slack.models.AuthIdentity
 import sttp.client.{ Request, Response, SttpBackend }

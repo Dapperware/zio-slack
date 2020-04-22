@@ -4,7 +4,7 @@ import pureconfig._
 import pureconfig.error.ConfigReaderException
 import pureconfig.generic.semiauto._
 import slack.api.{ realtime, web }
-import slack.core.access.AccessToken
+import slack.core.AccessToken
 import slack.core.client.SlackClient
 import slack.realtime.models.{ SendMessage, UserTyping }
 import slack.realtime.{ SlackRealtimeClient, SlackRealtimeEnv }
@@ -29,10 +29,9 @@ object BasicApp extends ManagedApp {
       config <- ZManaged
                  .fromEither(ConfigSource.defaultApplication.at("basic").load[BasicConfig])
                  .mapError(ConfigReaderException(_))
-      accessToken = AccessToken.live(config.token)
-      env         = layers ++ accessToken
-      resp        <- testApi(config).provideLayer(env).toManaged_
-      _           <- testRealtime(config).provideSomeLayer[Console](env)
+      env  = layers ++ AccessToken.make(config.token).toLayer
+      resp <- testApi(config).provideLayer(env).toManaged_
+      _    <- testRealtime(config).provideSomeLayer[Console](env)
     } yield resp).either.flatMap {
       case Left(value)  => putStrLn(value.getMessage) as 1 toManaged_
       case Right(value) => putStrLn(value) as 0 toManaged_

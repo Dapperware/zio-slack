@@ -9,7 +9,7 @@ import slack.api.users._
 import slack.realtime.SlackRealtimeClient
 import slack.realtime.models.{ Message, OutboundMessage, SendMessage }
 import slack.SlackError
-import slack.core.access.AccessToken
+import slack.core.AccessToken
 import slack.core.client.SlackClient
 import sttp.client.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio.console._
@@ -45,7 +45,7 @@ object ChatApp extends ManagedApp {
       config <- ZManaged
                  .fromEither(ConfigSource.defaultApplication.at("basic").load[BasicConfig])
                  .mapError(ConfigReaderException(_))
-      env = layers ++ AccessToken.live(config.token)
+      env = layers ++ AccessToken.make(config.token).toLayer
       _ <- (for {
             outgoing <- ZStream
                          .fromEffect(for {
