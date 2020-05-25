@@ -53,9 +53,11 @@ object ChatApp extends ManagedApp {
                            message = SendMessage(config.channel, input)
                          } yield message)
                          .forever
-                         .toQueueUnbounded[SlackError, OutboundMessage]
+                         .toQueueUnbounded
             socketFiber <- (for {
-                            receiver <- realtime.connect(ZStream.fromQueue(outgoing).forever.unTake)
+                            receiver <- realtime.connect(
+                                         ZStream.fromQueue(outgoing).forever.collectWhileSuccess.flattenChunks
+                                       )
                             _ <- receiver.collectM {
                                   case Message(_, channel, user, text, _, _) =>
                                     val references = ZIO.foreach(findReferences(text)) { ref =>

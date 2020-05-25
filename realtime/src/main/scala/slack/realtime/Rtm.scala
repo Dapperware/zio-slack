@@ -8,7 +8,8 @@ import slack.{ SlackError, SlackException }
 import sttp.client.ws.WebSocket
 import sttp.model.ws.WebSocketFrame
 import zio._
-import zio.stream.{ Take, ZStream }
+import zio.stream.ZStream
+import zio.stream.ZStream.Take
 
 object Rtm {
   type MessageStream = ZStream[Any, SlackError, SlackEvent]
@@ -23,16 +24,21 @@ object Rtm {
   trait Service {
 
     private def readMessage(ws: WebSocket[Task]): Task[Take[Nothing, SlackEvent]] =
-      ws.receiveText().flatMap(_.fold(_ => ZIO.succeed(Take.End), value => parseMessage(value).map(Take.Value(_))))
+      ws.receiveText()
+        .flatMap(
+          _.fold(_ => ZIO.succeed(Take.End), value => parseMessage(value).map(v => Exit.succeed(Chunk.single(v))))
+        )
 
     private val openAndHandshake: ZIO[SlackRealtimeEnv, SlackError, WebSocket[Task]] = for {
       ws <- openWebsocket
       // After the socket has been opened the first message we expect is the "hello" message
       // Chew that off the front of the socket, if we don't receive it we should return an exception
-      _ <- readMessage(ws).filterOrFail {
-            case Take.Value(Hello(_)) => true
-            case _                    => false
-          }(SlackException.ProtocolError("Protocol error did not receive hello as first message"))
+      _ <- readMessage(ws).filterOrFail(
+            _.exists(_.exists {
+              case Hello(_) => true
+              case _        => false
+            })
+          )(SlackException.ProtocolError("Protocol error did not receive hello as first message"))
     } yield ws
 
     def connect[R, E1 >: SlackError](
@@ -43,10 +49,12 @@ object Rtm {
         // Reads the messages being sent from the caller and buffers them while we wait to send them
         // to slack
         _ <- (for {
-              queue <- outbound.toQueueUnbounded[E1, OutboundMessage]
-              _ <- ZStream.fromQueue(queue).forever.unTake.zipWithIndex.foreachManaged {
-                    case (event, idx) =>
-                      ws.send(WebSocketFrame.text(event.asJson.deepMerge(Json.obj("id" -> idx.asJson)).noSpaces))
+              queue <- outbound.toQueueUnbounded
+              _ <- ZStream.fromQueue(queue).forever.collectWhileSuccess.zipWithIndex.foreachManaged {
+                    case (events, idx) =>
+                      events.mapM_(
+                        ev => ws.send(WebSocketFrame.text(ev.asJson.deepMerge(Json.obj("id" -> idx.asJson)).noSpaces))
+                      )
                   }
             } yield ()).fork
         // We set up the stream to begin receiving text messages
@@ -54,7 +62,8 @@ object Rtm {
         receive = ZStream
           .fromEffect(readMessage(ws))
           .forever
-          .unTake
+          .collectWhileSuccess
+          .flattenChunks
       } yield receive
 
   }

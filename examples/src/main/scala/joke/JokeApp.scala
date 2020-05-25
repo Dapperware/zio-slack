@@ -13,11 +13,11 @@ import slack.models.Channel
 import sttp.client._
 import sttp.client.asynchttpclient.zio.AsyncHttpClientZioBackend
 import sttp.client.circe._
+import zio._
 import zio.clock.Clock
 import zio.duration._
 import zio.random.Random
-import zio.stream.{ ZStream, ZStreamChunk }
-import zio._
+import zio.stream.ZStream
 
 /**
  * Every 3 hours, randomly pick a channel that the bot is part of and send a chuck norris joke to it.
@@ -31,13 +31,17 @@ object JokeApp extends ManagedApp {
 
   // Shuffle the conversations that we are a part of
   val shuffledConversations: ZIO[Random with slack.SlackEnv, Throwable, List[Channel]] =
-    ZStreamChunk(ZStream.paginateM(Option.empty[String]) { cursor =>
-      for {
-        convos <- listConversations(cursor)
-      } yield
-        (Chunk.fromIterable(convos.channels).filter(_.is_member.contains(true)),
-         convos.response_metadata.map(_.next_cursor))
-    }).runCollect.flatMap(random.shuffle(_))
+    ZStream
+      .paginateM(Option.empty[String]) { cursor =>
+        for {
+          convos <- listConversations(cursor)
+        } yield
+          (Chunk.fromIterable(convos.channels).filter(_.is_member.contains(true)),
+           convos.response_metadata.map(_.next_cursor))
+      }
+      .flattenChunks
+      .runCollect
+      .flatMap(random.shuffle(_))
 
   val layers = AsyncHttpClientZioBackend.layer() >>> SlackClient.live
 
