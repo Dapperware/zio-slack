@@ -11,7 +11,7 @@ import slack.api.conversations._
 import slack.client.SlackClient
 import slack.models.Channel
 import sttp.client._
-import sttp.client.asynchttpclient.zio.AsyncHttpClientZioBackend
+import sttp.client.asynchttpclient.zio.{ AsyncHttpClientZioBackend, SttpClient }
 import sttp.client.circe._
 import zio._
 import zio.clock.Clock
@@ -22,7 +22,7 @@ import zio.stream.ZStream
 /**
  * Every 3 hours, randomly pick a channel that the bot is part of and send a chuck norris joke to it.
  */
-object JokeApp extends ManagedApp {
+object JokeApp extends App {
 
   val getJoke: Request[Either[ResponseError[circe.Error], Either[DecodingFailure, String]], Nothing] = basicRequest
     .get(uri"https://api.chucknorris.io/jokes/random")
@@ -37,31 +37,34 @@ object JokeApp extends ManagedApp {
           convos <- listConversations(cursor)
         } yield
           (Chunk.fromIterable(convos.channels).filter(_.is_member.contains(true)),
-           convos.response_metadata.map(_.next_cursor))
+           convos.response_metadata.flatMap(_.next_cursor).filter(_.nonEmpty).map(Some(_)))
       }
       .flattenChunks
       .runCollect
       .flatMap(random.shuffle(_))
 
-  val layers = AsyncHttpClientZioBackend.layer() >>> SlackClient.live
+  val configLayer = ZLayer.fromEffect {
+    ZIO
+      .fromEither(ConfigSource.defaultApplication.at("basic").load[BasicConfig])
+      .bimap(ConfigReaderException(_), _.token)
+      .flatMap(AccessToken.make)
+  }
 
-  override def run(args: List[String]): ZManaged[zio.ZEnv, Nothing, ExitCode] =
+  val layers =
+    AsyncHttpClientZioBackend.layer() >+> (SlackClient.live ++ configLayer)
+
+  override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, ExitCode] =
     (for {
-      backend <- AsyncHttpClientZioBackend().toManaged(_.close.orDie)
-      config <- ZManaged
-                 .fromEither(ConfigSource.defaultApplication.at("basic").load[BasicConfig])
-                 .mapError(ConfigReaderException(_))
-      environment = AccessToken.make(config.token).toLayer ++ layers
-      _ <- (for {
-            shuffled <- shuffledConversations
-            _ <- ZIO.foreach_(shuffled) { channel =>
-                  (for {
-                    resp <- backend.send(getJoke)
-                    body <- IO.fromEither(resp.body)
-                    joke <- IO.fromEither(body)
-                    _    <- postChatMessage(channel.id, joke)
-                  } yield ()) *> ZIO.sleep(3.hours)
-                }
-          } yield ()).provideSomeLayer[Clock with Random](environment).toManaged_
-    } yield ()).fold(_ => ExitCode(1), _ => ExitCode(0))
+      shuffled <- shuffledConversations
+      _ <- ZIO.foreach(shuffled) { channel =>
+            (for {
+              resp <- SttpClient.send(getJoke)
+              body <- IO.fromEither(resp.body)
+              joke <- IO.fromEither(body)
+              _    <- postChatMessage(channel.id, joke)
+            } yield ()) *> ZIO.sleep(3.hours)
+          }
+    } yield ())
+      .provideSomeLayer[Clock with Random](layers)
+      .exitCode
 }
