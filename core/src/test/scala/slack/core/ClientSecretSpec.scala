@@ -1,7 +1,8 @@
 package slack.core
 
-import slack.core.access.secret.{ authenticateM }
+import slack.ClientSecret
 import sttp.client._
+import slack.access.secret._
 import sttp.model.Header
 import zio.test.Assertion.contains
 import zio.test._

@@ -2,8 +2,7 @@ package slack
 
 import io.circe
 import io.circe.Json
-import slack.core.{ access, client }
-import slack.core.client.RequestEntity
+import slack.client.RequestEntity
 import sttp.client._
 import sttp.client.circe._
 import zio.{ UIO, ZIO }

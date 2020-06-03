@@ -1,4 +1,4 @@
-package slack.core
+package slack
 
 import sttp.client._
 import sttp.client.asynchttpclient.zio.SttpClient

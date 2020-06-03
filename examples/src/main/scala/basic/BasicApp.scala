@@ -4,15 +4,14 @@ import pureconfig._
 import pureconfig.error.ConfigReaderException
 import pureconfig.generic.semiauto._
 import slack.api.{ realtime, web }
-import slack.core.AccessToken
-import slack.core.client.SlackClient
+import slack.client.SlackClient
 import slack.realtime.models.{ SendMessage, UserTyping }
 import slack.realtime.{ SlackRealtimeClient, SlackRealtimeEnv }
-import slack.{ SlackEnv, SlackError }
+import slack.{ AccessToken, SlackEnv, SlackError }
 import sttp.client.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio.console.{ putStrLn, Console }
 import zio.stream.ZStream
-import zio.{ ManagedApp, ZIO, ZManaged }
+import zio.{ App, ExitCode, ZIO, ZManaged }
 
 case class BasicConfig(token: String, channel: String)
 
@@ -20,11 +19,11 @@ object BasicConfig {
   implicit val configReader: ConfigReader[BasicConfig] = deriveReader[BasicConfig]
 }
 
-object BasicApp extends ManagedApp {
+object BasicApp extends App {
   val layers = AsyncHttpClientZioBackend.layer() >>>
     (SlackClient.live ++ SlackRealtimeClient.live)
 
-  override def run(args: List[String]): ZManaged[zio.ZEnv, Nothing, Int] =
+  override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, ExitCode] =
     (for {
       config <- ZManaged
                  .fromEither(ConfigSource.defaultApplication.at("basic").load[BasicConfig])
@@ -32,10 +31,7 @@ object BasicApp extends ManagedApp {
       env  = layers ++ AccessToken.make(config.token).toLayer
       resp <- testApi(config).provideLayer(env).toManaged_
       _    <- testRealtime(config).provideSomeLayer[Console](env)
-    } yield resp).either.flatMap {
-      case Left(value)  => putStrLn(value.getMessage) as 1 toManaged_
-      case Right(value) => putStrLn(value) as 0 toManaged_
-    }
+    } yield resp).use_(ZIO.unit).exitCode
 
   def testRealtime(config: BasicConfig): ZManaged[SlackRealtimeEnv with Console, SlackError, Unit] =
     for {

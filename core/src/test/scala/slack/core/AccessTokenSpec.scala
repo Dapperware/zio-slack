@@ -1,5 +1,7 @@
 package slack.core
 
+import slack.AccessToken
+import slack.access._
 import sttp.client.basicRequest
 import sttp.model.Header
 import zio.test.Assertion.contains
@@ -14,7 +16,7 @@ object AccessTokenSpec extends DefaultRunnableSpec {
     testM("Adds auth bearer token") {
       val request = basicRequest.get(uri"https://github.com/dapperware/zio-slack")
 
-      assertM(access.authenticateM(request).map(_.headers))(contains(new Header("Authorization", "Bearer abc123")))
+      assertM(authenticateM(request).map(_.headers))(contains(new Header("Authorization", "Bearer abc123")))
     }.provideLayer(accessToken.toLayer)
   )
 }

@@ -1,7 +1,6 @@
 package slack.api
 
-import slack.SlackError
-import slack.core.ClientSecret
+import slack.{ ClientSecret, SlackError }
 import zio.{ Has, ZIO }
 
 trait SlackApps {

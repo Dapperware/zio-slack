@@ -3,11 +3,11 @@ package search
 import basic.BasicConfig
 import pureconfig.ConfigSource
 import pureconfig.error.ConfigReaderException
-import zio.{ App, ZIO, ZLayer }
+import slack.AccessToken
+import zio.{ App, ExitCode, ZIO, ZLayer }
 import zio.console._
 import slack.api.search.searchMessages
-import slack.core.AccessToken
-import slack.core.client.SlackClient
+import slack.client.SlackClient
 import slack.realtime.SlackRealtimeClient
 import sttp.client.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio.stream.{ ZSink, ZStream }
@@ -16,7 +16,7 @@ object SearchApp extends App {
   val layers = AsyncHttpClientZioBackend.layer() >>>
     (SlackClient.live ++ SlackRealtimeClient.live)
 
-  override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, Int] =
+  override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, ExitCode] =
     ZStream
       .repeatEffect(interactionLoop)
       .run(ZSink.foreach(response => putStrLn(response.spaces2)))
@@ -28,7 +28,7 @@ object SearchApp extends App {
             .flatMap(AccessToken.make)
         ) ++ layers
       )
-      .fold(_ => 1, _ => 0)
+      .exitCode
 
   val interactionLoop = for {
     input  <- getStrLn

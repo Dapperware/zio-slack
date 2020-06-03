@@ -5,10 +5,10 @@ import io.circe
 import io.circe.{ DecodingFailure, Json }
 import pureconfig.ConfigSource
 import pureconfig.error.ConfigReaderException
+import slack.AccessToken
 import slack.api.chats._
 import slack.api.conversations._
-import slack.core.AccessToken
-import slack.core.client.SlackClient
+import slack.client.SlackClient
 import slack.models.Channel
 import sttp.client._
 import sttp.client.asynchttpclient.zio.AsyncHttpClientZioBackend
@@ -45,7 +45,7 @@ object JokeApp extends ManagedApp {
 
   val layers = AsyncHttpClientZioBackend.layer() >>> SlackClient.live
 
-  override def run(args: List[String]): ZManaged[zio.ZEnv, Nothing, Int] =
+  override def run(args: List[String]): ZManaged[zio.ZEnv, Nothing, ExitCode] =
     (for {
       backend <- AsyncHttpClientZioBackend().toManaged(_.close.orDie)
       config <- ZManaged
@@ -63,5 +63,5 @@ object JokeApp extends ManagedApp {
                   } yield ()) *> ZIO.sleep(3.hours)
                 }
           } yield ()).provideSomeLayer[Clock with Random](environment).toManaged_
-    } yield ()).fold(_ => 1, _ => 0)
+    } yield ()).fold(_ => ExitCode(1), _ => ExitCode(0))
 }

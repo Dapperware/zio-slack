@@ -3,10 +3,9 @@ package slack.api
 import io.circe
 import io.circe.generic.semiauto._
 import io.circe.{ Decoder, Json }
-import slack.SlackError
-import slack.core.ClientSecret
-import slack.core.access.secret
-import slack.core.client.{ send, SlackClient }
+import slack.access.secret
+import slack.client._
+import slack.{ ClientSecret, SlackError }
 import sttp.client.Request
 import zio.{ Has, URIO, ZIO }
 

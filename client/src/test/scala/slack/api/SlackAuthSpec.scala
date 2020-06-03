@@ -1,18 +1,10 @@
 package slack.api
 
-import slack.api.auth.{ test => slackTest, testAuth => slackTestAuth }
-import zio.test._
-import Assertion._
-import TestAspect._
-import slack.SlackError
-import slack.core.client.SlackClient
-import slack.models.AuthIdentity
-import sttp.client.{ Request, Response, SttpBackend }
 import sttp.client.asynchttpclient.WebSocketHandler
-import sttp.client.asynchttpclient.zio.{ AsyncHttpClientZioBackend, SttpClient }
 import sttp.client.monad.MonadError
 import sttp.client.ws.WebSocketResponse
-import zio.{ Has, Layer, Task, ZLayer }
+import sttp.client.{ Request, Response, SttpBackend }
+import zio.Task
 
 case class HijackingBackend(delegate: SttpBackend[Task, Nothing, WebSocketHandler])
     extends SttpBackend[Task, Nothing, WebSocketHandler] {

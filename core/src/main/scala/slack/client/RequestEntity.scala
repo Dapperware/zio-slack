@@ -1,4 +1,4 @@
-package slack.core.client
+package slack.client
 
 import java.io.File
 
