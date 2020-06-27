@@ -106,7 +106,7 @@ lazy val examples = project.in(file("examples"))
     .settings(commonSettings)
     .settings(
       skip in publish := true,
-      libraryDependencies += "com.github.pureconfig" %% "pureconfig" % "0.12.3"
+      libraryDependencies += "com.github.pureconfig" %% "pureconfig" % "0.13.0"
     )
 
 scalacOptions ++= Seq(
