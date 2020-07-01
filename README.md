@@ -48,14 +48,11 @@ We'll use the STTP library since it is what zio-slack is built with. First lets 
 Next lets build a small program that would send these jokes to our slack workspace:
 
 ```scala
-for {
-  backend <- AsyncHttpClientZioBackend().toManaged(_.close.orDie)
-  _ <- (for {
-        resp <- backend.send(getJoke)
-        joke <- IO.fromEither(resp.body) >>= IO.fromEither
-        _    <- postChatMessage("<channel_id>", joke)
-      } yield ()).repeat(Schedule.fixed(3.hours)).toManaged_
-} yield ()
+(for {
+  resp <- SttpClient.send(getJoke)
+  joke <- IO.fromEither(resp.body) >>= IO.fromEither
+  _    <- postChatMessage("<channel_id>", joke)
+} yield ()).repeat(Schedule.fixed(3.hours))
 ```
 
 Almost there. 
@@ -72,24 +69,28 @@ import sttp.client._
 import sttp.client.asynchttpclient.zio.AsyncHttpClientZioBackend
 import sttp.client.circe._
 import zio.duration._
-import zio.{ IO, App, Schedule, ZManaged }
+import zio.{ IO, App, Schedule, ExitCode }
 
 object JokeApp extends App {
 
+  // Builds a request which will fetch a new chuck norris joke
   val getJoke: Request[Either[ResponseError[circe.Error], Either[DecodingFailure, String]], Nothing] = basicRequest
     .get(uri"https://api.chucknorris.io/jokes/random")
     .response(asJson[Json])
     .mapResponseRight(_.hcursor.downField("value").as[String])
+    
+  // Creates our static environmental layer
+  val envLayer = AsyncHttpClientZioBackend.layer() >>> SlackClient.live
 
-  override def run(args: List[String]): ZManaged[zio.ZEnv, Nothing, Int] =
+  override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, ExitCode] =
     (for {
-            resp <- backend.send(getJoke)
-            joke <- IO.fromEither(resp.body) >>= IO.fromEither
-            _    <- postChatMessage("<your-channel-id>", joke)
+      resp <- SttpClient.send(getJoke)                    // Gets a new joke
+      joke <- IO.fromEither(resp.body) >>= IO.fromEither  // Decodes the joke response
+      _    <- postChatMessage("<your-channel-id>", joke)  // Sends the joke to the channel of your choice
       } yield ())
-       .repeat(Schedule.fixed(3.hours))
-       .provideCustomLayer((AsyncHttpClientZioBackend.layer() >>> SlackClient.live) ++ AccessToken.make("xoxb-<your-token>"))
-      .fold(ex => 1, _ => 0)
+       .repeat(Schedule.fixed(3.hours)) // Repeat every three hours
+       .provideCustomLayer(envLayer ++ AccessToken.make("xoxb-<your-token>").toLayer) // Add the token used to authorize requests to slack
+       .exitCode
 }
 ```
 
