@@ -1,8 +1,6 @@
 package chat
 
-import basic.BasicConfig
-import pureconfig.ConfigSource
-import pureconfig.error.ConfigReaderException
+import common.{ accessToken, default, Basic, BasicConfig }
 import slack.AccessToken
 import slack.api.conversations._
 import slack.api.realtime
@@ -11,9 +9,9 @@ import slack.client.SlackClient
 import slack.realtime.SlackRealtimeClient
 import slack.realtime.models.{ Message, SendMessage }
 import sttp.client.asynchttpclient.zio.AsyncHttpClientZioBackend
+import zio._
 import zio.console._
 import zio.stream.ZStream
-import zio._
 
 /**
  * A simple interactive application to show how to use slack zio for much profit
@@ -37,30 +35,15 @@ object ChatApp extends App {
       case (t, (ref, replace)) => t.replaceAllLiterally(s"<@$ref>", s"@$replace")
     }
 
-  private val accessTokenLayer: ZLayer[Any, ConfigReaderException[Nothing], Has[AccessToken] with Has[BasicConfig]] =
-    ZLayer.fromEffectMany {
-      for {
-        c <- ZIO
-              .fromEither(
-                ConfigSource.defaultApplication
-                  .at("basic")
-                  .load[BasicConfig]
-              )
-              .mapError(ConfigReaderException(_))
-        accessToken <- AccessToken.make(c.token)
-      } yield Has.allOf[AccessToken, BasicConfig](accessToken, c)
-
-    }
-
-  private val layers: ZLayer[Any, Throwable, SlackRealtimeClient with SlackClient with Has[AccessToken] with Has[
-    BasicConfig
-  ]] = AsyncHttpClientZioBackend.layer() >>> (SlackRealtimeClient.live ++ SlackClient.live ++ accessTokenLayer)
+  private val layers: ZLayer[Any, Throwable, SlackRealtimeClient with SlackClient with Has[AccessToken] with Basic] =
+    AsyncHttpClientZioBackend
+      .layer() >>> (SlackRealtimeClient.live ++ SlackClient.live ++ (default >+> accessToken.live))
 
   override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, ExitCode] = {
     val messageSender = ZStream
       .fromEffect(for {
         input   <- getStrLn
-        channel <- ZIO.access[Has[BasicConfig]](_.get.channel)
+        channel <- ZIO.service[BasicConfig].map(_.channel)
         message = SendMessage(channel, input)
       } yield message)
       .forever

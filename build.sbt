@@ -36,8 +36,8 @@ scalaVersion in ThisBuild := mainScala
 gitVersioningSnapshotLowerBound in ThisBuild := "0.4.0"
 
 val circeV = "0.13.0"
-val zioV = "1.0.0-RC21-2"
-val sttpV = "2.2.1"
+val zioV = "1.0.0"
+val sttpV = "2.2.4"
 
 publishTo in ThisBuild := sonatypePublishToBundle.value
 
@@ -106,7 +106,11 @@ lazy val examples = project.in(file("examples"))
     .settings(commonSettings)
     .settings(
       skip in publish := true,
-      libraryDependencies += "com.github.pureconfig" %% "pureconfig" % "0.13.0"
+      libraryDependencies ++= Seq(
+        "dev.zio" %% "zio-config" % "1.0.0-RC26",
+        "dev.zio" %% "zio-config-typesafe" % "1.0.0-RC26",
+        "dev.zio" %% "zio-config-magnolia" % "1.0.0-RC26"
+      )
     )
 
 scalacOptions ++= Seq(

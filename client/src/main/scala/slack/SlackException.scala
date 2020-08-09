@@ -10,7 +10,7 @@ trait SlackException extends Exception
 object SlackException {
 
   /**
-   * Indicates that there was an error in attempting to decode a message from
+   * Indicates that there was an error in attempting to decode a message from slack
    */
   case class DecodingError(message: String) extends SlackException
 

@@ -1,10 +1,8 @@
 package joke
 
-import basic.BasicConfig
+import common.Basic
 import io.circe
 import io.circe.{ DecodingFailure, Json }
-import pureconfig.ConfigSource
-import pureconfig.error.ConfigReaderException
 import slack.AccessToken
 import slack.api.chats._
 import slack.api.conversations._
@@ -14,7 +12,6 @@ import sttp.client._
 import sttp.client.asynchttpclient.zio.{ AsyncHttpClientZioBackend, SttpClient }
 import sttp.client.circe._
 import zio._
-import zio.clock.Clock
 import zio.duration._
 import zio.random.Random
 import zio.stream.ZStream
@@ -41,17 +38,14 @@ object JokeApp extends App {
       }
       .flattenChunks
       .runCollect
-      .flatMap(random.shuffle(_))
+      .flatMap(c => random.shuffle(c.toList))
 
-  val configLayer = ZLayer.fromEffect {
-    ZIO
-      .fromEither(ConfigSource.defaultApplication.at("basic").load[BasicConfig])
-      .bimap(ConfigReaderException(_), _.token)
-      .flatMap(AccessToken.make)
+  val accessTokenLayer: ZLayer[Basic, Nothing, Has[AccessToken]] = ZLayer.fromServiceM { config =>
+    AccessToken.make(config.token)
   }
 
   val layers =
-    AsyncHttpClientZioBackend.layer() >+> (SlackClient.live ++ configLayer)
+    AsyncHttpClientZioBackend.layer() >+> (SlackClient.live ++ (common.default >+> accessTokenLayer))
 
   override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, ExitCode] =
     (for {
@@ -65,6 +59,6 @@ object JokeApp extends App {
             } yield ()) *> ZIO.sleep(3.hours)
           }
     } yield ())
-      .provideSomeLayer[Clock with Random](layers)
+      .provideCustomLayer(layers)
       .exitCode
 }

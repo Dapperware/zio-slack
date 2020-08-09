@@ -1,40 +1,30 @@
 package basic
 
-import pureconfig._
-import pureconfig.error.ConfigReaderException
-import pureconfig.generic.semiauto._
+import common.{ accessToken, default, Basic, BasicConfig }
 import slack.api.{ realtime, web }
 import slack.client.SlackClient
 import slack.realtime.models.{ SendMessage, UserTyping }
 import slack.realtime.{ SlackRealtimeClient, SlackRealtimeEnv }
-import slack.{ AccessToken, SlackEnv, SlackError }
+import slack.{ SlackEnv, SlackError }
 import sttp.client.asynchttpclient.zio.AsyncHttpClientZioBackend
+import zio.config._
 import zio.console.{ putStrLn, Console }
 import zio.stream.ZStream
-import zio.{ App, ExitCode, ZIO, ZManaged }
-
-case class BasicConfig(token: String, channel: String)
-
-object BasicConfig {
-  implicit val configReader: ConfigReader[BasicConfig] = deriveReader[BasicConfig]
-}
+import zio.{ App, ExitCode, Layer, ZIO, ZManaged }
 
 object BasicApp extends App {
-  val layers = AsyncHttpClientZioBackend.layer() >>>
-    (SlackClient.live ++ SlackRealtimeClient.live)
+  val layers: Layer[Throwable, SlackEnv with SlackRealtimeEnv with Basic] =
+    AsyncHttpClientZioBackend.layer() >>>
+      (SlackClient.live ++ SlackRealtimeClient.live ++ (default >+> accessToken.live))
 
   override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, ExitCode] =
     (for {
-      config <- ZManaged
-                 .fromEither(ConfigSource.defaultApplication.at("basic").load[BasicConfig])
-                 .mapError(ConfigReaderException(_))
-      env  = layers ++ AccessToken.make(config.token).toLayer
-      resp <- testApi(config).provideLayer(env).toManaged_
-      _    <- testRealtime(config).provideSomeLayer[Console](env)
+      resp <- (testApi.toManaged_ <&> testRealtime).provideCustomLayer(layers)
     } yield resp).use_(ZIO.unit).exitCode
 
-  def testRealtime(config: BasicConfig): ZManaged[SlackRealtimeEnv with Console, SlackError, Unit] =
+  val testRealtime: ZManaged[SlackRealtimeEnv with ZConfig[BasicConfig] with Console, SlackError, Unit] =
     for {
+      config <- ZManaged.service[BasicConfig]
       // Test that we can receive messages
       receiver <- realtime.connect(ZStream(SendMessage(config.channel, "Hi realtime!")))
       _ <- receiver.collectM {
@@ -43,10 +33,11 @@ object BasicApp extends App {
           }.runDrain.toManaged_
     } yield ()
 
-  def testApi(config: BasicConfig): ZIO[SlackEnv, SlackError, String] =
+  val testApi: ZIO[SlackEnv with ZConfig[BasicConfig], SlackError, String] =
     for {
-      resp <- web.postChatMessage(config.channel, text = "Hello Slack client!")
-      _    <- web.addReactionToMessage("+1", config.channel, resp)
+      config <- ZIO.service[BasicConfig]
+      resp   <- web.postChatMessage(config.channel, text = "Hello Slack client!")
+      _      <- web.addReactionToMessage("+1", config.channel, resp)
     } yield resp
 
 }
