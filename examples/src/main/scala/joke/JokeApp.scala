@@ -1,15 +1,15 @@
 package joke
 
+import com.dapperware.slack
+import com.dapperware.slack.access.AccessToken
+import com.dapperware.slack.api.web.{listConversations, postChatMessage}
+import com.dapperware.slack.client.SlackClient
+import com.dapperware.slack.models.Channel
 import common.Basic
 import io.circe
-import io.circe.{ DecodingFailure, Json }
-import slack.AccessToken
-import slack.api.chats._
-import slack.api.conversations._
-import slack.client.SlackClient
-import slack.models.Channel
+import io.circe.{DecodingFailure, Json}
 import sttp.client._
-import sttp.client.asynchttpclient.zio.{ AsyncHttpClientZioBackend, SttpClient }
+import sttp.client.asynchttpclient.zio.{AsyncHttpClientZioBackend, SttpClient}
 import sttp.client.circe._
 import zio._
 import zio.duration._
@@ -40,7 +40,7 @@ object JokeApp extends App {
       .runCollect
       .flatMap(c => random.shuffle(c.toList))
 
-  val accessTokenLayer: ZLayer[Basic, Nothing, Has[AccessToken]] = ZLayer.fromServiceM { config =>
+  val accessTokenLayer: ZLayer[Basic, Nothing, AccessToken] = ZLayer.fromServiceM { config =>
     AccessToken.make(config.token)
   }
 

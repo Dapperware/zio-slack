@@ -2,8 +2,9 @@ package slack
 
 import zio.test._
 import Assertion._
+import com.dapperware.slack.{SlackException, SlackExtractors}
 import io.circe.CursorOp.DownField
-import io.circe.{ DecodingFailure, Json }
+import io.circe.{DecodingFailure, Json}
 import io.circe.syntax._
 
 object ExtractorSpec extends DefaultRunnableSpec {

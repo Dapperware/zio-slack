@@ -1,12 +1,10 @@
 package slack.core
 
-import slack.AccessToken
-import slack.access._
-import sttp.client.basicRequest
+import com.dapperware.slack.access.{AccessToken, authenticateM}
+import sttp.client.{basicRequest, _}
 import sttp.model.Header
 import zio.test.Assertion.contains
-import zio.test.{ assertM, suite, testM, DefaultRunnableSpec, ZSpec }
-import sttp.client._
+import zio.test._
 
 object AccessTokenSpec extends DefaultRunnableSpec {
 

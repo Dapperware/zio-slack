@@ -63,7 +63,7 @@ You may have noticed that this is now returning compiler errors saying that it e
 import io.circe
 import io.circe.Json
 import slack.api.chats._
-import slack.AccessToken
+import slack.access.AccessToken
 import slack.core.client.SlackClient
 import sttp.client._
 import sttp.client.asynchttpclient.zio.AsyncHttpClientZioBackend

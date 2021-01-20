@@ -1,8 +1,8 @@
 import zio.config._
 import ConfigDescriptor._
-import slack.AccessToken
+import com.dapperware.slack.access.AccessToken
 import zio.config.typesafe.TypesafeConfig
-import zio.{ Has, Layer, ZLayer }
+import zio.{FiberRef, Has, Layer, ZLayer}
 
 package object common {
   type Basic = Has[BasicConfig]
@@ -11,7 +11,8 @@ package object common {
     TypesafeConfig.fromDefaultLoader(nested("basic") { BasicConfig.descriptor })
 
   object accessToken {
-    val live: ZLayer[Basic, Nothing, Has[AccessToken]] = ZLayer.fromServiceM(c => AccessToken.make(c.token))
+    val live: ZLayer[Basic, Nothing, AccessToken] =
+      ZLayer.fromServiceM[BasicConfig, Any, Nothing, FiberRef[AccessToken.Token]](c => AccessToken.make(c.token))
   }
 
 }

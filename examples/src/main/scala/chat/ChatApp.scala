@@ -1,13 +1,12 @@
 package chat
 
-import common.{ accessToken, default, Basic, BasicConfig }
-import slack.AccessToken
-import slack.api.conversations._
-import slack.api.realtime
-import slack.api.users._
-import slack.client.SlackClient
-import slack.realtime.SlackRealtimeClient
-import slack.realtime.models.{ Message, SendMessage }
+import com.dapperware.slack.access.AccessToken
+import com.dapperware.slack.api.web.{getConversationInfo, getUserInfo}
+import com.dapperware.slack.client.SlackClient
+import com.dapperware.slack.realtime
+import com.dapperware.slack.realtime.SlackRealtimeClient
+import com.dapperware.slack.realtime.models.{Message, SendMessage}
+import common.{Basic, BasicConfig, accessToken, default}
 import sttp.client.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio._
 import zio.console._
@@ -35,7 +34,7 @@ object ChatApp extends App {
       case (t, (ref, replace)) => t.replaceAllLiterally(s"<@$ref>", s"@$replace")
     }
 
-  private val layers: ZLayer[Any, Throwable, SlackRealtimeClient with SlackClient with Has[AccessToken] with Basic] =
+  private val layers: ZLayer[Any, Throwable, SlackRealtimeClient with SlackClient with AccessToken with Basic] =
     AsyncHttpClientZioBackend
       .layer() >>> (SlackRealtimeClient.live ++ SlackClient.live ++ (default >+> accessToken.live))
 
@@ -69,6 +68,6 @@ object ChatApp extends App {
         _ <- putStrLn("Ready for input!")
         _ <- socketFiber.join
       } yield ()
-    }.provideSomeLayer[Console](layers).exitCode
+    }.provideCustomLayer(layers).exitCode
   }
 }
