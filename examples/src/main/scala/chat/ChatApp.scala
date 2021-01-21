@@ -36,7 +36,7 @@ object ChatApp extends App {
 
   private val layers: ZLayer[Any, Throwable, SlackRealtimeClient with SlackClient with AccessToken with Basic] =
     AsyncHttpClientZioBackend
-      .layer() >>> (SlackRealtimeClient.live ++ SlackClient.live ++ (default >+> accessToken.live))
+      .layer() >>> (SlackRealtimeClient.live ++ SlackClient.live ++ (default >+> accessToken.toLayer))
 
   override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, ExitCode] = {
     val messageSender = ZStream

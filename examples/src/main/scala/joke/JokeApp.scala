@@ -1,17 +1,19 @@
 package joke
 
 import com.dapperware.slack
-import com.dapperware.slack.access.AccessToken
-import com.dapperware.slack.api.web.{listConversations, postChatMessage}
+import com.dapperware.slack.SlackEnv
+import com.dapperware.slack.access.withAccessTokenM
+import com.dapperware.slack.api.web.{ listConversations, postChatMessage }
 import com.dapperware.slack.client.SlackClient
 import com.dapperware.slack.models.Channel
-import common.Basic
+import common.{ accessToken, Basic, BasicConfig }
 import io.circe
-import io.circe.{DecodingFailure, Json}
+import io.circe.{ DecodingFailure, Json }
 import sttp.client._
-import sttp.client.asynchttpclient.zio.{AsyncHttpClientZioBackend, SttpClient}
+import sttp.client.asynchttpclient.zio.{ AsyncHttpClientZioBackend, SttpClient }
 import sttp.client.circe._
 import zio._
+import zio.clock.Clock
 import zio.duration._
 import zio.random.Random
 import zio.stream.ZStream
@@ -40,25 +42,26 @@ object JokeApp extends App {
       .runCollect
       .flatMap(c => random.shuffle(c.toList))
 
-  val accessTokenLayer: ZLayer[Basic, Nothing, AccessToken] = ZLayer.fromServiceM { config =>
-    AccessToken.make(config.token)
-  }
+  val layers: ZLayer[Any, Throwable, SttpClient with SlackClient with Basic] =
+    AsyncHttpClientZioBackend.layer() >+> SlackClient.live ++ common.default
 
-  val layers =
-    AsyncHttpClientZioBackend.layer() >+> (SlackClient.live ++ (common.default >+> accessTokenLayer))
+  val result: ZIO[SttpClient with SlackClient with Random with Clock with Basic, Throwable, Unit] =
+    ZIO.environment[Basic].flatMap { env =>
+      withAccessTokenM(accessToken.provide(env))(for {
+        shuffled <- shuffledConversations
+        _ <- ZIO.foreach(shuffled) { channel =>
+              (for {
+                resp <- SttpClient.send(getJoke)
+                body <- IO.fromEither(resp.body)
+                joke <- IO.fromEither(body)
+                _    <- postChatMessage(channel.id, joke)
+              } yield ()) *> ZIO.sleep(3.hours)
+            }
+      } yield ())
+    }
 
   override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, ExitCode] =
-    (for {
-      shuffled <- shuffledConversations
-      _ <- ZIO.foreach(shuffled) { channel =>
-            (for {
-              resp <- SttpClient.send(getJoke)
-              body <- IO.fromEither(resp.body)
-              joke <- IO.fromEither(body)
-              _    <- postChatMessage(channel.id, joke)
-            } yield ()) *> ZIO.sleep(3.hours)
-          }
-    } yield ())
+    result
       .provideCustomLayer(layers)
       .exitCode
 }

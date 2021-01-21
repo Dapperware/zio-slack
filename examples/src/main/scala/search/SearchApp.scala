@@ -11,7 +11,7 @@ import zio.{App, ExitCode, ZIO}
 
 object SearchApp extends App {
   val layers = AsyncHttpClientZioBackend.layer() >>>
-    (SlackClient.live ++ SlackRealtimeClient.live ++ (default >+> accessToken.live))
+    (SlackClient.live ++ SlackRealtimeClient.live ++ (default >+> accessToken.toLayer))
 
   override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, ExitCode] =
     ZStream

@@ -15,7 +15,7 @@ import zio.{App, ExitCode, Layer, ZIO, ZManaged}
 object BasicApp extends App {
   val layers: Layer[Throwable, SlackEnv with SlackRealtimeEnv with Basic] =
     AsyncHttpClientZioBackend.layer() >>>
-      (SlackClient.live ++ SlackRealtimeClient.live ++ (default >+> accessToken.live))
+      (SlackClient.live ++ SlackRealtimeClient.live ++ (default >+> accessToken.toLayer))
 
   override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, ExitCode] =
     (for {
