@@ -1,16 +1,16 @@
 package basic
 
-import com.dapperware.slack.api.web
-import com.dapperware.slack.client.SlackClient
-import com.dapperware.slack.realtime.models.{SendMessage, UserTyping}
-import com.dapperware.slack.realtime.{SlackRealtimeClient, SlackRealtimeEnv}
-import com.dapperware.slack.{SlackEnv, SlackError, realtime}
-import common.{Basic, BasicConfig, accessToken, default}
+import com.github.dapperware.slack.api.web
+import com.github.dapperware.slack.client.SlackClient
+import com.github.dapperware.slack.realtime.models.{ SendMessage, UserTyping }
+import com.github.dapperware.slack.realtime.{ SlackRealtimeClient, SlackRealtimeEnv }
+import com.github.dapperware.slack.{ realtime, SlackEnv, SlackError }
+import common.{ accessToken, default, Basic, BasicConfig }
 import sttp.client.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio.config._
-import zio.console.{Console, putStrLn}
+import zio.console.{ putStrLn, Console }
 import zio.stream.ZStream
-import zio.{App, ExitCode, Layer, ZIO, ZManaged}
+import zio.{ App, ExitCode, Layer, ZIO, ZManaged }
 
 object BasicApp extends App {
   val layers: Layer[Throwable, SlackEnv with SlackRealtimeEnv with Basic] =

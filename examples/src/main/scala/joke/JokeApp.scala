@@ -1,12 +1,11 @@
 package joke
 
-import com.dapperware.slack
-import com.dapperware.slack.SlackEnv
-import com.dapperware.slack.access.withAccessTokenM
-import com.dapperware.slack.api.web.{ listConversations, postChatMessage }
-import com.dapperware.slack.client.SlackClient
-import com.dapperware.slack.models.Channel
-import common.{ accessToken, Basic, BasicConfig }
+import com.github.dapperware.slack
+import com.github.dapperware.slack.api.web.{ listConversations, postChatMessage }
+import com.github.dapperware.slack.client.SlackClient
+import com.github.dapperware.slack.models.Channel
+import com.github.dapperware.slack.withAccessTokenM
+import common.{ accessToken, Basic }
 import io.circe
 import io.circe.{ DecodingFailure, Json }
 import sttp.client._
@@ -46,19 +45,17 @@ object JokeApp extends App {
     AsyncHttpClientZioBackend.layer() >+> SlackClient.live ++ common.default
 
   val result: ZIO[SttpClient with SlackClient with Random with Clock with Basic, Throwable, Unit] =
-    ZIO.environment[Basic].flatMap { env =>
-      withAccessTokenM(accessToken.provide(env))(for {
-        shuffled <- shuffledConversations
-        _ <- ZIO.foreach(shuffled) { channel =>
-              (for {
-                resp <- SttpClient.send(getJoke)
-                body <- IO.fromEither(resp.body)
-                joke <- IO.fromEither(body)
-                _    <- postChatMessage(channel.id, joke)
-              } yield ()) *> ZIO.sleep(3.hours)
-            }
-      } yield ())
-    }
+    withAccessTokenM(accessToken)(for {
+      shuffled <- shuffledConversations
+      _ <- ZIO.foreach(shuffled) { channel =>
+            (for {
+              resp <- SttpClient.send(getJoke)
+              body <- IO.fromEither(resp.body)
+              joke <- IO.fromEither(body)
+              _    <- postChatMessage(channel.id, joke)
+            } yield ()) *> ZIO.sleep(3.hours)
+          }
+    } yield ())
 
   override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, ExitCode] =
     result

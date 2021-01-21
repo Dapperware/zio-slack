@@ -1,12 +1,11 @@
 package chat
 
-import com.dapperware.slack.access.AccessToken
-import com.dapperware.slack.api.web.{getConversationInfo, getUserInfo}
-import com.dapperware.slack.client.SlackClient
-import com.dapperware.slack.realtime
-import com.dapperware.slack.realtime.SlackRealtimeClient
-import com.dapperware.slack.realtime.models.{Message, SendMessage}
-import common.{Basic, BasicConfig, accessToken, default}
+import com.github.dapperware.slack.api.web.{ getConversationInfo, getUserInfo }
+import com.github.dapperware.slack.client.SlackClient
+import com.github.dapperware.slack.{ realtime, AccessToken }
+import com.github.dapperware.slack.realtime.SlackRealtimeClient
+import com.github.dapperware.slack.realtime.models.{ Message, SendMessage }
+import common.{ accessToken, default, Basic, BasicConfig }
 import sttp.client.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio._
 import zio.console._

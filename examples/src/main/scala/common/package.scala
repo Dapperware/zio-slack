@@ -1,9 +1,8 @@
 import zio.config._
 import ConfigDescriptor._
-import com.dapperware.slack.access
-import com.dapperware.slack.access.AccessToken
+import com.github.dapperware.slack.AccessToken
 import zio.config.typesafe.TypesafeConfig
-import zio.{FiberRef, Has, Layer, ZIO, ZLayer}
+import zio.{ Has, Layer, ZIO }
 
 package object common {
   type Basic = Has[BasicConfig]
