@@ -67,7 +67,9 @@ case class PlainTextInput(
   min_length: Option[Int] = None,
   max_length: Option[Int] = None,
   dispatch_action_config: Option[DispatchActionConfig] = None
-) extends InputBlockElement
+) extends BlockElement with InputBlockElement {
+  override val `type` = "plain_text_input"
+}
 
 case class DispatchActionConfig(trigger_actions_on: List[TriggerAction])
 
