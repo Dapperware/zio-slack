@@ -5,7 +5,7 @@ import com.github.dapperware.slack.models.{
   InputBlock,
   PlainTextInput,
   PlainTextObject,
-  View
+  ViewPayload
 }
 import io.circe.parser
 import zio.test.Assertion.{ equalTo, isRight }
@@ -60,12 +60,12 @@ object SlackViewSpec extends DefaultRunnableSpec {
             |  }
             |}""".stripMargin
 
-        val view = parser.parse(payload).flatMap(_.as[View])
+        val view = parser.parse(payload).flatMap(_.as[ViewPayload])
 
         assert(view)(
           isRight(
             equalTo(
-              View(
+              ViewPayload(
                 "modal",
                 PlainTextObject("Modal with inputs"),
                 callback_id = Some("modal-with-inputs"),
