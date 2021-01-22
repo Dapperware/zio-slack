@@ -21,17 +21,17 @@ For Scala 2.12.x and 2.13.x
 
 zio-slack is a library for interfacing with slack using an idiomatic and easily discoverable interface.
 
-We define most of the methods defined here: https://api.slack.com/methods (Working toward 100% coverage!). If there is one missing or you find a bug in how it is implemented please submit an issue or PR (There are *a lot* of methods to cover and automated coverage isn't fully available yet).
+We define most of the methods defined here: https://api.slack.com/methods (Working toward 100% coverage!). If there is one missing, or you find a bug in how it is implemented please submit an issue or PR (There are *a lot* of methods to cover and automated coverage isn't fully available yet).
 
 Usage
 --
 
-Usage is quite simple. First you can define how you would like to interact with slack. For instance, say you periodically wanted to send chuck norris jokes to random channels (...please don't).
+Usage is quite simple. First you can define how you would like to interact with slack. For instance, say you periodically wanted to send Chuck Norris jokes to random channels (...please don't).
 
 Since we will be sending messages we will be using the `chats` api which we can import like so:
 
 ```scala
-import slack.api.chats._
+import com.github.dapperware.slack.api.chats._
 ```
 
 Note that you can pull in the functionality piecemeal like above or all at once using `slack.api.web._` you can even pull in individual methods! The beauty of ZIO is that all the methods just return effects so there is no need to instantiate anything until you are ready to execute it.
@@ -62,9 +62,9 @@ You may have noticed that this is now returning compiler errors saying that it e
 ```scala
 import io.circe
 import io.circe.Json
-import slack.api.chats._
-import slack.access.AccessToken
-import slack.core.client.SlackClient
+import com.github.dapperware.slack.api.chats._
+import com.github.dapperware.slack.access.AccessToken
+import com.github.dapperware.slack.core.client.SlackClient
 import sttp.client._
 import sttp.client.asynchttpclient.zio.AsyncHttpClientZioBackend
 import sttp.client.circe._
