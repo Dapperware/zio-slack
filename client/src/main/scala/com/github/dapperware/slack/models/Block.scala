@@ -57,7 +57,11 @@ case class InputBlock(label: PlainTextObject,
   override val `type` = "input"
 }
 
-sealed trait InputBlockElement
+sealed trait InputBlockElement {
+  self: BlockElement =>
+
+  val `type`: String
+}
 
 case class PlainTextInput(
   action_id: String,
@@ -67,7 +71,8 @@ case class PlainTextInput(
   min_length: Option[Int] = None,
   max_length: Option[Int] = None,
   dispatch_action_config: Option[DispatchActionConfig] = None
-) extends BlockElement with InputBlockElement {
+) extends BlockElement
+    with InputBlockElement {
   override val `type` = "plain_text_input"
 }
 
@@ -90,7 +95,7 @@ object TriggerAction {
 
   implicit val decoder: Decoder[TriggerAction] = Decoder.decodeString.emap[TriggerAction] {
     case "on_enter_pressed"     => Right(OnEnterPressed)
-    case "on_character_pressed" => Right(OnCharacterEntered)
+    case "on_character_entered" => Right(OnCharacterEntered)
     case s                      => Left(s"Could not decode TriggerAction from $s")
   }
 }
@@ -273,11 +278,15 @@ object BlockElement {
 object InputBlockElement {
   implicit val plainTextInputCodec: Codec.AsObject[PlainTextInput] = deriveCodec[PlainTextInput]
 
-  implicit val encoder: Encoder[InputBlockElement] = Encoder.AsObject.instance[InputBlockElement] {
-    case i: PlainTextInput            => i.asJsonObject
-    case i: StaticSelectElement       => i.asJsonObject
-    case i: DatePickerElement         => i.asJsonObject
-    case i: ConversationSelectElement => i.asJsonObject
+  implicit val encoder: Encoder[InputBlockElement] = Encoder.AsObject.instance[InputBlockElement] { ibe =>
+    val json = ibe match {
+      case i: PlainTextInput            => i.asJsonObject
+      case i: StaticSelectElement       => i.asJsonObject
+      case i: DatePickerElement         => i.asJsonObject
+      case i: ConversationSelectElement => i.asJsonObject
+    }
+
+    json.add("type", ibe.`type`.asJson)
   }
 
   val typeDecoder: Decoder[String] = Decoder.decodeString.at("type")

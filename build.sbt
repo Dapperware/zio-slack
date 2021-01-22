@@ -33,7 +33,7 @@ inThisBuild(
 )
 
 scalaVersion in ThisBuild := mainScala
-gitVersioningSnapshotLowerBound in ThisBuild := "0.4.0"
+gitVersioningSnapshotLowerBound in ThisBuild := "0.8.0"
 
 val circeV = "0.13.0"
 val zioV = "1.0.4"
@@ -70,6 +70,7 @@ lazy val client = project.in(file("client"))
         "io.circe" %% "circe-generic" % circeV,
         "dev.zio" %% "zio-test" % zioV % "it,test",
         "dev.zio" %% "zio-test-sbt" % zioV % "it,test",
+        "dev.zio" %% "zio-test-magnolia" % zioV % "it,test",
         "com.softwaremill.sttp.client" %% "core" % sttpV,
         "com.softwaremill.sttp.client" %% "circe" % sttpV,
         "com.softwaremill.sttp.client" %% "async-http-client-backend-zio" % sttpV
