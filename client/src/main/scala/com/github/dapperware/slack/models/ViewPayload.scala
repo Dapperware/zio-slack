@@ -15,7 +15,7 @@ case class View(
   state: Option[ViewState] = None,
   hash: Option[String] = None,
   clear_on_close: Option[Boolean] = None,
-  notify_on_close: Option[String] = None,
+  notify_on_close: Option[Boolean] = None,
   close: Option[PlainTextObject] = None,
   previous_view_id: Option[String] = None,
   app_id: Option[String] = None,
