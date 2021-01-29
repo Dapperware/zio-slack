@@ -2,8 +2,6 @@ package com.github.dapperware.slack.api
 
 import com.github.dapperware.slack.models.AuthIdentity
 import com.github.dapperware.slack.{ SlackEnv, SlackError, SlackExtractors }
-import com.github.dapperware.slack.models.AuthIdentity
-import com.github.dapperware.slack.{ SlackEnv, SlackError, SlackExtractors }
 import zio.ZIO
 
 trait SlackAuth {

@@ -2,8 +2,6 @@ package com.github.dapperware.slack.api
 
 import com.github.dapperware.slack.models.{ Attachment, Block, UpdateResponse }
 import com.github.dapperware.slack.{ SlackEnv, SlackError }
-import com.github.dapperware.slack.{ SlackEnv, SlackError }
-import com.github.dapperware.slack.models.{ Attachment, Block, UpdateResponse }
 import io.circe.Json
 import io.circe.syntax._
 import zio.ZIO

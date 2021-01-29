@@ -1,0 +1,484 @@
+{
+  "id": "V1234567890",
+  "team_id": "T5LBTFQMC",
+  "type": "modal",
+  "blocks": [
+    {
+      "type": "section",
+      "block_id": "5oyRw",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*Hi <fakelink.toUser.com|@David>!* Here's how I can help you:",
+        "verbatim": false
+      }
+    },
+    {
+      "type": "divider",
+      "block_id": "ci14"
+    },
+    {
+      "type": "section",
+      "block_id": "njqX",
+      "text": {
+        "type": "mrkdwn",
+        "text": ":calendar: *Create event*\nCreate a new event",
+        "verbatim": false
+      },
+      "accessory": {
+        "type": "button",
+        "action_id": "Yq59z",
+        "style": "primary",
+        "text": {
+          "type": "plain_text",
+          "text": "Create event",
+          "emoji": true
+        },
+        "value": "click_me_123"
+      }
+    },
+    {
+      "type": "section",
+      "block_id": "Dtd",
+      "text": {
+        "type": "mrkdwn",
+        "text": ":clipboard: *List of events*\nChoose from different event lists",
+        "verbatim": false
+      },
+      "accessory": {
+        "type": "static_select",
+        "action_id": "Aho",
+        "placeholder": {
+          "type": "plain_text",
+          "text": "Choose list",
+          "emoji": true
+        },
+        "options": [
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "My events",
+              "emoji": true
+            },
+            "value": "value-0"
+          },
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "All events",
+              "emoji": true
+            },
+            "value": "value-1"
+          },
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "Event invites",
+              "emoji": true
+            },
+            "value": "value-1"
+          }
+        ]
+      }
+    },
+    {
+      "type": "section",
+      "block_id": "FdXk",
+      "text": {
+        "type": "mrkdwn",
+        "text": ":gear: *Settings*\nManage your notifications and team settings",
+        "verbatim": false
+      },
+      "accessory": {
+        "type": "static_select",
+        "action_id": "UqxC2",
+        "placeholder": {
+          "type": "plain_text",
+          "text": "Edit settings",
+          "emoji": true
+        },
+        "options": [
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "Notifications",
+              "emoji": true
+            },
+            "value": "value-0"
+          },
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "Team settings",
+              "emoji": true
+            },
+            "value": "value-1"
+          }
+        ]
+      }
+    },
+    {
+      "type": "actions",
+      "block_id": "YShg",
+      "elements": [
+        {
+          "type": "button",
+          "action_id": "Q0tSJ",
+          "text": {
+            "type": "plain_text",
+            "text": "Send feedback",
+            "emoji": true
+          },
+          "value": "click_me_123"
+        },
+        {
+          "type": "button",
+          "action_id": "V6F",
+          "text": {
+            "type": "plain_text",
+            "text": "FAQs",
+            "emoji": true
+          },
+          "value": "click_me_123"
+        }
+      ]
+    },
+    {
+      "type": "input",
+      "block_id": "EqC",
+      "label": {
+        "type": "plain_text",
+        "text": "Label",
+        "emoji": true
+      },
+      "optional": false,
+      "dispatch_action": true,
+      "element": {
+        "type": "plain_text_input",
+        "action_id": "plain_text_input-action",
+        "dispatch_action_config": {
+          "trigger_actions_on": [
+            "on_enter_pressed"
+          ]
+        }
+      }
+    },
+    {
+      "type": "input",
+      "block_id": "nYc",
+      "label": {
+        "type": "plain_text",
+        "text": "Label",
+        "emoji": true
+      },
+      "optional": false,
+      "dispatch_action": true,
+      "element": {
+        "type": "plain_text_input",
+        "action_id": "plain_text_input-action",
+        "dispatch_action_config": {
+          "trigger_actions_on": [
+            "on_character_entered"
+          ]
+        }
+      }
+    },
+    {
+      "type": "input",
+      "block_id": "WVv",
+      "label": {
+        "type": "plain_text",
+        "text": "Label",
+        "emoji": true
+      },
+      "optional": false,
+      "dispatch_action": false,
+      "element": {
+        "type": "plain_text_input",
+        "action_id": "plain_text_input-action",
+        "multiline": true,
+        "dispatch_action_config": {
+          "trigger_actions_on": [
+            "on_enter_pressed"
+          ]
+        }
+      }
+    },
+    {
+      "type": "input",
+      "block_id": "p9m",
+      "label": {
+        "type": "plain_text",
+        "text": "Label",
+        "emoji": true
+      },
+      "optional": false,
+      "dispatch_action": false,
+      "element": {
+        "type": "plain_text_input",
+        "action_id": "plain_text_input-action",
+        "dispatch_action_config": {
+          "trigger_actions_on": [
+            "on_enter_pressed"
+          ]
+        }
+      }
+    },
+    {
+      "type": "input",
+      "block_id": "Thr7",
+      "label": {
+        "type": "plain_text",
+        "text": "Label",
+        "emoji": true
+      },
+      "optional": false,
+      "dispatch_action": false,
+      "element": {
+        "type": "multi_users_select",
+        "action_id": "multi_users_select-action",
+        "placeholder": {
+          "type": "plain_text",
+          "text": "Select users",
+          "emoji": true
+        }
+      }
+    },
+    {
+      "type": "input",
+      "block_id": "9HypQ",
+      "label": {
+        "type": "plain_text",
+        "text": "Label",
+        "emoji": true
+      },
+      "optional": false,
+      "dispatch_action": false,
+      "element": {
+        "type": "static_select",
+        "action_id": "static_select-action",
+        "placeholder": {
+          "type": "plain_text",
+          "text": "Select an item",
+          "emoji": true
+        },
+        "options": [
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "*this is plain_text text*",
+              "emoji": true
+            },
+            "value": "value-0"
+          },
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "*this is plain_text text*",
+              "emoji": true
+            },
+            "value": "value-1"
+          },
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "*this is plain_text text*",
+              "emoji": true
+            },
+            "value": "value-2"
+          }
+        ]
+      }
+    },
+    {
+      "type": "input",
+      "block_id": "b3Vh",
+      "label": {
+        "type": "plain_text",
+        "text": "Label",
+        "emoji": true
+      },
+      "optional": false,
+      "dispatch_action": false,
+      "element": {
+        "type": "datepicker",
+        "action_id": "datepicker-action",
+        "initial_date": "1990-04-28",
+        "placeholder": {
+          "type": "plain_text",
+          "text": "Select a date",
+          "emoji": true
+        }
+      }
+    },
+    {
+      "type": "section",
+      "block_id": "Txov8",
+      "text": {
+        "type": "mrkdwn",
+        "text": "Test block with multi conversations select",
+        "verbatim": false
+      },
+      "accessory": {
+        "type": "multi_conversations_select",
+        "action_id": "multi_conversations_select-action",
+        "placeholder": {
+          "type": "plain_text",
+          "text": "Select conversations",
+          "emoji": true
+        }
+      }
+    },
+    {
+      "type": "section",
+      "block_id": "IWW2",
+      "text": {
+        "type": "mrkdwn",
+        "text": "Pick an item from the dropdown list",
+        "verbatim": false
+      },
+      "accessory": {
+        "type": "static_select",
+        "action_id": "static_select-action",
+        "placeholder": {
+          "type": "plain_text",
+          "text": "Select an item",
+          "emoji": true
+        },
+        "options": [
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "*this is plain_text text*",
+              "emoji": true
+            },
+            "value": "value-0"
+          },
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "*this is plain_text text*",
+              "emoji": true
+            },
+            "value": "value-1"
+          },
+          {
+            "text": {
+              "type": "plain_text",
+              "text": "*this is plain_text text*",
+              "emoji": true
+            },
+            "value": "value-2"
+          }
+        ]
+      }
+    }
+  ],
+  "private_metadata": "",
+  "callback_id": "",
+  "state": {
+    "values": {
+      "Dtd": {
+        "Aho": {
+          "type": "static_select",
+          "selected_option": null
+        }
+      },
+      "FdXk": {
+        "UqxC2": {
+          "type": "static_select",
+          "selected_option": null
+        }
+      },
+      "EqC": {
+        "plain_text_input-action": {
+          "type": "plain_text_input",
+          "value": null
+        }
+      },
+      "nYc": {
+        "plain_text_input-action": {
+          "type": "plain_text_input",
+          "value": null
+        }
+      },
+      "WVv": {
+        "plain_text_input-action": {
+          "type": "plain_text_input",
+          "value": null
+        }
+      },
+      "p9m": {
+        "plain_text_input-action": {
+          "type": "plain_text_input",
+          "value": null
+        }
+      },
+      "Thr7": {
+        "multi_users_select-action": {
+          "type": "multi_users_select",
+          "selected_users": [
+            "U5K0V0TK3",
+            "U5KJZJSMA"
+          ]
+        }
+      },
+      "9HypQ": {
+        "static_select-action": {
+          "type": "static_select",
+          "selected_option": null
+        }
+      },
+      "b3Vh": {
+        "datepicker-action": {
+          "type": "datepicker",
+          "selected_date": "1990-04-28"
+        }
+      },
+      "Txov8": {
+        "multi_conversations_select-action": {
+          "type": "multi_conversations_select",
+          "selected_conversations": [
+            "C01H925K0HK"
+          ]
+        }
+      },
+      "IWW2": {
+        "static_select-action": {
+          "type": "static_select",
+          "selected_option": {
+            "text": {
+              "type": "plain_text",
+              "text": "*this is plain_text text*",
+              "emoji": true
+            },
+            "value": "value-0"
+          }
+        }
+      }
+    }
+  },
+  "hash": "1611900766.EToIJMjF",
+  "title": {
+    "type": "plain_text",
+    "text": "App menu",
+    "emoji": true
+  },
+  "clear_on_close": false,
+  "notify_on_close": false,
+  "close": {
+    "type": "plain_text",
+    "text": "Cancel",
+    "emoji": true
+  },
+  "submit": {
+    "type": "plain_text",
+    "text": "Submit",
+    "emoji": true
+  },
+  "previous_view_id": null,
+  "root_view_id": "V1234567890",
+  "app_id": "A02",
+  "external_id": "",
+  "app_installed_team_id": "T5LBTFQMC",
+  "bot_id": "B00"
+}

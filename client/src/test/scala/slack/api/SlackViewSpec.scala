@@ -5,11 +5,15 @@ import com.github.dapperware.slack.models.{
   InputBlock,
   PlainTextInput,
   PlainTextObject,
+  View,
   ViewPayload
 }
 import io.circe.parser
 import zio.test.Assertion.{ equalTo, isRight }
 import zio.test._
+import zio.{ UIO, ZManaged }
+
+import scala.io.Source
 
 object SlackViewSpec extends DefaultRunnableSpec {
   override def spec: ZSpec[_root_.zio.test.environment.TestEnvironment, Any] =
@@ -94,6 +98,14 @@ object SlackViewSpec extends DefaultRunnableSpec {
             )
           )
         )
+      },
+      testM("deserialize kitchen sink submission") {
+        val body = ZManaged
+          .fromAutoCloseable(UIO(Source.fromResource("payloads/kitchen_sink_view_submission.json")))
+          .map(_.mkString)
+          .useNow
+
+        assertM(body.map(parser.parse(_).flatMap(_.as[View])))(isRight)
       }
     )
 }

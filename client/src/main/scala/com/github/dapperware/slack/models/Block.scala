@@ -161,7 +161,7 @@ case class ButtonElement(text: PlainTextObject,
 case class StaticSelectElement(placeholder: PlainTextObject,
                                action_id: String,
                                options: Seq[OptionObject],
-                               option_groups: Seq[OptionGroupObject],
+                               option_groups: Option[Seq[OptionGroupObject]] = None,
                                initial_option: Option[Either[OptionObject, OptionGroupObject]] = None,
                                confirm: Option[ConfirmationObject] = None)
     extends BlockElement
@@ -182,8 +182,17 @@ case class UserSelectElement(placeholder: PlainTextObject,
                              action_id: String,
                              initial_user: Option[String] = None,
                              confirm: Option[ConfirmationObject] = None)
-    extends BlockElement {
+    extends BlockElement
+    with InputBlockElement {
   override val `type`: String = "users_select"
+}
+
+case class MultiUsersSelectElement(
+  placeholder: PlainTextObject,
+  action_id: String
+) extends BlockElement
+    with InputBlockElement {
+  override val `type`: String = "multi_users_select"
 }
 
 case class ChannelSelectElement(placeholder: PlainTextObject,
@@ -202,6 +211,18 @@ case class ConversationSelectElement(placeholder: PlainTextObject,
     extends BlockElement
     with InputBlockElement {
   override val `type`: String = "conversations_select"
+}
+
+case class MultiConversationsSelectElement(placeholder: PlainTextObject,
+                                           action_id: String,
+                                           initial_conversations: Option[List[String]] = None,
+                                           default_to_current_conversation: Option[Boolean] = None,
+                                           confirm: Option[ConfirmationObject] = None,
+                                           max_selected_items: Option[Int] = None,
+                                           response_url_enabled: Option[Boolean] = None)
+    extends BlockElement
+    with InputBlockElement {
+  override val `type`: String = "multi_conversations_select"
 }
 
 case class OverflowElement(action_id: String, options: Seq[OptionObject], confirm: Option[ConfirmationObject] = None)
@@ -225,29 +246,33 @@ object BlockElement {
   implicit val optionGrpObjFmt = deriveCodec[OptionGroupObject]
   implicit val confirmObjFmt   = deriveCodec[ConfirmationObject]
 
-  implicit val eitherOptFmt               = eitherObjectFormat[OptionObject, OptionGroupObject]("text", "label")
-  implicit val buttonElementFmt           = deriveCodec[ButtonElement]
-  implicit val imageElementFmt            = deriveCodec[ImageElement]
-  implicit val staticMenuElementFmt       = deriveCodec[StaticSelectElement]
-  implicit val extMenuElementFmt          = deriveCodec[ExternalSelectElement]
-  implicit val userMenuElementFmt         = deriveCodec[UserSelectElement]
-  implicit val channelMenuElementFmt      = deriveCodec[ChannelSelectElement]
-  implicit val conversationMenuElementFmt = deriveCodec[ConversationSelectElement]
-  implicit val overflowElementFmt         = deriveCodec[OverflowElement]
-  implicit val datePickerElementFmt       = deriveCodec[DatePickerElement]
+  implicit val eitherOptFmt                    = eitherObjectFormat[OptionObject, OptionGroupObject]("text", "label")
+  implicit val buttonElementFmt                = deriveCodec[ButtonElement]
+  implicit val imageElementFmt                 = deriveCodec[ImageElement]
+  implicit val staticMenuElementFmt            = deriveCodec[StaticSelectElement]
+  implicit val extMenuElementFmt               = deriveCodec[ExternalSelectElement]
+  implicit val userMenuElementFmt              = deriveCodec[UserSelectElement]
+  implicit val multiUsersSelectElementFmt      = deriveCodec[MultiUsersSelectElement]
+  implicit val channelMenuElementFmt           = deriveCodec[ChannelSelectElement]
+  implicit val conversationMenuElementFmt      = deriveCodec[ConversationSelectElement]
+  implicit val multiConversationMenuElementFmt = deriveCodec[MultiConversationsSelectElement]
+  implicit val overflowElementFmt              = deriveCodec[OverflowElement]
+  implicit val datePickerElementFmt            = deriveCodec[DatePickerElement]
 
   private val elemWrites = new Encoder[BlockElement] {
     def apply(element: BlockElement): Json = {
       val json = element match {
-        case elem: ButtonElement             => elem.asJson
-        case elem: ImageElement              => elem.asJson
-        case elem: StaticSelectElement       => elem.asJson
-        case elem: ExternalSelectElement     => elem.asJson
-        case elem: UserSelectElement         => elem.asJson
-        case elem: ChannelSelectElement      => elem.asJson
-        case elem: ConversationSelectElement => elem.asJson
-        case elem: OverflowElement           => elem.asJson
-        case elem: DatePickerElement         => elem.asJson
+        case elem: ButtonElement                   => elem.asJson
+        case elem: ImageElement                    => elem.asJson
+        case elem: StaticSelectElement             => elem.asJson
+        case elem: ExternalSelectElement           => elem.asJson
+        case elem: UserSelectElement               => elem.asJson
+        case elem: MultiUsersSelectElement         => elem.asJson
+        case elem: ChannelSelectElement            => elem.asJson
+        case elem: ConversationSelectElement       => elem.asJson
+        case elem: MultiConversationsSelectElement => elem.asJson
+        case elem: OverflowElement                 => elem.asJson
+        case elem: DatePickerElement               => elem.asJson
       }
       Json.obj("type" -> element.`type`.asJson).deepMerge(json)
     }
@@ -258,16 +283,18 @@ object BlockElement {
       for {
         value <- c.downField("type").as[String]
         result <- value match {
-                   case "button"               => c.as[ButtonElement]
-                   case "image"                => c.as[ImageElement]
-                   case "static_select"        => c.as[StaticSelectElement]
-                   case "external_select"      => c.as[ExternalSelectElement]
-                   case "users_select"         => c.as[UserSelectElement]
-                   case "conversations_select" => c.as[ConversationSelectElement]
-                   case "channels_select"      => c.as[ChannelSelectElement]
-                   case "overflow"             => c.as[OverflowElement]
-                   case "datepicker"           => c.as[DatePickerElement]
-                   case other                  => Left(DecodingFailure(s"Invalid element type: $other", List.empty))
+                   case "button"                     => c.as[ButtonElement]
+                   case "image"                      => c.as[ImageElement]
+                   case "static_select"              => c.as[StaticSelectElement]
+                   case "external_select"            => c.as[ExternalSelectElement]
+                   case "users_select"               => c.as[UserSelectElement]
+                   case "multi_users_select"         => c.as[MultiUsersSelectElement]
+                   case "conversations_select"       => c.as[ConversationSelectElement]
+                   case "multi_conversations_select" => c.as[MultiConversationsSelectElement]
+                   case "channels_select"            => c.as[ChannelSelectElement]
+                   case "overflow"                   => c.as[OverflowElement]
+                   case "datepicker"                 => c.as[DatePickerElement]
+                   case other                        => Left(DecodingFailure(s"Invalid element type: $other", List.empty))
                  }
       } yield result
   }
@@ -280,10 +307,13 @@ object InputBlockElement {
 
   implicit val encoder: Encoder[InputBlockElement] = Encoder.AsObject.instance[InputBlockElement] { ibe =>
     val json = ibe match {
-      case i: PlainTextInput            => i.asJsonObject
-      case i: StaticSelectElement       => i.asJsonObject
-      case i: DatePickerElement         => i.asJsonObject
-      case i: ConversationSelectElement => i.asJsonObject
+      case i: PlainTextInput                  => i.asJsonObject
+      case i: StaticSelectElement             => i.asJsonObject
+      case i: DatePickerElement               => i.asJsonObject
+      case i: ConversationSelectElement       => i.asJsonObject
+      case i: MultiConversationsSelectElement => i.asJsonObject
+      case i: UserSelectElement               => i.asJsonObject
+      case i: MultiUsersSelectElement         => i.asJsonObject
     }
 
     json.add("type", ibe.`type`.asJson)
@@ -293,10 +323,14 @@ object InputBlockElement {
 
   implicit val decoder: Decoder[InputBlockElement] = Decoder.instance[InputBlockElement] { c =>
     typeDecoder(c).flatMap {
-      case "plain_text_input"     => c.as[PlainTextInput]
-      case "static_select"        => c.as[StaticSelectElement]
-      case "datepicker"           => c.as[DatePickerElement]
-      case "conversations_select" => c.as[ConversationSelectElement]
+      case "plain_text_input"           => c.as[PlainTextInput]
+      case "static_select"              => c.as[StaticSelectElement]
+      case "datepicker"                 => c.as[DatePickerElement]
+      case "conversations_select"       => c.as[ConversationSelectElement]
+      case "multi_conversations_select" => c.as[MultiConversationsSelectElement]
+      case "users_select"               => c.as[UserSelectElement]
+      case "multi_users_select"         => c.as[MultiUsersSelectElement]
+      case t                            => Left(DecodingFailure(s"Unknown input block element type $t", c.history))
     }
   }
 
