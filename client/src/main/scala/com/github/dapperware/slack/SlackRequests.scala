@@ -22,9 +22,7 @@ trait SlackRequests {
     UIO.succeed(
       basicRequest
         .post(uri"https://slack.com/api/$method")
-        .body(
-          Seq(params.map(p => p._2.produce.map(p._1 -> _)): _*).flatten.toMap
-        )
+        .body(List(params.map(p => p._2.produce.map(p._1 -> _)): _*).flatten.toMap)
         .response(asJson[Json])
     )
 

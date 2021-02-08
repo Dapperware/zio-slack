@@ -1,7 +1,15 @@
 package com.github.dapperware.slack.api
 
-import com.github.dapperware.slack.models.{Channel, ChannelChunk, Conversation, HistoryChunk, HistoryItem, MemberChunk, Message}
-import com.github.dapperware.slack.{SlackEnv, SlackError}
+import com.github.dapperware.slack.models.{
+  Channel,
+  Conversation,
+  HistoryChunk,
+  HistoryItem,
+  Message,
+  Plural,
+  ResponseChunk
+}
+import com.github.dapperware.slack.{ SlackEnv, SlackError }
 import io.circe.Json
 import io.circe.syntax._
 import zio.ZIO
@@ -101,21 +109,23 @@ trait SlackConversations {
   def listConversations(cursor: Option[String] = None,
                         excludeArchived: Option[Boolean] = None,
                         limit: Option[Int] = None,
-                        types: Option[List[String]] = None): ZIO[SlackEnv, Throwable, ChannelChunk] =
+                        types: Option[List[String]] = None): ZIO[SlackEnv, Throwable, ResponseChunk[Channel]] =
     sendM(
       request("conversations.list",
               "cursor"           -> cursor,
               "exclude_archived" -> excludeArchived,
               "limit"            -> limit,
               "types"            -> types.map(_.mkString(",")))
-    ) >>= as[ChannelChunk]
+    ) >>= as[ResponseChunk[Channel]]
 
   /**
    * https://api.slack.com/methods/conversations.members
    */
   def getConversationMembers(channel: String,
                              cursor: Option[String] = None,
-                             limit: Option[Int] = None): ZIO[SlackEnv, Throwable, MemberChunk] =
+                             limit: Option[Int] = None): ZIO[SlackEnv, Throwable, ResponseChunk[String]] = {
+    implicit val plural: Plural[String] = Plural.const("members")
+
     sendM(
       request(
         "conversations.members",
@@ -123,7 +133,8 @@ trait SlackConversations {
         "cursor"  -> cursor,
         "limit"   -> limit
       )
-    ) >>= as[MemberChunk]
+    ) >>= as[ResponseChunk[String]]
+  }
 
   /**
    * https://api.slack.com/methods/conversations.open

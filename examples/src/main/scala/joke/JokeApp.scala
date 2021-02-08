@@ -34,7 +34,7 @@ object JokeApp extends App {
         for {
           convos <- listConversations(cursor)
         } yield
-          (Chunk.fromIterable(convos.channels).filter(_.is_member.contains(true)),
+          (Chunk.fromIterable(convos.items).filter(_.is_member.contains(true)),
            convos.response_metadata.flatMap(_.next_cursor).filter(_.nonEmpty).map(Some(_)))
       }
       .flattenChunks

@@ -1,7 +1,7 @@
 package com.github.dapperware.slack.api
 
+import com.github.dapperware.slack.models.StarResponse
 import com.github.dapperware.slack.{ SlackEnv, SlackError }
-import io.circe.Json
 import zio.ZIO
 
 trait SlackStars {
@@ -19,8 +19,9 @@ trait SlackStars {
 
   def listStars(userId: Option[String] = None,
                 count: Option[Int] = None,
-                page: Option[Int] = None): ZIO[SlackEnv, SlackError, Json] =
-    sendM(request("stars.list", "user" -> userId, "count" -> count, "page" -> page))
+                page: Option[Int] = None): ZIO[SlackEnv, SlackError, StarResponse] =
+    sendM(request("stars.list", "user" -> userId, "count" -> count, "page" -> page)) >>=
+      as[StarResponse]
 
   def removeStars(channel: Option[String] = None,
                   file: Option[String] = None,

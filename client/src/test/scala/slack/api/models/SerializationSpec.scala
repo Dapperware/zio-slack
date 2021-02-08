@@ -1,7 +1,9 @@
 package slack.api.models
 
-import com.github.dapperware.slack.models.{ InputBlockElement, PlainTextInput }
+import com.github.dapperware.slack.models.{ InputBlockElement, PlainTextInput, Plural, ResponseChunk, ResponseMetadata }
+import io.circe.parser
 import io.circe.syntax.EncoderOps
+import zio.Chunk
 import zio.random.Random
 import zio.test.Assertion._
 import zio.test.magnolia.DeriveGen
@@ -23,6 +25,27 @@ object SerializationSpec extends DefaultRunnableSpec {
           isRight(equalTo("plain_text_input"))
         )
       })
+    ),
+    suite("ResponseChunk")(
+      test("can parse") {
+        implicit val plural: Plural[String] = Plural.const("members")
+
+        val json =
+          """
+            |{
+            |  "members": ["A", "B"],
+            |  "has_more": true,
+            |  "response_metadata": {"next_cursor": "C"}
+            |}""".stripMargin
+
+        assert(parser.parse(json).flatMap(_.as[ResponseChunk[String]]))(
+          isRight(
+            equalTo(
+              ResponseChunk[String](Chunk("A", "B"), Some(true), Some(ResponseMetadata(Some("C"))))
+            )
+          )
+        )
+      }
     )
   )
 }

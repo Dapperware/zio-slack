@@ -19,12 +19,6 @@ object HistoryChunk {
   implicit val decoder: Decoder[HistoryChunk] = deriveDecoder[HistoryChunk]
 }
 
-case class RepliesChunk(has_more: Boolean, messages: Seq[Json], ok: Boolean)
-
-object RepliesChunk {
-  implicit val decoder: Decoder[RepliesChunk] = deriveDecoder[RepliesChunk]
-}
-
 case class FileInfo(file: SlackFile, comments: Seq[SlackComment], paging: PagingObject)
 
 object FileInfo {
@@ -38,7 +32,7 @@ object FilesResponse {
 }
 
 case class ReactionsResponse(items: Seq[Json], // TODO: Parse out each object type w/ reactions
-                             paging: PagingObject)
+                             response_metadata: Option[ResponseMetadata])
 
 object ReactionsResponse {
   implicit val decoder: Decoder[ReactionsResponse] = deriveDecoder[ReactionsResponse]
@@ -55,8 +49,6 @@ case class Pagination(first: Int, last: Int, page: Int, page_count: Int, per_pag
 object Pagination {
   implicit val decoder: Decoder[Pagination] = deriveDecoder[Pagination]
 }
-
-case class AccessToken(access_token: String, scope: String)
 
 case class RtmStartState(url: String,
                          self: User,

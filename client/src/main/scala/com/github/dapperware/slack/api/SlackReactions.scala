@@ -63,9 +63,16 @@ trait SlackReactions {
                            full: Boolean,
                            count: Option[Int],
                            page: Option[Int]): ZIO[SlackEnv, SlackError, ReactionsResponse] =
-    sendM(request("reactions.list", "user" -> userId, "full" -> full, "count" -> count, "page" -> page)) >>= as[
-      ReactionsResponse
-    ]
+    sendM(
+      request(
+        "reactions.list",
+        "user"  -> userId,
+        "full"  -> full,
+        "count" -> count,
+        "page"  -> page
+      )
+    ) >>=
+      as[ReactionsResponse]
 
   def removeReactionFromMessage(emojiName: String,
                                 channelId: String,
