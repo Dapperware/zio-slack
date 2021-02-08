@@ -1,7 +1,7 @@
 package com.github.dapperware.slack.api
 
-import com.github.dapperware.slack.models.{ Channel, ChannelChunk, Conversation, HistoryChunk, HistoryItem, Message }
-import com.github.dapperware.slack.{ SlackEnv, SlackError }
+import com.github.dapperware.slack.models.{Channel, ChannelChunk, Conversation, HistoryChunk, HistoryItem, MemberChunk, Message}
+import com.github.dapperware.slack.{SlackEnv, SlackError}
 import io.circe.Json
 import io.circe.syntax._
 import zio.ZIO
@@ -115,7 +115,7 @@ trait SlackConversations {
    */
   def getConversationMembers(channel: String,
                              cursor: Option[String] = None,
-                             limit: Option[Int] = None): ZIO[SlackEnv, Throwable, List[String]] =
+                             limit: Option[Int] = None): ZIO[SlackEnv, Throwable, MemberChunk] =
     sendM(
       request(
         "conversations.members",
@@ -123,7 +123,7 @@ trait SlackConversations {
         "cursor"  -> cursor,
         "limit"   -> limit
       )
-    ) >>= as[List[String]]("members")
+    ) >>= as[MemberChunk]
 
   /**
    * https://api.slack.com/methods/conversations.open
