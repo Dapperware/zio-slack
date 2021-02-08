@@ -7,7 +7,7 @@ import zio.{ Has, Layer, ZIO }
 package object common {
   type Basic = Has[BasicConfig]
 
-  val default: Layer[ReadError[String], ZConfig[BasicConfig]] =
+  val default: Layer[ReadError[String], Basic] =
     TypesafeConfig.fromDefaultLoader(nested("basic") { BasicConfig.descriptor })
 
   val accessToken: ZIO[Basic, Nothing, AccessToken.Token] =

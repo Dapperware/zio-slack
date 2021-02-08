@@ -7,7 +7,6 @@ import com.github.dapperware.slack.realtime.{ SlackRealtimeClient, SlackRealtime
 import com.github.dapperware.slack.{ realtime, SlackEnv, SlackError }
 import common.{ accessToken, default, Basic, BasicConfig }
 import sttp.client.asynchttpclient.zio.AsyncHttpClientZioBackend
-import zio.config._
 import zio.console.{ putStrLn, Console }
 import zio.stream.ZStream
 import zio.{ App, ExitCode, Layer, ZIO, ZManaged }
@@ -22,7 +21,7 @@ object BasicApp extends App {
       resp <- (testApi.toManaged_ <&> testRealtime).provideCustomLayer(layers)
     } yield resp).use_(ZIO.unit).exitCode
 
-  val testRealtime: ZManaged[SlackRealtimeEnv with ZConfig[BasicConfig] with Console, SlackError, Unit] =
+  val testRealtime: ZManaged[SlackRealtimeEnv with Basic with Console, SlackError, Unit] =
     for {
       config <- ZManaged.service[BasicConfig]
       // Test that we can receive messages
@@ -33,7 +32,7 @@ object BasicApp extends App {
           }.runDrain.toManaged_
     } yield ()
 
-  val testApi: ZIO[SlackEnv with ZConfig[BasicConfig], SlackError, String] =
+  val testApi: ZIO[SlackEnv with Basic, SlackError, String] =
     for {
       config <- ZIO.service[BasicConfig]
       resp   <- web.postChatMessage(config.channel, text = "Hello Slack client!")
