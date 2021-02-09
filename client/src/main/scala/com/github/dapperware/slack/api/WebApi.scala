@@ -6,6 +6,7 @@ package com.github.dapperware.slack.api
 trait WebApi
     extends SlackApps
     with SlackAuth
+    with SlackCalls
     with SlackChats
     with SlackConversations
     with SlackDialogs
