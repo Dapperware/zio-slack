@@ -9,7 +9,7 @@ case class ResponseChunk[+T](items: Chunk[T],
                              response_metadata: Option[ResponseMetadata] = None)
 
 object ResponseChunk {
-  import io.circe.ZioDecoders._
+  import io.circe.zio._
 
   private def chunk[T: Decoder: Plural] = Decoder[Chunk[T]].at(Plural[T].plural)
   private val hasMore                   = Decoder[Option[Boolean]].at("has_more")
