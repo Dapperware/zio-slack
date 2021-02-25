@@ -1,7 +1,7 @@
 package com.github.dapperware
 
 import com.github.dapperware.slack.client.SlackClient
-import sttp.client.RequestT
+import sttp.client3.RequestT
 import zio.{ Has, URIO, ZIO }
 
 package object slack extends WithAccess {
@@ -11,7 +11,7 @@ package object slack extends WithAccess {
   type SlackEnv     = SlackClient with AccessToken
 
   object secret {
-    def authenticateM[U[_], T, S](request: RequestT[U, T, S]): URIO[ClientSecret, RequestT[U, T, S]] =
+    def authenticateM[U[_], T](request: RequestT[U, T, Any]): URIO[ClientSecret, RequestT[U, T, Any]] =
       ZIO.accessM[ClientSecret](_.get.authenticateM(request))
   }
 

@@ -1,8 +1,8 @@
 package com.github.dapperware.slack.client
 
-import java.io.File
+import sttp.client3.{ multipart, multipartFile, RequestT }
 
-import sttp.client.{ multipart, multipartFile, RequestT }
+import java.io.File
 
 sealed trait RequestEntity {
   private[slack] def apply[U[_], T, S](request: RequestT[U, T, S]): RequestT[U, T, S]
@@ -13,7 +13,7 @@ object RequestEntity {
   def apply(array: Array[Byte], fileName: Option[String] = None): RequestEntity = ByteArrayEntity(array, fileName)
 }
 
-private case class FileEntity(file: File) extends RequestEntity {
+private case class FileEntity(file: File)                                        extends RequestEntity {
   override private[slack] def apply[U[_], T, S](request: RequestT[U, T, S]) =
     request.multipartBody(
       multipartFile("file", file)
