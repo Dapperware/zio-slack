@@ -1,7 +1,7 @@
 package slack.core
 
 import com.github.dapperware.slack.{ secret, ClientSecret }
-import sttp.client._
+import sttp.client3._
 import sttp.model.Header
 import zio.test.Assertion.contains
 import zio.test._

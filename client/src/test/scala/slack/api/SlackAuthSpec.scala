@@ -1,23 +1,18 @@
 package slack.api
 
-import sttp.client.asynchttpclient.WebSocketHandler
-import sttp.client.monad.MonadError
-import sttp.client.ws.WebSocketResponse
-import sttp.client.{ Request, Response, SttpBackend }
+import sttp.capabilities
+import sttp.client3.{ Request, Response, SttpBackend }
+import sttp.monad.MonadError
 import zio.Task
 
-case class HijackingBackend(delegate: SttpBackend[Task, Nothing, WebSocketHandler])
-    extends SttpBackend[Task, Nothing, WebSocketHandler] {
-  override def send[T](request: Request[T, Nothing]): Task[Response[T]] =
-    delegate.send(request)
-
-  override def openWebsocket[T, WS_RESULT](request: Request[T, Nothing],
-                                           handler: WebSocketHandler[WS_RESULT]): Task[WebSocketResponse[WS_RESULT]] =
-    delegate.openWebsocket(request, handler)
+case class HijackingBackend(delegate: SttpBackend[Task, Any]) extends SttpBackend[Task, Any] {
 
   override def close(): Task[Unit] = delegate.close()
 
   override def responseMonad: MonadError[Task] = delegate.responseMonad
+
+  def send[T, R >: Any with capabilities.Effect[Task]](request: Request[T, R]): Task[Response[T]] =
+    delegate.send(request)
 }
 
 //class SlackAuthSpec extends DefaultRunnableSpec {
