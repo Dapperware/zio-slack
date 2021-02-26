@@ -8,9 +8,9 @@ import com.github.dapperware.slack.withAccessTokenM
 import common.{ accessToken, Basic }
 import io.circe
 import io.circe.{ DecodingFailure, Json }
-import sttp.client._
-import sttp.client.asynchttpclient.zio.{ AsyncHttpClientZioBackend, SttpClient }
-import sttp.client.circe._
+import sttp.client3.asynchttpclient.zio.{ send, AsyncHttpClientZioBackend, SttpClient }
+import sttp.client3.circe.asJson
+import sttp.client3.{ basicRequest, Request, ResponseException, UriContext }
 import zio._
 import zio.clock.Clock
 import zio.duration._
@@ -22,10 +22,11 @@ import zio.stream.ZStream
  */
 object JokeApp extends App {
 
-  val getJoke: Request[Either[ResponseError[circe.Error], Either[DecodingFailure, String]], Nothing] = basicRequest
-    .get(uri"https://api.chucknorris.io/jokes/random")
-    .response(asJson[Json])
-    .mapResponseRight(_.hcursor.downField("value").as[String])
+  val getJoke: Request[Either[ResponseException[String, circe.Error], Either[DecodingFailure, String]], Any] =
+    basicRequest
+      .get(uri"https://api.chucknorris.io/jokes/random")
+      .response(asJson[Json])
+      .mapResponseRight(_.hcursor.downField("value").as[String])
 
   // Shuffle the conversations that we are a part of
   val shuffledConversations: ZIO[Random with slack.SlackEnv, Throwable, List[Channel]] =
@@ -33,9 +34,10 @@ object JokeApp extends App {
       .paginateM(Option.empty[String]) { cursor =>
         for {
           convos <- listConversations(cursor)
-        } yield
-          (Chunk.fromIterable(convos.items).filter(_.is_member.contains(true)),
-           convos.response_metadata.flatMap(_.next_cursor).filter(_.nonEmpty).map(Some(_)))
+        } yield (
+          Chunk.fromIterable(convos.items).filter(_.is_member.contains(true)),
+          convos.response_metadata.flatMap(_.next_cursor).filter(_.nonEmpty).map(Some(_))
+        )
       }
       .flattenChunks
       .runCollect
@@ -47,14 +49,14 @@ object JokeApp extends App {
   val result: ZIO[SttpClient with SlackClient with Random with Clock with Basic, Throwable, Unit] =
     withAccessTokenM(accessToken)(for {
       shuffled <- shuffledConversations
-      _ <- ZIO.foreach(shuffled) { channel =>
-            (for {
-              resp <- SttpClient.send(getJoke)
-              body <- IO.fromEither(resp.body)
-              joke <- IO.fromEither(body)
-              _    <- postChatMessage(channel.id, joke)
-            } yield ()) *> ZIO.sleep(3.hours)
-          }
+      _        <- ZIO.foreach(shuffled) { channel =>
+                    (for {
+                      resp <- send(getJoke)
+                      body <- IO.fromEither(resp.body)
+                      joke <- IO.fromEither(body)
+                      _    <- postChatMessage(channel.id, joke)
+                    } yield ()) *> ZIO.sleep(3.hours)
+                  }
     } yield ())
 
   override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, ExitCode] =

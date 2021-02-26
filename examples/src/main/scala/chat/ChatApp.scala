@@ -2,11 +2,11 @@ package chat
 
 import com.github.dapperware.slack.api.web.{ getConversationInfo, getUserInfo }
 import com.github.dapperware.slack.client.SlackClient
-import com.github.dapperware.slack.{ realtime, AccessToken }
 import com.github.dapperware.slack.realtime.SlackRealtimeClient
 import com.github.dapperware.slack.realtime.models.{ Message, SendMessage }
+import com.github.dapperware.slack.{ realtime, AccessToken }
 import common.{ accessToken, default, Basic, BasicConfig }
-import sttp.client.asynchttpclient.zio.AsyncHttpClientZioBackend
+import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio._
 import zio.console._
 import zio.stream.ZStream
@@ -29,8 +29,8 @@ object ChatApp extends App {
   }
 
   private def replaceReferences(text: String, refMap: List[(String, String)]): String =
-    refMap.foldLeft(text) {
-      case (t, (ref, replace)) => t.replaceAllLiterally(s"<@$ref>", s"@$replace")
+    refMap.foldLeft(text) { case (t, (ref, replace)) =>
+      t.replaceAllLiterally(s"<@$ref>", s"@$replace")
     }
 
   private val layers: ZLayer[Any, Throwable, SlackRealtimeClient with SlackClient with AccessToken with Basic] =
@@ -42,7 +42,7 @@ object ChatApp extends App {
       .fromEffect(for {
         input   <- getStrLn
         channel <- ZIO.service[BasicConfig].map(_.channel)
-        message = SendMessage(channel, input)
+        message  = SendMessage(channel, input)
       } yield message)
       .forever
       .toQueueUnbounded
@@ -54,18 +54,17 @@ object ChatApp extends App {
 
     chatStack.use { receiver =>
       for {
-        socketFiber <- receiver.collectM {
-                        case Message(_, channel, user, text, _, _) =>
-                          val references = ZIO.foreach(findReferences(text)) { ref =>
-                            getUserInfo(ref).map { ref -> _.name }
-                          }
-                          (getConversationInfo(channel) <&> (getUserInfo(user) <&> references)).flatMap {
-                            case (c, (u, r)) =>
-                              putStrLn(s"${c.name}: ${u.name} -> ${replaceReferences(text, r)}")
-                          }
-                      }.runDrain.fork
-        _ <- putStrLn("Ready for input!")
-        _ <- socketFiber.join
+        socketFiber <- receiver.collectM { case Message(_, channel, user, text, _, _) =>
+                         val references = ZIO.foreach(findReferences(text)) { ref =>
+                           getUserInfo(ref).map(ref -> _.name)
+                         }
+                         (getConversationInfo(channel) <&> (getUserInfo(user) <&> references)).flatMap {
+                           case (c, (u, r)) =>
+                             putStrLn(s"${c.name}: ${u.name} -> ${replaceReferences(text, r)}")
+                         }
+                       }.runDrain.fork
+        _           <- putStrLn("Ready for input!")
+        _           <- socketFiber.join
       } yield ()
     }.provideCustomLayer(layers).exitCode
   }
