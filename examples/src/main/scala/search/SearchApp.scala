@@ -4,7 +4,7 @@ import com.github.dapperware.slack.api.web.searchMessages
 import com.github.dapperware.slack.client.SlackClient
 import com.github.dapperware.slack.realtime.SlackRealtimeClient
 import common.{ accessToken, default }
-import sttp.client.asynchttpclient.zio.AsyncHttpClientZioBackend
+import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio.console._
 import zio.stream.{ ZSink, ZStream }
 import zio.{ App, ExitCode, ZIO }

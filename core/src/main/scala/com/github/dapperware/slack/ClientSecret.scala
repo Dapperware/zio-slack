@@ -1,6 +1,6 @@
 package com.github.dapperware.slack
 
-import sttp.client.RequestT
+import sttp.client3.RequestT
 import zio.UIO
 
 object ClientSecret {

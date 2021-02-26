@@ -1,11 +1,11 @@
 package com.github.dapperware.slack
 
-import sttp.client.RequestT
+import sttp.client3.RequestT
 import zio.{ Has, URIO, ZIO }
 
 trait WithAccess {
 
-  def authenticateM[U[_], T, S](request: RequestT[U, T, S]): URIO[AccessToken, RequestT[U, T, S]] =
+  def authenticateM[U[_], T](request: RequestT[U, T, Any]): URIO[AccessToken, RequestT[U, T, Any]] =
     ZIO.accessM[AccessToken](_.get.authenticateM(request))
 
   def withAccessTokenM[R <: Has[_], E](token: ZIO[R, E, String], dummy: Boolean = false): WithAccessPartiallyM[R, E] =

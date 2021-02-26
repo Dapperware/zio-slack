@@ -6,7 +6,7 @@ import com.github.dapperware.slack.realtime.models.{ SendMessage, UserTyping }
 import com.github.dapperware.slack.realtime.{ SlackRealtimeClient, SlackRealtimeEnv }
 import com.github.dapperware.slack.{ realtime, SlackEnv, SlackError }
 import common.{ accessToken, default, Basic, BasicConfig }
-import sttp.client.asynchttpclient.zio.AsyncHttpClientZioBackend
+import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio.console.{ putStrLn, Console }
 import zio.stream.ZStream
 import zio.{ App, ExitCode, Layer, ZIO, ZManaged }
@@ -23,13 +23,13 @@ object BasicApp extends App {
 
   val testRealtime: ZManaged[SlackRealtimeEnv with Basic with Console, SlackError, Unit] =
     for {
-      config <- ZManaged.service[BasicConfig]
+      config   <- ZManaged.service[BasicConfig]
       // Test that we can receive messages
       receiver <- realtime.connect(ZStream(SendMessage(config.channel, "Hi realtime!")))
-      _ <- receiver.collectM {
-            case UserTyping(channel, user) => putStrLn(s"User $user is typing in $channel")
-            case _                         => ZIO.unit
-          }.runDrain.toManaged_
+      _        <- receiver.collectM {
+                    case UserTyping(channel, user) => putStrLn(s"User $user is typing in $channel")
+                    case _                         => ZIO.unit
+                  }.runDrain.toManaged_
     } yield ()
 
   val testApi: ZIO[SlackEnv with Basic, SlackError, String] =

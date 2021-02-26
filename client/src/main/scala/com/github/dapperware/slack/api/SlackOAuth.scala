@@ -5,7 +5,7 @@ import com.github.dapperware.slack.client.{ send, SlackClient }
 import io.circe
 import io.circe.generic.semiauto._
 import io.circe.{ Decoder, Json }
-import sttp.client.Request
+import sttp.client3.Request
 import zio.{ URIO, ZIO }
 
 trait SlackOAuth {
@@ -32,7 +32,7 @@ trait SlackOAuth {
     ) >>= as[FullAccessToken]
 
   protected def sendRaw[T](
-    request: URIO[Any, Request[SlackResponse[T], Nothing]]
+    request: URIO[Any, Request[SlackResponse[T], Any]]
   ): ZIO[SlackClient with ClientSecret, Throwable, T] =
     request >>= secret.authenticateM >>= send[T, circe.Error]
 }
@@ -48,12 +48,14 @@ object BotAccessToken {
   implicit val decoder: Decoder[BotAccessToken] = deriveDecoder[BotAccessToken]
 }
 
-case class FullAccessToken(access_token: String,
-                           scope: String,
-                           team_name: String,
-                           team_id: String,
-                           enterprise_id: Option[String],
-                           bot: Option[BotAccessToken])
+case class FullAccessToken(
+  access_token: String,
+  scope: String,
+  team_name: String,
+  team_id: String,
+  enterprise_id: Option[String],
+  bot: Option[BotAccessToken]
+)
 
 object FullAccessToken {
   implicit val decoder: Decoder[FullAccessToken] = deriveDecoder[FullAccessToken]

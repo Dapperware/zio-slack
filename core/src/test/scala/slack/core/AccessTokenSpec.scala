@@ -1,7 +1,7 @@
 package slack.core
 
 import com.github.dapperware.slack.{ authenticateM, AccessToken }
-import sttp.client.{ basicRequest, _ }
+import sttp.client3.{ basicRequest, _ }
 import sttp.model.Header
 import zio.test.Assertion.contains
 import zio.test._
