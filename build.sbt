@@ -111,9 +111,9 @@ lazy val examples = project
   .settings(
     skip in publish := true,
     libraryDependencies ++= Seq(
-      "dev.zio" %% "zio-config"          % "1.0.0",
-      "dev.zio" %% "zio-config-typesafe" % "1.0.0",
-      "dev.zio" %% "zio-config-magnolia" % "1.0.0"
+      "dev.zio" %% "zio-config"          % "1.0.1",
+      "dev.zio" %% "zio-config-typesafe" % "1.0.1",
+      "dev.zio" %% "zio-config-magnolia" % "1.0.1"
     )
   )
 
