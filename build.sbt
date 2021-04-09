@@ -35,8 +35,8 @@ scalaVersion in ThisBuild := mainScala
 gitVersioningSnapshotLowerBound in ThisBuild := "0.8.0"
 
 val circeV = "0.13.0"
-val zioV   = "1.0.5"
-val sttpV  = "3.1.5"
+val zioV   = "1.0.4-2"
+val sttpV  = "3.1.9"
 
 publishTo in ThisBuild := sonatypePublishToBundle.value
 
@@ -111,9 +111,9 @@ lazy val examples = project
   .settings(
     skip in publish := true,
     libraryDependencies ++= Seq(
-      "dev.zio" %% "zio-config"          % "1.0.0",
-      "dev.zio" %% "zio-config-typesafe" % "1.0.0",
-      "dev.zio" %% "zio-config-magnolia" % "1.0.0"
+      "dev.zio" %% "zio-config"          % "1.0.4",
+      "dev.zio" %% "zio-config-typesafe" % "1.0.4",
+      "dev.zio" %% "zio-config-magnolia" % "1.0.4"
     )
   )
 
