@@ -35,7 +35,8 @@ scalaVersion in ThisBuild := mainScala
 gitVersioningSnapshotLowerBound in ThisBuild := "0.8.0"
 
 val circeV = "0.13.0"
-val zioV   = "1.0.4-2"
+val zioV   = "1.0.7"
+val sttpV  = "3.1.9"
 val sttpV  = "3.3.0"
 
 publishTo in ThisBuild := sonatypePublishToBundle.value
