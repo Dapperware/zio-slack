@@ -4,9 +4,9 @@ import io.circe.Codec
 import io.circe.generic.semiauto._
 
 case class Message(
-  user: Option[Int] = None,
-  text: Option[Int] = None,
-  thread_ts: Option[Int] = None,
+  user: Option[String] = None,
+  text: Option[String] = None,
+  thread_ts: Option[String] = None,
   ts: Option[String] = None,
   team: Option[String] = None,
   hidden: Option[Boolean] = None,
