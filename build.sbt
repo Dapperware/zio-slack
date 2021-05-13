@@ -36,7 +36,7 @@ gitVersioningSnapshotLowerBound in ThisBuild := "0.8.0"
 
 val circeV = "0.13.0"
 val zioV   = "1.0.7"
-val sttpV  = "3.3.1"
+val sttpV  = "3.3.2"
 
 publishTo in ThisBuild := sonatypePublishToBundle.value
 
