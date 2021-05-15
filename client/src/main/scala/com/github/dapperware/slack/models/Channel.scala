@@ -23,4 +23,4 @@ case class Channel(
   unread_count_display: Option[Int] = None
 )
 
-case class ChannelValue(value: String, creator: String, last_set: Long)
+case class ChannelValue(value: String, creator: Option[String], last_set: Long)
