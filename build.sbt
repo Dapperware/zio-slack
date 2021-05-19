@@ -1,8 +1,8 @@
 name in ThisBuild := "zio-slack"
 organization in ThisBuild := "com.github.dapperware"
 
-val mainScala = "2.12.13"
-val allScala  = Seq("2.13.4", mainScala)
+val mainScala = "2.12.12"
+val allScala  = Seq("2.13.6", mainScala)
 
 inThisBuild(
   List(
@@ -35,8 +35,8 @@ scalaVersion in ThisBuild := mainScala
 gitVersioningSnapshotLowerBound in ThisBuild := "0.8.0"
 
 val circeV = "0.13.0"
-val zioV   = "1.0.4-2"
-val sttpV  = "3.1.5"
+val zioV   = "1.0.8"
+val sttpV  = "3.3.3"
 
 publishTo in ThisBuild := sonatypePublishToBundle.value
 
@@ -111,9 +111,9 @@ lazy val examples = project
   .settings(
     skip in publish := true,
     libraryDependencies ++= Seq(
-      "dev.zio" %% "zio-config"          % "1.0.0",
-      "dev.zio" %% "zio-config-typesafe" % "1.0.0",
-      "dev.zio" %% "zio-config-magnolia" % "1.0.0"
+      "dev.zio" %% "zio-config"          % "1.0.5",
+      "dev.zio" %% "zio-config-typesafe" % "1.0.5",
+      "dev.zio" %% "zio-config-magnolia" % "1.0.5"
     )
   )
 
