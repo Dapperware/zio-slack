@@ -8,7 +8,7 @@ import zio.ZIO
 
 trait SlackChats {
   def permalink(channelId: String, ts: String): ZIO[SlackEnv, SlackError, String]                                   =
-    sendM(request("chat.getPermalink", "channel" -> channelId, "ts" -> ts)) >>= as[String]("permalink")
+    sendM(request("chat.getPermalink", "channel" -> channelId, "message_ts" -> ts)) >>= as[String]("permalink")
 
   def deleteChat(channelId: String, ts: String, asUser: Option[Boolean] = None): ZIO[SlackEnv, SlackError, Boolean] =
     sendM(request("chat.delete", "channel" -> channelId, "ts" -> ts, "as_user" -> asUser)) >>= isOk
