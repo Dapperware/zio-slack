@@ -17,14 +17,17 @@ object SlackPinsSpec extends DefaultRunnableSpec with MockSttpBackend {
                     "ok": true
                     }
                 """
+    private val expectedBody2 = "channel=zoo-channel&timestamp=1234567890.123456"
+
+    private val expectedBody1 = "channel=foo-channel"
+
     override def sttpBackEndStub: SttpBackendStub[Task, ZioStreams with WebSockets] = 
         super.sttpBackEndStub
             .whenRequestMatches{request => 
-                (request.uri.toString == "https://slack.com/api/pins.add?channel=foo-channel" || 
-                    request.uri.toString == "https://slack.com/api/pins.add?channel=zoo-channel&timestamp=1234567890.123456") && 
+                request.uri.toString == "https://slack.com/api/pins.add"
                     request.method == Method.POST &&
-                    request.header("Authorization") == Some("Bearer foo-access-token")
-
+                    request.header("Authorization") == Some("Bearer foo-access-token") &&
+                    (request.body.show.contains(expectedBody1) || request.body.show.contains(expectedBody2))
             }
             .thenRespond(response)
 

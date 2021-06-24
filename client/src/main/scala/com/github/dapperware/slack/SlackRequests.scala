@@ -27,17 +27,6 @@ trait SlackRequests {
         .response(asJson[Json])
     )
 
-  def requestQueryParams(method: String, params: Seq[(String, String)]): UIO[Request[SlackResponse[Json], Any]] = {
-    val uri = uri"https://slack.com/api/$method"
-      .addParams(params:_*)
-    UIO.succeed(
-      basicRequest
-        .contentType(MediaType.ApplicationJson)
-        .post(uri)
-        .response(asJson[Json])
-    )
-  }
-
   def requestEntity(method: String, params: (String, SlackParamMagnet)*)(
     body: RequestEntity
   ): UIO[Request[SlackResponse[Json], Any]] = UIO.effectTotal(
