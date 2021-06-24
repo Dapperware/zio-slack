@@ -6,6 +6,7 @@ import io.circe.Json
 import sttp.client3.circe._
 import sttp.client3._
 import zio.{ UIO, ZIO }
+import sttp.model.MediaType
 
 trait SlackRequests {
   type SlackResponse[T] = Either[ResponseException[String, circe.Error], T]
@@ -31,6 +32,7 @@ trait SlackRequests {
       .addParams(params:_*)
     UIO.succeed(
       basicRequest
+        .contentType(MediaType.ApplicationJson)
         .post(uri)
         .response(asJson[Json])
     )
