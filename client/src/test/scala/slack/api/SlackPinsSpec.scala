@@ -5,10 +5,10 @@ import com.github.dapperware.slack.client.SlackClient
 import zio.test._
 import zio.test.Assertion
 import sttp.model.Method
-import sttp.client3.httpclient.zio.stubbing._
+import sttp.client3.asynchttpclient.zio.stubbing._
 import sttp.client3.asynchttpclient.zio.SttpClient
-import sttp.client3.httpclient.zio.SttpClientStubbing
-import zio.Has
+import sttp.client3.asynchttpclient.zio.SttpClientStubbing
+import zio.{Has, Layer}
 
 object SlackPinsSpec extends DefaultRunnableSpec with MockSttpBackend {
 
@@ -21,7 +21,7 @@ object SlackPinsSpec extends DefaultRunnableSpec with MockSttpBackend {
 
   private val expectedBody1 = "channel=foo-channel"
 
-  private val stubLayer: zio.Layer[Nothing, SttpClient with Has[SttpClientStubbing.Service]] = sttbBackEndStubLayer
+  private val stubLayer: Layer[Nothing, SttpClient with Has[SttpClientStubbing.Service]] = sttbBackEndStubLayer
 
   override def spec: ZSpec[Environment, Failure] = suite("Pins")(
     testM("sends channel-id") {
