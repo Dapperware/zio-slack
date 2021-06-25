@@ -74,7 +74,8 @@ lazy val client = project
       "dev.zio"                       %% "zio-test-magnolia"             % zioV % "it,test",
       "com.softwaremill.sttp.client3" %% "core"                          % sttpV,
       "com.softwaremill.sttp.client3" %% "circe"                         % sttpV,
-      "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio" % sttpV
+      "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio" % sttpV,
+       "com.softwaremill.sttp.client3" %% "httpclient-backend-zio"       % sttpV % "it,test"
     ),
     addCompilerPlugin("org.typelevel" %% "kind-projector"     % "0.10.3"),
     addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.1")
