@@ -3,46 +3,46 @@ package slack.api
 import com.github.dapperware.slack.api.web
 import com.github.dapperware.slack.client.SlackClient
 import zio.test._
-import sttp.client3.testing.SttpBackendStub
-import zio.Task
 import zio.test.Assertion
-import sttp.capabilities.WebSockets
-import sttp.capabilities.zio.ZioStreams
 import sttp.model.Method
+import sttp.client3.httpclient.zio.stubbing._
+import sttp.client3.asynchttpclient.zio.SttpClient
+import sttp.client3.httpclient.zio.SttpClientStubbing
+import zio.Has
 
 object SlackPinsSpec extends DefaultRunnableSpec with MockSttpBackend {
 
-    private val response = """
+  private val response = """
                     {
                     "ok": true
                     }
                 """
-    private val expectedBody2 = "channel=zoo-channel&timestamp=1234567890.123456"
+  private val expectedBody2 = "channel=zoo-channel&timestamp=1234567890.123456"
 
-    private val expectedBody1 = "channel=foo-channel"
+  private val expectedBody1 = "channel=foo-channel"
 
-    override def sttpBackEndStub: SttpBackendStub[Task, ZioStreams with WebSockets] = 
-        super.sttpBackEndStub
-            .whenRequestMatches{request => 
-                request.uri.toString == "https://slack.com/api/pins.add"
-                    request.method == Method.POST &&
-                    request.header("Authorization") == Some("Bearer foo-access-token") &&
-                    (request.body.show.contains(expectedBody1) || request.body.show.contains(expectedBody2))
-            }
-            .thenRespond(response)
+  private val stubLayer: zio.Layer[Nothing, SttpClient with Has[SttpClientStubbing.Service]] = sttbBackEndStubLayer
 
-    override def spec: ZSpec[Environment,Failure] = suite("Pins")(
-        testM("sends channel-id") {
-            assertM(web.pin("foo-channel"))(
-                Assertion.isTrue
-            )
-        },
-        testM("sends channel-id and timestamp") {
-            assertM(web.pin("zoo-channel", Some("1234567890.123456")))(
-                Assertion.isTrue
-            )
-        }
-    ).provideLayer((sttpClientLayer >>> SlackClient.live) ++ accessTokenLayer("foo-access-token"))
+  override def spec: ZSpec[Environment, Failure] = suite("Pins")(
+    testM("sends channel-id") {
+      val stubEffect = whenRequestMatches(req =>
+        req.uri.toString == "https://slack.com/api/pins.add" && req.method == Method.POST &&
+          req.header("Authorization") == Some("Bearer foo-access-token") && req.body.show.contains(expectedBody1)
+      ).thenRespond(response)
 
-  
+      assertM(stubEffect *> web.pin("foo-channel"))(
+        Assertion.isTrue
+      )
+    },
+    testM("sends channel-id and timestamp") {
+      val stubEffect = whenRequestMatches(req =>
+        req.uri.toString == "https://slack.com/api/pins.add" && req.method == Method.POST &&
+          req.header("Authorization") == Some("Bearer foo-access-token") && req.body.show.contains(expectedBody2)
+      ).thenRespond(response)
+
+      assertM(stubEffect *> web.pin("zoo-channel", Some("1234567890.123456")))(
+        Assertion.isTrue
+      )
+    }
+  ).provideLayer((stubLayer >>> SlackClient.live) ++ accessTokenLayer("foo-access-token") ++ stubLayer)
 }
