@@ -2,7 +2,7 @@ package com.github.dapperware.slack.api
 
 import com.github.dapperware.slack.{ SlackEnv, SlackError }
 import com.github.dapperware.slack.models.RemoteFile
-import zio.ZIO
+import zio.{ZIO, Chunk}
 import sttp.client3._
 
 trait SlackRemoteFiles {
@@ -11,18 +11,18 @@ trait SlackRemoteFiles {
     externalUrl: String,
     title: String,
     fileType: Option[String] = None,
-    indexableFileContents: Option[Array[Byte]] = None,
-    previewImage: Option[Array[Byte]] = None
+    indexableFileContents: Option[Chunk[Byte]] = None,
+    previewImage: Option[Chunk[Byte]] = None
   ): ZIO[SlackEnv, SlackError, RemoteFile] = {
-    val formPart   = Map("external_id" -> externalId, "external_url" -> externalUrl, "title" -> title) ++ fileType.fold(
-      Map.empty[String, String]
-    )(ft => Map("file_type" -> ft))
-    
-    val multiPart1 = Some(multipart("form_part", formPart))
-    val multiPart2 = indexableFileContents.map(multipart("indexable_file_contents", _))
-    val multiPart3 = previewImage.map(multipart("preview_image", _))
+    Chunk
+    val multiPart1 = fileType.map(multipart("filetype", _))
+    val multiPart2 = indexableFileContents.map(chunk => multipart("indexable_file_contents", chunk.toArray))
+    val multiPart3 = previewImage.map(chunk => multipart("preview_image", chunk.toArray))
+    val multiPart4 = Some(multipart("external_id", externalId))
+    val multiPart5 = Some(multipart("external_url", externalUrl))
+    val multiPart6 = Some(multipart("title", title))
 
-    val entities = List(multiPart1, multiPart2, multiPart3).flatten
+    val entities = List(multiPart1, multiPart2, multiPart3, multiPart4, multiPart5, multiPart6).flatten
 
     val request = basicRequest.multipartBody(entities)
 
