@@ -10,6 +10,7 @@ import sttp.client3.asynchttpclient.zio.stubbing._
 import sttp.client3.asynchttpclient.zio.SttpClient
 import sttp.client3.asynchttpclient.zio.SttpClientStubbing
 import zio.{ Chunk, Has, Layer }
+import com.github.dapperware.slack.models.Shares
 
 object SlackRemoteFilesSpec extends DefaultRunnableSpec with MockSttpBackend {
 
@@ -39,7 +40,10 @@ object SlackRemoteFilesSpec extends DefaultRunnableSpec with MockSttpBackend {
                             "permalink": "https://kraneflannel.slack.com/files/U0F8RBVNF/F0GDJ3XMH/leadvilleandbackagain",
                             "comments_count": 0,
                             "is_starred": false,
-                            "shares": {},
+                            "shares": {
+                              "public": {},
+                              "private": {}
+                            },
                             "channels": [],
                             "groups": [],
                             "ims": [],
@@ -79,7 +83,7 @@ object SlackRemoteFilesSpec extends DefaultRunnableSpec with MockSttpBackend {
     permalink = "https://kraneflannel.slack.com/files/U0F8RBVNF/F0GDJ3XMH/leadvilleandbackagain",
     comments_count = 0,
     is_starred = false,
-    shares = Map.empty,
+    shares = Shares(Map.empty, Map.empty),
     channels = List.empty,
     groups = List.empty,
     ims = List.empty,

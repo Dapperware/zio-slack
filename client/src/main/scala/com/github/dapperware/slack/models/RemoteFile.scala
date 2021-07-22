@@ -26,7 +26,7 @@ final case class RemoteFile(
   permalink: String,
   comments_count: Int,
   is_starred: Boolean,
-  shares: Map[String, String],
+  shares: Shares,
   channels: List[String],
   groups: List[String],
   ims: List[String],
@@ -37,4 +37,26 @@ final case class RemoteFile(
 
 object RemoteFile {
   implicit val decoder: Decoder[RemoteFile] = deriveDecoder
+}
+
+final case class Shares(public: Map[String, List[ShareDetail]], `private`: Map[String, List[ShareDetail]])
+
+object Shares {
+  implicit val decoder: Decoder[Shares] = deriveDecoder
+}
+
+final case class ShareDetail(
+  shareUserId: String,
+  replyUsers: List[String],
+  replyUsersCount: Int,
+  replyCount: Int,
+  ts: String,
+  threadTs: String,
+  latestReply: String,
+  channelName: String,
+  teamId: String
+)
+
+object ShareDetail {
+  implicit val decoder: Decoder[ShareDetail] = deriveDecoder
 }
