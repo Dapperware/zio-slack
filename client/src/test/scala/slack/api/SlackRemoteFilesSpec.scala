@@ -122,7 +122,7 @@ object SlackRemoteFilesSpec extends DefaultRunnableSpec with MockSttpBackend {
         "foo-external-url",
         "foo-title",
         Some("txt"),
-        indexableFileContents = Some(Chunk.empty[Byte])
+        indexableFileContents = Some(Chunk.empty)
       )
       assertM(effect)(equalTo(expectedResponse))
     },
@@ -143,8 +143,8 @@ object SlackRemoteFilesSpec extends DefaultRunnableSpec with MockSttpBackend {
         "foo-external-url",
         "foo-title",
         Some("txt"),
-        indexableFileContents = Some(Chunk.empty[Byte]),
-        previewImage = Some(Chunk.empty[Byte])
+        indexableFileContents = Some(Chunk.empty),
+        previewImage = Some(Chunk.empty)
       )
       assertM(effect)(equalTo(expectedResponse))
     }
