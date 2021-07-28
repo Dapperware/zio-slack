@@ -22,3 +22,5 @@ trait WebApi
     with SlackUsers
     with SlackUserGroups
     with SlackViews
+    with SlackPins
+    with SlackRemoteFiles
