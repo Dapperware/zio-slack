@@ -2,7 +2,7 @@ name in ThisBuild := "zio-slack"
 organization in ThisBuild := "com.github.dapperware"
 
 val mainScala = "2.12.14"
-val allScala  = Seq("2.13.6", mainScala)
+val allScala  = Seq("2.13.6", mainScala, "3.0.0")
 
 inThisBuild(
   List(
@@ -71,13 +71,12 @@ lazy val client = project
       "io.circe"                      %% "circe-generic"                 % circeV,
       "dev.zio"                       %% "zio-test"                      % zioV % "it,test",
       "dev.zio"                       %% "zio-test-sbt"                  % zioV % "it,test",
-      "dev.zio"                       %% "zio-test-magnolia"             % zioV % "it,test",
       "com.softwaremill.sttp.client3" %% "core"                          % sttpV,
       "com.softwaremill.sttp.client3" %% "circe"                         % sttpV,
       "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio" % sttpV
-    ),
-    addCompilerPlugin("org.typelevel" %% "kind-projector"     % "0.10.3"),
-    addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.1")
+    )
+    // addCompilerPlugin("org.typelevel" %% "kind-projector"     % "0.10.3"),
+    // addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.1")
   )
   .configs(IntegrationTest)
   .settings(Defaults.itSettings)
@@ -97,9 +96,7 @@ lazy val realtime = project
       "com.softwaremill.sttp.client3" %% "core"                          % sttpV,
       "com.softwaremill.sttp.client3" %% "circe"                         % sttpV,
       "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio" % sttpV
-    ),
-    addCompilerPlugin("org.typelevel" %% "kind-projector"     % "0.10.3"),
-    addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.1")
+    )
   )
   .configs(IntegrationTest)
   .settings(Defaults.itSettings)
@@ -112,8 +109,7 @@ lazy val examples = project
     skip in publish := true,
     libraryDependencies ++= Seq(
       "dev.zio" %% "zio-config"          % "1.0.6",
-      "dev.zio" %% "zio-config-typesafe" % "1.0.6",
-      "dev.zio" %% "zio-config-magnolia" % "1.0.6"
+      "dev.zio" %% "zio-config-typesafe" % "1.0.6"
     )
   )
 
@@ -132,23 +128,18 @@ scalacOptions ++= Seq(
 val commonSettings = Def.settings(
   libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, 13)) => Nil
+    case Some((3, 0))  => Nil
     case _             => compilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full) :: Nil
   }),
   scalacOptions ++= Seq(
     "-deprecation",
     "-encoding",
     "UTF-8",
-    "-explaintypes",
-    "-Yrangepos",
     "-feature",
     "-language:higherKinds",
     "-language:existentials",
     "-language:postfixOps",
-    "-unchecked",
-    "-Xlint:_,-type-parameter-shadow",
-    "-Ywarn-numeric-widen",
-    "-Ywarn-unused:patvars,-implicits",
-    "-Ywarn-value-discard"
+    "-unchecked"
   ) ++ (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, 12)) =>
       Seq(
@@ -162,12 +153,24 @@ val commonSettings = Def.settings(
         "-Ywarn-nullary-unit",
         "-opt-inline-from:<source>",
         "-opt-warnings",
-        "-opt:l:inline"
+        "-opt:l:inline",
+        "-explaintypes",
+        "-Yrangepos",
+        "-Xlint:_,-type-parameter-shadow",
+        "-Ywarn-numeric-widen",
+        "-Ywarn-unused:patvars,-implicits",
+        "-Ywarn-value-discard"
       )
     case Some((2, 13)) =>
       Seq(
-        "-Ymacro-annotations"
+        "-Ymacro-annotations",
+        "-explaintypes",
+        "-Yrangepos",
+        "-Xlint:_,-type-parameter-shadow",
+        "-Ywarn-numeric-widen",
+        "-Ywarn-unused:patvars,-implicits",
+        "-Ywarn-value-discard"
       )
-    case _             => Nil
+    case _             =>  Seq("-Ykind-projector:underscores") ++ Seq("-Xmax-inlines", "50")
   })
 )

@@ -5,7 +5,7 @@ import zio.{ UIO, URIO }
 
 object AccessToken {
 
-  final case class Token private (token: String) {
+  final case class Token protected (token: String) {
     def authenticateM[U[_], T, S](request: RequestT[U, T, S]): URIO[AccessToken, RequestT[U, T, S]] =
       UIO.succeed(request.auth.bearer(token))
   }

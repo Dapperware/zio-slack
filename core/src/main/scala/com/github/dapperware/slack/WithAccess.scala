@@ -9,7 +9,7 @@ trait WithAccess {
     ZIO.accessM[AccessToken](_.get.authenticateM(request))
 
   def withAccessTokenM[R <: Has[_], E](token: ZIO[R, E, String], dummy: Boolean = false): WithAccessPartiallyM[R, E] =
-    withAccessTokenM(token.map(AccessToken.Token))
+    withAccessTokenM(token.map(AccessToken.Token.apply))
 
   def withAccessTokenM[R <: Has[_], E](token: ZIO[R, E, AccessToken.Token]): WithAccessPartiallyM[R, E] =
     new WithAccessPartiallyM[R, E](token)

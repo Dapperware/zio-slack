@@ -2,6 +2,7 @@ package com.github.dapperware.slack.api
 
 import com.github.dapperware.slack.SlackError
 import com.github.dapperware.slack.models.Channel
+import com.github.dapperware.slack.models.channelFmt
 import io.circe.Json
 import zio.IO
 
