@@ -34,9 +34,12 @@ inThisBuild(
 scalaVersion in ThisBuild := mainScala
 gitVersioningSnapshotLowerBound in ThisBuild := "0.8.0"
 
+resolvers +=
+  "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+
 val circeV = "0.14.1"
-val zioV   = "1.0.10"
-val sttpV  = "3.3.13"
+val zioV   = "1.0.11"
+val sttpV  = "3.3.12"
 
 publishTo in ThisBuild := sonatypePublishToBundle.value
 
