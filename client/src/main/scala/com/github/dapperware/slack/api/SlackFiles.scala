@@ -2,7 +2,7 @@ package com.github.dapperware.slack.api
 
 import com.github.dapperware.slack.{ SlackEnv, SlackError }
 import com.github.dapperware.slack.client.RequestEntity
-import com.github.dapperware.slack.models.{ FileInfo, FilesResponse, SlackFile }
+import com.github.dapperware.slack.models._
 import com.github.dapperware.slack.client.RequestEntity
 import zio.ZIO
 

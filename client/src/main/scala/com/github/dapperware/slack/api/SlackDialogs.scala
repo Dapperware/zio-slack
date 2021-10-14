@@ -1,7 +1,7 @@
 package com.github.dapperware.slack.api
 
 import com.github.dapperware.slack.{ SlackEnv, SlackError }
-import com.github.dapperware.slack.models.Dialog
+import com.github.dapperware.slack.models._
 import zio.ZIO
 
 trait SlackDialogs {

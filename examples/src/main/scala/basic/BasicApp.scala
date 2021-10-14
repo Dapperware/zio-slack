@@ -10,11 +10,17 @@ import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio.console.{ putStrLn, Console }
 import zio.stream.ZStream
 import zio.{ App, ExitCode, Layer, ZIO, ZManaged }
+import com.github.dapperware.slack.AccessToken
 
 object BasicApp extends App {
+
+  val accessTokenAndBasic: Layer[Throwable, AccessToken with Basic] = default >+> accessToken.toLayer
+
+  val slackClients: Layer[Throwable, SlackClient with SlackRealtimeClient] = 
+    AsyncHttpClientZioBackend.layer() >>> (SlackClient.live ++ SlackRealtimeClient.live)
+
   val layers: Layer[Throwable, SlackEnv with SlackRealtimeEnv with Basic] =
-    AsyncHttpClientZioBackend.layer() >>>
-      (SlackClient.live ++ SlackRealtimeClient.live ++ (default >+> accessToken.toLayer))
+    slackClients ++ accessTokenAndBasic
 
   override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, ExitCode] =
     (for {
