@@ -123,7 +123,7 @@ object TextObject {
     json.add("type", text.`type`.asJson)
   }
 
-  private val textDecoder = Decoder.instance[TextObject] { c =>
+  private val textDecoder: Decoder[TextObject] = Decoder.instance[TextObject] { c =>
     for {
       value <- c.downField("type").as[String]
       result <- value match {
@@ -134,7 +134,7 @@ object TextObject {
     } yield result
   }
 
-  implicit val format = Codec.from(textDecoder, textEncoder)
+  implicit val format: Codec[TextObject] = Codec.from(textDecoder, textEncoder)
 }
 
 case class OptionObject(text: PlainTextObject, value: String)
@@ -240,26 +240,26 @@ case class DatePickerElement(action_id: String,
 }
 
 object BlockElement {
-  implicit val plainTextFmt = deriveCodec[PlainTextObject]
+  implicit val plainTextFmt: Codec.AsObject[PlainTextObject] = deriveCodec[PlainTextObject]
 
-  implicit val optionObjFmt    = deriveCodec[OptionObject]
-  implicit val optionGrpObjFmt = deriveCodec[OptionGroupObject]
-  implicit val confirmObjFmt   = deriveCodec[ConfirmationObject]
+  implicit val optionObjFmt: Codec.AsObject[OptionObject]    = deriveCodec[OptionObject]
+  implicit val optionGrpObjFmt: Codec.AsObject[OptionGroupObject] = deriveCodec[OptionGroupObject]
+  implicit val confirmObjFmt: Codec.AsObject[ConfirmationObject]   = deriveCodec[ConfirmationObject]
 
-  implicit val eitherOptFmt                    = eitherObjectFormat[OptionObject, OptionGroupObject]("text", "label")
-  implicit val buttonElementFmt                = deriveCodec[ButtonElement]
-  implicit val imageElementFmt                 = deriveCodec[ImageElement]
-  implicit val staticMenuElementFmt            = deriveCodec[StaticSelectElement]
-  implicit val extMenuElementFmt               = deriveCodec[ExternalSelectElement]
-  implicit val userMenuElementFmt              = deriveCodec[UserSelectElement]
-  implicit val multiUsersSelectElementFmt      = deriveCodec[MultiUsersSelectElement]
-  implicit val channelMenuElementFmt           = deriveCodec[ChannelSelectElement]
-  implicit val conversationMenuElementFmt      = deriveCodec[ConversationSelectElement]
-  implicit val multiConversationMenuElementFmt = deriveCodec[MultiConversationsSelectElement]
-  implicit val overflowElementFmt              = deriveCodec[OverflowElement]
-  implicit val datePickerElementFmt            = deriveCodec[DatePickerElement]
+  implicit val eitherOptFmt: Codec[Either[OptionObject,OptionGroupObject]]                    = eitherObjectFormat[OptionObject, OptionGroupObject]("text", "label")
+  implicit val buttonElementFmt: Codec.AsObject[ButtonElement]                = deriveCodec[ButtonElement]
+  implicit val imageElementFmt: Codec.AsObject[ImageElement]                 = deriveCodec[ImageElement]
+  implicit val staticMenuElementFmt: Codec.AsObject[StaticSelectElement]            = deriveCodec[StaticSelectElement]
+  implicit val extMenuElementFmt: Codec.AsObject[ExternalSelectElement]               = deriveCodec[ExternalSelectElement]
+  implicit val userMenuElementFmt: Codec.AsObject[UserSelectElement]              = deriveCodec[UserSelectElement]
+  implicit val multiUsersSelectElementFmt: Codec.AsObject[MultiUsersSelectElement]      = deriveCodec[MultiUsersSelectElement]
+  implicit val channelMenuElementFmt: Codec.AsObject[ChannelSelectElement]           = deriveCodec[ChannelSelectElement]
+  implicit val conversationMenuElementFmt: Codec.AsObject[ConversationSelectElement]      = deriveCodec[ConversationSelectElement]
+  implicit val multiConversationMenuElementFmt: Codec.AsObject[MultiConversationsSelectElement] = deriveCodec[MultiConversationsSelectElement]
+  implicit val overflowElementFmt: Codec.AsObject[OverflowElement]              = deriveCodec[OverflowElement]
+  implicit val datePickerElementFmt: Codec.AsObject[DatePickerElement]            = deriveCodec[DatePickerElement]
 
-  private val elemWrites = new Encoder[BlockElement] {
+  private val elemWrites: Encoder[BlockElement] = new Encoder[BlockElement] {
     def apply(element: BlockElement): Json = {
       val json = element match {
         case elem: ButtonElement                   => elem.asJson
@@ -277,7 +277,7 @@ object BlockElement {
       Json.obj("type" -> element.`type`.asJson).deepMerge(json)
     }
   }
-  private val elemReads = new Decoder[BlockElement] {
+  private val elemReads: Decoder[BlockElement] = new Decoder[BlockElement] {
 
     override def apply(c: HCursor): Result[BlockElement] =
       for {
@@ -299,7 +299,7 @@ object BlockElement {
       } yield result
   }
 
-  implicit val format = Codec.from(elemReads, elemWrites)
+  implicit val format: Codec[BlockElement] = Codec.from(elemReads, elemWrites)
 }
 
 object InputBlockElement {
@@ -337,17 +337,17 @@ object InputBlockElement {
 }
 
 object Block {
-  implicit val plainTextFmt    = deriveCodec[PlainTextObject]
-  implicit val imageElementFmt = deriveCodec[ImageElement]
+  implicit val plainTextFmt: Codec.AsObject[PlainTextObject]    = deriveCodec[PlainTextObject]
+  implicit val imageElementFmt: Codec.AsObject[ImageElement] = deriveCodec[ImageElement]
 
-  implicit val eitherContextFmt = eitherObjectFormat[ImageElement, TextObject]("image_url", "text")
-  implicit val dividerFmt       = deriveCodec[Divider]
-  implicit val imageBlockFmt    = deriveCodec[ImageBlock]
-  implicit val actionBlockFmt   = deriveCodec[ActionsBlock]
-  implicit val contextBlockFmt  = deriveCodec[ContextBlock]
-  implicit val sectionFmt       = deriveCodec[Section]
-  implicit val headerBlockCodec = deriveCodec[HeaderBlock]
-  implicit val inputBlockCodec  = deriveCodec[InputBlock]
+  implicit val eitherContextFmt: Codec[Either[ImageElement,TextObject]] = eitherObjectFormat[ImageElement, TextObject]("image_url", "text")
+  implicit val dividerFmt: Codec.AsObject[Divider]     = deriveCodec[Divider]
+  implicit val imageBlockFmt: Codec.AsObject[ImageBlock]    = deriveCodec[ImageBlock]
+  implicit val actionBlockFmt: Codec.AsObject[ActionsBlock]   = deriveCodec[ActionsBlock]
+  implicit val contextBlockFmt: Codec.AsObject[ContextBlock]  = deriveCodec[ContextBlock]
+  implicit val sectionFmt: Codec.AsObject[Section]       = deriveCodec[Section]
+  implicit val headerBlockCodec: Codec.AsObject[HeaderBlock] = deriveCodec[HeaderBlock]
+  implicit val inputBlockCodec: Codec.AsObject[InputBlock]  = deriveCodec[InputBlock]
 
   private val blockEncoder = Encoder.AsObject.instance[Block] { block =>
     val json = block match {

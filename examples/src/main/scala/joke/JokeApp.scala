@@ -1,6 +1,7 @@
 package joke
 
 import com.github.dapperware.slack
+import com.github.dapperware.slack.{SlackEnv, AccessToken}
 import com.github.dapperware.slack.api.web.{ listConversations, postChatMessage }
 import com.github.dapperware.slack.client.SlackClient
 import com.github.dapperware.slack.models.Channel
@@ -43,11 +44,13 @@ object JokeApp extends App {
       .runCollect
       .flatMap(c => random.shuffle(c.toList))
 
-  val layers: ZLayer[Any, Throwable, SttpClient with SlackClient with Basic] =
-    AsyncHttpClientZioBackend.layer() >+> SlackClient.live ++ common.default
+  val accessTokenLayer: Layer[Throwable, AccessToken with Basic] = (common.default >+> accessToken.toLayer)
 
-  val result: ZIO[SttpClient with SlackClient with Random with Clock with Basic, Throwable, Unit] =
-    withAccessTokenM(accessToken)(for {
+  val layers: ZLayer[Any, Throwable, SttpClient with SlackClient with AccessToken with Basic] =
+     (AsyncHttpClientZioBackend.layer() >+> (SlackClient.live ++ accessTokenLayer))
+
+  val result: ZIO[SttpClient with SlackEnv with Random with Clock with Basic, Throwable, Unit] =
+    for {
       shuffled <- shuffledConversations
       _        <- ZIO.foreach(shuffled) { channel =>
                     (for {
@@ -57,7 +60,7 @@ object JokeApp extends App {
                       _    <- postChatMessage(channel.id, joke)
                     } yield ()) *> ZIO.sleep(3.hours)
                   }
-    } yield ())
+    } yield ()
 
   override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, ExitCode] =
     result

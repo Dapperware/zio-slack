@@ -43,12 +43,12 @@ case class Message(
 )
 
 object Message {
-  implicit val codec: Codec[Message] = deriveCodec[Message]
+  implicit val codec: Codec.AsObject[Message] = deriveCodec[Message]
 }
 
 final case class Icon(icon_url: Option[String] = None, icon_emoji: Option[String] = None)
 object Icon       {
-  implicit val codec: Codec[Icon] = deriveCodec[Icon]
+  implicit val codec: Codec.AsObject[Icon] = deriveCodec[Icon]
 }
 final case class BotProfile(
   app_id: Option[String] = None,
@@ -60,7 +60,7 @@ final case class BotProfile(
   updated: Option[Long] = None
 )
 object BotProfile {
-  implicit val codec: Codec[BotProfile] = deriveCodec[BotProfile]
+  implicit val codec: Codec.AsObject[BotProfile] = deriveCodec[BotProfile]
 }
 final case class Icons(
   image_36: Option[String] = None,
@@ -68,5 +68,5 @@ final case class Icons(
   image_72: Option[String] = None
 )
 object Icons      {
-  implicit val codec: Codec[Icons] = deriveCodec[Icons]
+  implicit val codec: Codec.AsObject[Icons] = deriveCodec[Icons]
 }

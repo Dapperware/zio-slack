@@ -1,14 +1,6 @@
 package com.github.dapperware.slack.api
 
-import com.github.dapperware.slack.models.{
-  Channel,
-  Conversation,
-  HistoryChunk,
-  HistoryItem,
-  Message,
-  Plural,
-  ResponseChunk
-}
+import com.github.dapperware.slack.models._
 import com.github.dapperware.slack.{ SlackEnv, SlackError }
 import io.circe.Json
 import io.circe.syntax._

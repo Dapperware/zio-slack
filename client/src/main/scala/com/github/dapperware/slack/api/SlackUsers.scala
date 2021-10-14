@@ -1,6 +1,6 @@
 package com.github.dapperware.slack.api
 
-import com.github.dapperware.slack.models.User
+import com.github.dapperware.slack.models._
 import com.github.dapperware.slack.{ SlackEnv, SlackError }
 import zio.ZIO
 

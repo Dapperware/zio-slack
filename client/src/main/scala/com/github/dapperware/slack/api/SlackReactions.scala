@@ -1,7 +1,7 @@
 package com.github.dapperware.slack.api
 
 import com.github.dapperware.slack.{ SlackEnv, SlackError }
-import com.github.dapperware.slack.models.{ Reaction, ReactionsResponse }
+import com.github.dapperware.slack.models._
 import io.circe.Json
 import io.circe.syntax._
 import zio.ZIO
