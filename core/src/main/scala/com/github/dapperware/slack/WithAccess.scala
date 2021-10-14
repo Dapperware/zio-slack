@@ -6,12 +6,12 @@ import zio.{ Has, URIO, ZIO }
 trait WithAccess {
 
   def authenticateM[U[_], T](request: RequestT[U, T, Any]): URIO[AccessToken, RequestT[U, T, Any]] =
-    ZIO.accessM[AccessToken](_.get.authenticateM(request))
+    AccessToken.authenticateM(request)
 
   def withAccessTokenM[R <: Has[_], E](token: ZIO[R, E, String], dummy: Boolean = false): WithAccessPartiallyM[R, E] =
-    withAccessTokenM(token.map(AccessToken.Token))
+    withAccessTokenM(token.map(Token.apply))
 
-  def withAccessTokenM[R <: Has[_], E](token: ZIO[R, E, AccessToken.Token]): WithAccessPartiallyM[R, E] =
+  def withAccessTokenM[R <: Has[_], E](token: ZIO[R, E, Token]): WithAccessPartiallyM[R, E] =
     new WithAccessPartiallyM[R, E](token)
 
   def withAccessToken(token: String): WithAccessPartially =
