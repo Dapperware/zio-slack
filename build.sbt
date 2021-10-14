@@ -39,7 +39,7 @@ resolvers +=
 
 val circeV = "0.14.1"
 val zioV   = "1.0.11"
-val sttpV  = "3.3.13"
+val sttpV  = "3.3.15"
 
 publishTo in ThisBuild := sonatypePublishToBundle.value
 
