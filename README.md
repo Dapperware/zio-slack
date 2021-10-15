@@ -13,7 +13,7 @@ Installation
 
 Add the following dependency to your project's build file
 
-For Scala 2.12.x and 2.13.x
+For Scala 2.12.x, 2.13.x and 3.0.0
 
 ```scala
 "com.github.dapperware" %% "zio-slack-api-web" % "0.9.5"
@@ -94,4 +94,18 @@ object JokeApp extends App {
 }
 ```
 
+Caveat
+--
 
+With Scala 3.0.0, you might encounter a run time error similar to
+```
+Fiber failed.
+An unchecked error was produced.
+java.lang.Error: Defect in zio.Has: Set({{Has[=Token] & Has[=package$::SlackClient$::Service]} & Has[=package$::SlackRealtimeClient$::Service]}) statically known to be contained within the environment are missing
+	at zio.Has$HasSyntax$.prune$extension(Has.scala:198)
+	at zio.Has$HasSyntax$.union$extension(Has.scala:210)
+	at zio.Has$$anon$2.union(Has.scala:92)
+	at zio.Has$$anon$2.union(Has.scala:91)
+
+```
+The workaround for this is to use the environments explictely instead of using the type aliases. Replace `AccessToken` with `Has[Token]`, `ClientSecret` with `Has[ClientSecretToken]` and `SlackRealtimeClient` with `Has[SlackRealtimeClient.Service]`. The programs in the `examples` module compile and run with Scala 3.0.0.

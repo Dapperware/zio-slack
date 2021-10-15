@@ -4,13 +4,13 @@ import com.github.dapperware.slack.api.web.{ getConversationInfo, getUserInfo }
 import com.github.dapperware.slack.client.SlackClient
 import com.github.dapperware.slack.realtime.SlackRealtimeClient
 import com.github.dapperware.slack.realtime.models.{ Message, SendMessage }
-import com.github.dapperware.slack.{ realtime, AccessToken }
-import com.github.dapperware.slack.realtime.{ SlackRealtimeClient, SlackRealtimeEnv }
+import com.github.dapperware.slack.realtime
 import common.{ accessToken, default, Basic, BasicConfig }
 import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio._
 import zio.console._
 import zio.stream.ZStream
+import com.github.dapperware.slack.Token
 
 /**
  * A simple interactive application to show how to use slack zio for much profit
@@ -34,12 +34,12 @@ object ChatApp extends App {
       t.replaceAllLiterally(s"<@$ref>", s"@$replace")
     }
 
-  val accessTokenAndBasic: Layer[Throwable, AccessToken with Basic] = default >+> accessToken.toLayer
+  val accessTokenAndBasic: Layer[Throwable, Has[Token] with Basic] = default >+> accessToken.toLayer
 
-  val slackClients: Layer[Throwable, SlackClient with SlackRealtimeClient] = 
+  val slackClients: Layer[Throwable, Has[SlackClient.Service] with Has[SlackRealtimeClient.Service]] = 
     AsyncHttpClientZioBackend.layer() >>> (SlackClient.live ++ SlackRealtimeClient.live)
 
-  private val layers: ZLayer[Any, Throwable, SlackRealtimeEnv with Basic] =
+  private val layers: ZLayer[Any, Throwable, Has[SlackClient.Service] with Has[SlackRealtimeClient.Service] with Has[Token] with Basic] =
     slackClients ++ accessTokenAndBasic
 
   override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, ExitCode] = {
