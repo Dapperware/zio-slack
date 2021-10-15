@@ -7,14 +7,14 @@ import common.{ accessToken, default, Basic }
 import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio.console._
 import zio.stream.{ ZSink, ZStream }
-import zio.{ App, ExitCode, ZIO, Layer}
-import com.github.dapperware.slack.AccessToken
+import zio.{ App, ExitCode, ZIO, Layer, Has}
+import com.github.dapperware.slack.Token
 
 object SearchApp extends App {
 
-  val accessTokenAndBasic: Layer[Throwable, AccessToken with Basic] = default >+> accessToken.toLayer
+  val accessTokenAndBasic: Layer[Throwable, Has[Token] with Basic] = default >+> accessToken.toLayer
 
-  val slackClients: Layer[Throwable, SlackClient with SlackRealtimeClient] = AsyncHttpClientZioBackend.layer() >>> (SlackClient.live ++ SlackRealtimeClient.live)
+  val slackClients: Layer[Throwable, Has[SlackClient.Service] with Has[SlackRealtimeClient.Service]] = AsyncHttpClientZioBackend.layer() >>> (SlackClient.live ++ SlackRealtimeClient.live)
 
   val layers = slackClients ++ accessTokenAndBasic
 

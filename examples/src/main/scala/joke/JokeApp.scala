@@ -17,6 +17,7 @@ import zio.clock.Clock
 import zio.duration._
 import zio.random.Random
 import zio.stream.ZStream
+import com.github.dapperware.slack.Token
 
 /**
  * Every 3 hours, randomly pick a channel that the bot is part of and send a chuck norris joke to it.
