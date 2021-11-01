@@ -2,7 +2,7 @@ name in ThisBuild := "zio-slack"
 organization in ThisBuild := "com.github.dapperware"
 
 val mainScala = "2.12.14"
-val allScala  = Seq("2.13.6", mainScala, "3.0.0")
+val allScala  = Seq("2.13.7", mainScala, "3.0.0")
 
 inThisBuild(
   List(
@@ -174,6 +174,6 @@ val commonSettings = Def.settings(
         "-Ywarn-unused:patvars,-implicits",
         "-Ywarn-value-discard"
       )
-    case _             =>  Seq("-Ykind-projector:underscores") ++ Seq("-Xmax-inlines", "50")
+    case _             => Seq("-Ykind-projector:underscores") ++ Seq("-Xmax-inlines", "50")
   })
 )
