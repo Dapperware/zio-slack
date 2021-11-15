@@ -1,6 +1,6 @@
 package com.github.dapperware.slack.models
 
-import cats.Applicative.ops.toAllApplicativeOps
+import cats.syntax.functor._
 import io.circe.{ Codec, Decoder }
 import io.circe.generic.semiauto._
 

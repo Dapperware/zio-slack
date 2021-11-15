@@ -1,7 +1,7 @@
 package slack.api
 
 import com.github.dapperware.slack.api.web
-import com.github.dapperware.slack.client.SlackClient
+import com.github.dapperware.slack.SlackClient
 import com.github.dapperware.slack.models.RemoteFile
 import zio.test._
 import zio.test.Assertion
@@ -14,7 +14,7 @@ import com.github.dapperware.slack.models.Shares
 
 object SlackRemoteFilesSpec extends DefaultRunnableSpec with MockSttpBackend {
 
-  private val response = """
+  private val response               = """
                        {
                         "ok": true,
                         "file": {

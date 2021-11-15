@@ -1,18 +1,18 @@
 package slack.api
 
+import com.github.dapperware.slack.SlackClient
 import com.github.dapperware.slack.api.web
-import com.github.dapperware.slack.client.SlackClient
 import zio.test._
 import zio.test.Assertion
 import sttp.model.Method
 import sttp.client3.asynchttpclient.zio.stubbing._
 import sttp.client3.asynchttpclient.zio.SttpClient
 import sttp.client3.asynchttpclient.zio.SttpClientStubbing
-import zio.{Has, Layer}
+import zio.{ Has, Layer }
 
 object SlackPinsSpec extends DefaultRunnableSpec with MockSttpBackend {
 
-  private val response = """
+  private val response      = """
                     {
                     "ok": true
                     }

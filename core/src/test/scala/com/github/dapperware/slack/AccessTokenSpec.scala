@@ -1,4 +1,4 @@
-package slack.core
+package com.github.dapperware.slack
 
 import com.github.dapperware.slack.{ authenticateM, AccessToken }
 import sttp.client3.{ basicRequest, _ }

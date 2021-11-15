@@ -1,5 +1,5 @@
-name in ThisBuild := "zio-slack"
-organization in ThisBuild := "com.github.dapperware"
+ThisBuild / name := "zio-slack"
+ThisBuild / organization := "com.github.dapperware"
 
 val mainScala = "2.12.14"
 val allScala  = Seq("2.13.6", mainScala, "3.0.0")
@@ -31,21 +31,21 @@ inThisBuild(
   )
 )
 
-scalaVersion in ThisBuild := mainScala
-gitVersioningSnapshotLowerBound in ThisBuild := "0.8.0"
+ThisBuild / scalaVersion := mainScala
+ThisBuild / gitVersioningSnapshotLowerBound := "0.8.0"
 
 resolvers +=
   "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
 val circeV = "0.14.1"
-val zioV   = "1.0.11"
-val sttpV  = "3.3.13"
+val zioV   = "1.0.12"
+val sttpV  = "3.3.16"
 
-publishTo in ThisBuild := sonatypePublishToBundle.value
+ThisBuild / publishTo := sonatypePublishToBundle.value
 
 lazy val root = (project in file("."))
   .aggregate(core, client, realtime, examples)
-  .settings(skip in publish := true)
+  .settings(publish / skip := true)
   .settings(historyPath := None)
 
 lazy val core = project
@@ -109,10 +109,10 @@ lazy val examples = project
   .dependsOn(client, realtime)
   .settings(commonSettings)
   .settings(
-    skip in publish := true,
+    publish / skip := true,
     libraryDependencies ++= Seq(
-      "dev.zio" %% "zio-config"          % "1.0.6",
-      "dev.zio" %% "zio-config-typesafe" % "1.0.6"
+      "dev.zio" %% "zio-config"          % "1.0.10",
+      "dev.zio" %% "zio-config-typesafe" % "1.0.10"
     )
   )
 
@@ -174,6 +174,6 @@ val commonSettings = Def.settings(
         "-Ywarn-unused:patvars,-implicits",
         "-Ywarn-value-discard"
       )
-    case _             =>  Seq("-Ykind-projector:underscores") ++ Seq("-Xmax-inlines", "50")
+    case _             => Seq("-Ykind-projector:underscores") ++ Seq("-Xmax-inlines", "50")
   })
 )

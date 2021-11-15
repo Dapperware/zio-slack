@@ -1,12 +1,10 @@
 package joke
 
 import com.github.dapperware.slack
-import com.github.dapperware.slack.{SlackEnv, AccessToken}
 import com.github.dapperware.slack.api.web.{ listConversations, postChatMessage }
-import com.github.dapperware.slack.client.SlackClient
 import com.github.dapperware.slack.models.Channel
-import com.github.dapperware.slack.withAccessTokenM
-import common.{ accessToken, Basic }
+import com.github.dapperware.slack.{ AccessToken, SlackClient, SlackEnv }
+import common.{ accessToken, BasicConfig }
 import io.circe
 import io.circe.{ DecodingFailure, Json }
 import sttp.client3.asynchttpclient.zio.{ send, AsyncHttpClientZioBackend, SttpClient }
@@ -44,15 +42,16 @@ object JokeApp extends App {
       .runCollect
       .flatMap(c => random.shuffle(c.toList))
 
-  val accessTokenLayer: Layer[Throwable, AccessToken with Basic] = (common.default >+> accessToken.toLayer)
+  val accessTokenLayer: Layer[Throwable, Has[AccessToken] with Has[BasicConfig]] =
+    (common.default >+> accessToken.toLayer)
 
-  val layers: ZLayer[Any, Throwable, SttpClient with SlackClient with AccessToken with Basic] =
-     (AsyncHttpClientZioBackend.layer() >+> (SlackClient.live ++ accessTokenLayer))
+  val layers: ZLayer[Any, Throwable, SttpClient with Has[SlackClient] with Has[AccessToken] with Has[BasicConfig]] =
+    (AsyncHttpClientZioBackend.layer() >+> (SlackClient.live ++ accessTokenLayer))
 
-  val result: ZIO[SttpClient with SlackEnv with Random with Clock with Basic, Throwable, Unit] =
+  val result: ZIO[SttpClient with SlackEnv with Random with Clock with Has[BasicConfig], Throwable, Unit] =
     for {
       shuffled <- shuffledConversations
-      _        <- ZIO.foreach(shuffled) { channel =>
+      _        <- ZIO.foreach_(shuffled) { channel =>
                     (for {
                       resp <- send(getJoke)
                       body <- IO.fromEither(resp.body)
