@@ -1,10 +1,13 @@
 package com.github.dapperware.slack
 
 import cats.Show
+import com.github.dapperware.slack.SlackException.ResponseError
 import io.circe.{ ACursor, Decoder, DecodingFailure, Json }
 import zio.{ IO, ZIO }
 
 trait SlackExtractors {
+
+  private val responseErrorDecoder: Decoder[ResponseError] = io.circe.generic.semiauto.deriveDecoder[ResponseError]
 
   private def ok(cursor: ACursor): Either[DecodingFailure, Boolean] =
     cursor.downField("ok").as[Boolean]
@@ -13,7 +16,7 @@ trait SlackExtractors {
     val c = json.hcursor
     for {
       _ok  <- ok(c)
-      body <- if (_ok) key.fold(c.as[A])(c.downField(_).as[A]) else c.as[SlackException.ResponseError].flatMap(Left(_))
+      body <- if (_ok) key.fold(c.as[A])(c.downField(_).as[A]) else c.as(responseErrorDecoder).flatMap(Left(_))
     } yield body
   }
 

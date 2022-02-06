@@ -1,6 +1,6 @@
-package slack.core
+package com.github.dapperware.slack
 
-import com.github.dapperware.slack.{ secret, ClientSecret }
+import com.github.dapperware.slack.ClientSecret
 import sttp.client3._
 import sttp.model.Header
 import zio.test.Assertion.contains
@@ -16,7 +16,7 @@ object ClientSecretSpec extends DefaultRunnableSpec {
 
         val request = basicRequest.get(uri"https://github.com/dapperware/zio-slack")
 
-        assertM(secret.authenticateM(request).map(_.headers))(
+        assertM(ClientSecret.authenticateM(request).map(_.headers))(
           contains(new Header("Authorization", "Basic YWJjMTIzOnN1cGVyc2VjcmV0"))
         )
       }

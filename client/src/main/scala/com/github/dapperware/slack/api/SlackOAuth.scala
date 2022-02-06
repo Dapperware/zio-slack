@@ -1,27 +1,27 @@
 package com.github.dapperware.slack.api
 
-import com.github.dapperware.slack.{ secret, ClientSecret, SlackError }
-import com.github.dapperware.slack.client.{ send, SlackClient }
+import com.github.dapperware.slack.client.send
+import com.github.dapperware.slack.{ ClientSecret, SlackClient, SlackError }
 import io.circe
 import io.circe.generic.semiauto._
 import io.circe.{ Decoder, Json }
 import sttp.client3.Request
-import zio.{ URIO, ZIO }
+import zio.{ Has, URIO, ZIO }
 
 trait SlackOAuth {
 
   def accessOAuthV2(
     code: String,
     redirectUri: Option[String] = None
-  ): ZIO[SlackClient with ClientSecret, SlackError, FullAccessTokenV2] =
-    request("oauth.v2.access", "code" -> code, "redirect_uri" -> redirectUri) >>= secret.authenticateM >>=
+  ): ZIO[Has[SlackClient] with Has[ClientSecret], SlackError, FullAccessTokenV2] =
+    request("oauth.v2.access", "code" -> code, "redirect_uri" -> redirectUri) >>= ClientSecret.authenticateM >>=
       send[Json, circe.Error] >>= as[FullAccessTokenV2]
 
   def accessOAuth(
     code: String,
     redirectUri: Option[String] = None,
     singleChannel: Option[Boolean] = None
-  ): ZIO[SlackClient with ClientSecret, SlackError, FullAccessToken] =
+  ): ZIO[Has[SlackClient] with Has[ClientSecret], SlackError, FullAccessToken] =
     sendRaw(
       request(
         "oauth.access",
@@ -33,8 +33,8 @@ trait SlackOAuth {
 
   protected def sendRaw[T](
     request: URIO[Any, Request[SlackResponse[T], Any]]
-  ): ZIO[SlackClient with ClientSecret, Throwable, T] =
-    request >>= secret.authenticateM >>= send[T, circe.Error]
+  ): ZIO[Has[SlackClient] with Has[ClientSecret], Throwable, T] =
+    request >>= ClientSecret.authenticateM >>= send[T, circe.Error]
 }
 
 object oauth extends SlackOAuth

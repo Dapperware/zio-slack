@@ -1,12 +1,15 @@
 package com.github.dapperware.slack.api
 
-import com.github.dapperware.slack.models.{ Attachment, Block, UpdateResponse }
+import com.github.dapperware.slack.models._
 import com.github.dapperware.slack.{ SlackEnv, SlackError }
 import io.circe.Json
 import io.circe.syntax._
 import zio.ZIO
 
 trait SlackChats {
+  def permalink(channelId: String, ts: String): ZIO[SlackEnv, SlackError, String]                                   =
+    sendM(request("chat.getPermalink", "channel" -> channelId, "message_ts" -> ts)) >>= as[String]("permalink")
+
   def deleteChat(channelId: String, ts: String, asUser: Option[Boolean] = None): ZIO[SlackEnv, SlackError, Boolean] =
     sendM(request("chat.delete", "channel" -> channelId, "ts" -> ts, "as_user" -> asUser)) >>= isOk
 
@@ -19,7 +22,7 @@ trait SlackChats {
     attachments: Option[Seq[Attachment]] = None,
     blocks: Option[Seq[Block]] = None,
     linkNames: Option[Boolean] = None
-  ): ZIO[SlackEnv, SlackError, String] =
+  ): ZIO[SlackEnv, SlackError, String]                                                                              =
     sendM(
       requestJson(
         "chat.postEphemeral",
@@ -84,15 +87,17 @@ trait SlackChats {
       )
     ) >>= as[String]("ts")
 
-  def updateChatMessage(channelId: String,
-                        ts: String,
-                        text: String,
-                        attachments: Option[Seq[Attachment]] = None,
-                        blocks: Option[Seq[Block]] = None,
-                        parse: Option[String] = None,
-                        linkNames: Option[String] = None,
-                        asUser: Option[Boolean] = None,
-                        threadTs: Option[String] = None): ZIO[SlackEnv, SlackError, UpdateResponse] =
+  def updateChatMessage(
+    channelId: String,
+    ts: String,
+    text: String,
+    attachments: Option[Seq[Attachment]] = None,
+    blocks: Option[Seq[Block]] = None,
+    parse: Option[String] = None,
+    linkNames: Option[String] = None,
+    asUser: Option[Boolean] = None,
+    threadTs: Option[String] = None
+  ): ZIO[SlackEnv, SlackError, UpdateResponse] =
     sendM(
       requestJson(
         "chat.update",

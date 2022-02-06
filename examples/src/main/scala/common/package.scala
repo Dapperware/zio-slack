@@ -5,12 +5,11 @@ import zio.config.typesafe.TypesafeConfig
 import zio.{ Has, Layer, ZIO }
 
 package object common {
-  type Basic = Has[BasicConfig]
 
-  val default: Layer[ReadError[String], Basic] =
-    TypesafeConfig.fromDefaultLoader(nested("basic") { BasicConfig.descriptor })
+  val default: Layer[ReadError[String], Has[BasicConfig]] =
+    TypesafeConfig.fromDefaultLoader(nested("basic")(BasicConfig.descriptor))
 
-  val accessToken: ZIO[Basic, Nothing, AccessToken.Token] =
-    ZIO.service[BasicConfig].map(c => AccessToken.Token(c.token))
+  val accessToken: ZIO[Has[BasicConfig], Nothing, AccessToken] =
+    ZIO.service[BasicConfig].map(c => AccessToken(c.token))
 
 }

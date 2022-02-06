@@ -34,6 +34,15 @@ trait SlackRequests {
       .response(asJson[Json])
   )
 
+  def requestEntity(
+    method: String,
+    request: RequestT[Empty, Either[String, String], Any]
+  ): UIO[Request[SlackResponse[Json], Any]] = UIO.effectTotal(
+    request
+      .post(uri"https://slack.com/api/$method")
+      .response(asJson[Json])
+  )
+
   def sendM[T](request: UIO[Request[SlackResponse[T], Any]]): ZIO[SlackEnv, Throwable, T] =
     request >>= authenticateM >>= client.send[T, circe.Error]
 

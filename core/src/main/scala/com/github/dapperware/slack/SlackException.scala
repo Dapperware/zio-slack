@@ -1,6 +1,6 @@
 package com.github.dapperware.slack
 
-import io.circe.Decoder
+import zio.duration._
 
 /**
  * A base error type for slack related issues
@@ -19,10 +19,6 @@ object SlackException {
    */
   case class ResponseError(error: String) extends Exception(s"Slack API Error: $error") with SlackException
 
-  object ResponseError {
-    implicit val decoder: Decoder[ResponseError] = io.circe.generic.semiauto.deriveDecoder[ResponseError]
-  }
-
   case class ProtocolError(error: String) extends Exception(s"Slack protocol Error: $error") with SlackException
 
   /**
@@ -30,5 +26,8 @@ object SlackException {
    * this usually indicates a problem with the local configuration or the that slack may be down or under maintenance
    */
   case class NetworkError(status: Int, innerThrowable: Option[Throwable] = None) extends SlackException
+
+  case class RatelimitError(retryAfter: Option[Duration])
+      extends Exception(s"Rate-limited try again after ${retryAfter.fold("some time")(_.render)}")
 
 }

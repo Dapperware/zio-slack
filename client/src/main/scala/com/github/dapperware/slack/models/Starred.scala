@@ -1,6 +1,6 @@
 package com.github.dapperware.slack.models
 
-import cats.Applicative.ops.toAllApplicativeOps
+import cats.syntax.functor.toFunctorOps
 import io.circe.Decoder
 import io.circe.generic.semiauto.deriveDecoder
 import zio.Chunk
@@ -13,11 +13,11 @@ sealed trait Starred
 object Starred {
   private val typeDecoder: Decoder[String] = Decoder.decodeString
 
-  private implicit val starredMessageDecoder     = deriveDecoder[StarredMessage]
-  private implicit val starredFileDecoder        = deriveDecoder[StarredFile]
-  private implicit val starredFileCommentDecoder = deriveDecoder[StarredFileComment]
-  private implicit val starredChannelDecoder     = deriveDecoder[StarredChannel]
-  private implicit val starredGroupDecoder       = deriveDecoder[StarredGroup]
+  private implicit val starredMessageDecoder: Decoder[StarredMessage]         = deriveDecoder[StarredMessage]
+  private implicit val starredFileDecoder: Decoder[StarredFile]               = deriveDecoder[StarredFile]
+  private implicit val starredFileCommentDecoder: Decoder[StarredFileComment] = deriveDecoder[StarredFileComment]
+  private implicit val starredChannelDecoder: Decoder[StarredChannel]         = deriveDecoder[StarredChannel]
+  private implicit val starredGroupDecoder: Decoder[StarredGroup]             = deriveDecoder[StarredGroup]
 
   implicit val decoder: Decoder[Starred] = typeDecoder.flatMap {
     case "message"        => Decoder[StarredMessage].widen[Starred]

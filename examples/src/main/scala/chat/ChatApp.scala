@@ -1,11 +1,11 @@
 package chat
 
 import com.github.dapperware.slack.api.web.{ getConversationInfo, getUserInfo }
-import com.github.dapperware.slack.client.SlackClient
-import com.github.dapperware.slack.realtime.SlackRealtimeClient
+import com.github.dapperware.slack.SlackClient
 import com.github.dapperware.slack.realtime.models.{ Message, SendMessage }
 import com.github.dapperware.slack.{ realtime, AccessToken }
-import common.{ accessToken, default, Basic, BasicConfig }
+import com.github.dapperware.slack.realtime.{ SlackRealtimeClient, SlackRealtimeEnv }
+import common.{ accessToken, default, BasicConfig }
 import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio._
 import zio.console._
@@ -33,9 +33,13 @@ object ChatApp extends App {
       t.replaceAllLiterally(s"<@$ref>", s"@$replace")
     }
 
-  private val layers: ZLayer[Any, Throwable, SlackRealtimeClient with SlackClient with AccessToken with Basic] =
-    AsyncHttpClientZioBackend
-      .layer() >>> (SlackRealtimeClient.live ++ SlackClient.live ++ (default >+> accessToken.toLayer))
+  val accessTokenAndBasic: Layer[Throwable, Has[AccessToken] with Has[BasicConfig]] = default >+> accessToken.toLayer
+
+  val slackClients: Layer[Throwable, Has[SlackClient] with Has[SlackRealtimeClient]] =
+    AsyncHttpClientZioBackend.layer() >>> (SlackClient.live ++ SlackRealtimeClient.live)
+
+  private val layers: ZLayer[Any, Throwable, SlackRealtimeEnv with Has[BasicConfig]] =
+    slackClients ++ accessTokenAndBasic
 
   override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, ExitCode] = {
     val messageSender = ZStream
@@ -49,7 +53,7 @@ object ChatApp extends App {
 
     val chatStack = for {
       outgoing <- messageSender
-      receiver <- realtime.connect(ZStream.fromQueue(outgoing).forever.flattenTake)
+      receiver <- SlackRealtimeClient.connect(ZStream.fromQueue(outgoing).forever.flattenTake)
     } yield receiver
 
     chatStack.use { receiver =>

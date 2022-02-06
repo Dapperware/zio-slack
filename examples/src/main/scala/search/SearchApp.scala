@@ -1,17 +1,22 @@
 package search
 
 import com.github.dapperware.slack.api.web.searchMessages
-import com.github.dapperware.slack.client.SlackClient
 import com.github.dapperware.slack.realtime.SlackRealtimeClient
-import common.{ accessToken, default }
+import common.{ accessToken, default, BasicConfig }
 import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio.console._
 import zio.stream.{ ZSink, ZStream }
-import zio.{ App, ExitCode, ZIO }
+import zio.{ App, ExitCode, Has, Layer, ZIO }
+import com.github.dapperware.slack.{ AccessToken, SlackClient }
 
 object SearchApp extends App {
-  val layers = AsyncHttpClientZioBackend.layer() >>>
-    (SlackClient.live ++ SlackRealtimeClient.live ++ (default >+> accessToken.toLayer))
+
+  val accessTokenAndBasic: Layer[Throwable, Has[AccessToken] with Has[BasicConfig]] = default >+> accessToken.toLayer
+
+  val slackClients: Layer[Throwable, Has[SlackClient] with Has[SlackRealtimeClient]] =
+    AsyncHttpClientZioBackend.layer() >>> (SlackClient.live ++ SlackRealtimeClient.live)
+
+  val layers = slackClients ++ accessTokenAndBasic
 
   override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, ExitCode] =
     ZStream
