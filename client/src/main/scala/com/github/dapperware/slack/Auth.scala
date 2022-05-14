@@ -1,0 +1,17 @@
+package com.github.dapperware.slack
+
+import com.github.dapperware.slack.Slack.EnrichedRequest
+import com.github.dapperware.slack.models.AuthIdentity
+import zio.{Has, URIO}
+
+trait Auth {
+  def test: URIO[Has[Slack] with Has[AccessToken], SlackResponse[Unit]] =
+    Request.make("api.test")
+      .toCall
+
+  def testAuth: URIO[Has[Slack] with Has[AccessToken], SlackResponse[AuthIdentity]] =
+    Request.make("auth.test")
+      .as[AuthIdentity]
+      .toCall
+
+}

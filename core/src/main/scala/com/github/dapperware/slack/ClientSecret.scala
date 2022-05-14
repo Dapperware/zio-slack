@@ -15,6 +15,9 @@ object ClientSecret {
   def make(clientId: String, clientSecret: String): UIO[ClientSecret] =
     UIO.succeed(ClientSecret(clientId, clientSecret))
 
+  val get: URIO[Has[ClientSecret], ClientSecret] =
+    ZIO.service[ClientSecret]
+
   val clientId: URIO[Has[ClientSecret], String] = ZIO.access(_.get.clientId)
 
   val clientSecret: URIO[Has[ClientSecret], String] = ZIO.access(_.get.clientSecret)

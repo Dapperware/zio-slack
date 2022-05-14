@@ -14,7 +14,6 @@ trait SlackRemoteFiles {
     indexableFileContents: Option[Chunk[Byte]] = None,
     previewImage: Option[Chunk[Byte]] = None
   ): ZIO[SlackEnv, SlackError, RemoteFile] = {
-    Chunk
     val multiPart1 = fileType.map(multipart("filetype", _))
     val multiPart2 = indexableFileContents.map(chunk => multipart("indexable_file_contents", chunk.toArray))
     val multiPart3 = previewImage.map(chunk => multipart("preview_image", chunk.toArray))

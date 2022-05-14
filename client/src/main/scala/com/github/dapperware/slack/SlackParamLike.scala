@@ -30,7 +30,7 @@ object SlackParamLike extends LowPrioImplicitParamLike {
 }
 
 trait LowPrioImplicitParamLike {
-  implicit def jsonEncoderParamLike[A: Encoder]: SlackParamLike[A] = new SlackParamLike[A] {
-    override def produce(a: A): SlackParamMagnet = StringParamMagnet(Some(Encoder[A].apply(a).noSpaces))
-  }
+//  implicit def jsonEncoderParamLike[A: Encoder]: SlackParamLike[A] = new SlackParamLike[A] {
+//    override def produce(a: A): SlackParamMagnet = StringParamMagnet(Some(Encoder[A].apply(a).noSpaces))
+//  }
 }

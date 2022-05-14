@@ -18,14 +18,6 @@ trait SlackRequests {
         .response(asJson[Json])
     )
 
-  def request(method: String, params: (String, SlackParamMagnet)*): UIO[Request[SlackResponse[Json], Any]] =
-    UIO.succeed(
-      basicRequest
-        .post(uri"https://slack.com/api/$method")
-        .body(List(params.map(p => p._2.produce.map(p._1 -> _)): _*).flatten.toMap)
-        .response(asJson[Json])
-    )
-
   def requestEntity(method: String, params: (String, SlackParamMagnet)*)(
     body: RequestEntity
   ): UIO[Request[SlackResponse[Json], Any]] = UIO.effectTotal(
@@ -33,6 +25,14 @@ trait SlackRequests {
       .post(uri"https://slack.com/api/$method?$params")
       .response(asJson[Json])
   )
+
+  def request(method: String, params: (String, SlackParamMagnet)*): UIO[Request[SlackResponse[Json], Any]] =
+    UIO.succeed(
+      basicRequest
+        .post(uri"https://slack.com/api/$method")
+        .body(List(params.map(p => p._2.produce.map(p._1 -> _)): _*).flatten.toMap)
+        .response(asJson[Json])
+    )
 
   def requestEntity(
     method: String,
