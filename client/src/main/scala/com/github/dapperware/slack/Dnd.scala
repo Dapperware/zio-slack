@@ -1,26 +1,31 @@
 package com.github.dapperware.slack
 
-import com.github.dapperware.slack.Slack.EnrichedRequest
-import com.github.dapperware.slack.api.{DndInfo, SnoozeInfo, as, request, sendM}
-import zio.{Has, URIO, ZIO}
+import com.github.dapperware.slack.Slack.{ request, EnrichedAuthRequest }
+import com.github.dapperware.slack.api.{ DndInfo, SnoozeInfo }
+import zio.{ Has, URIO, ZIO }
 
 trait Dnd {
-  def endDnd(): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Unit]] = {
-    Request.make("dnd.endDnd").toCall
-  }
+  def endDnd(): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Unit]] =
+    request("dnd.endDnd").toCall
 
   def endSnooze(): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Unit]] =
-    Request.make("dnd.endSnooze").toCall
+    request("dnd.endSnooze").toCall
 
+  def getDoNotDisturbInfo(
+    userId: Option[String] = None,
+    teamId: Option[String] = None
+  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[DndInfo]] =
+    request("dnd.info")
+      .formBody(
+        "user_id" -> userId,
+        "team_id" -> teamId
+      )
+      .as[DndInfo]
+      .toCall
 
-  def getDoNotDisturbInfo(userId: Option[String] = None): ZIO[SlackEnv, SlackError, DndInfo] = {
-    Request.make("dnd.info")
-    sendM(request("dnd.info")) >>= as[DndInfo]
-  }
+  def setSnooze(numMinutes: Int): Request[SnoozeInfo, AccessToken]                             =
+    request("dnd.setSnooze").formBody(Map("num_minutes" -> numMinutes.toString)).as[SnoozeInfo]
 
-  def setSnooze(numMinutes: Int): ZIO[SlackEnv, SlackError, SnoozeInfo] =
-    sendM(request("dnd.setSnooze", "num_minutes" -> numMinutes)) >>= as[SnoozeInfo]
-
-  def getTeamDoNotDisturbInfo(users: List[String]): ZIO[SlackEnv, SlackError, Map[String, DndInfo]] =
-    sendM(request("dnd.teamInfo", "users" -> users.mkString(","))) >>= as[Map[String, DndInfo]]("users")
+  def getTeamDoNotDisturbInfo(users: List[String]): Request[Map[String, DndInfo], AccessToken] =
+    request("dnd.teamInfo").formBody(Map("users" -> users.mkString(","))).at[Map[String, DndInfo]]("users")
 }

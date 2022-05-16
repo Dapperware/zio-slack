@@ -1,6 +1,7 @@
 package com.github.dapperware.slack
 
 import io.circe.{ Decoder, Json }
+import sttp.client3.{ Identity, RequestT }
 import sttp.client3.asynchttpclient.zio.SttpClient
 import zio.duration.Duration
 import zio.{ Has, UIO, URIO, ZIO }
@@ -10,13 +11,17 @@ import zio.{ Has, UIO, URIO, ZIO }
  */
 trait Slack {
 
-  def apiCall[A](request: Request[A]): URIO[Has[AccessToken], SlackResponse[A]]
+  def apiCall[A](request: Request[A, AccessToken]): URIO[Has[AccessToken], SlackResponse[A]]
+  def clientApiCall[A](request: Request[A, ClientSecret]): URIO[Has[ClientSecret], SlackResponse[A]]
+
+  def unauthenticatedApiCall[A](request: Request[A, Unit]): UIO[SlackResponse[A]]
 
 }
 
 object Slack
     extends Apps
     with Auth
+    with Bots
     with Calls
     with Chats
     with Conversations
@@ -37,37 +42,63 @@ object Slack
     with Users
     with Views {
 
-  implicit class EnrichedRequest[+A](val request: Request[A]) extends AnyVal {
-    def toCall: URIO[Has[Slack] with Has[AccessToken], SlackResponse[A]] =
-      apiCall(request)
-  }
-
-  implicit class EnrichedApiCall[-R, +A](val response: URIO[R, SlackResponse[A]]) extends AnyVal {
-    def isOk: ZIO[R, Nothing, Boolean] =
-      response.map(_.isOk)
-
-    def value: ZIO[R, SlackError, A] =
-      response.map(_.toEither).absolve
-  }
-
-  def apiCall[A](request: Request[A]): URIO[Has[Slack] with Has[AccessToken], SlackResponse[A]] =
+  def apiCall[A](
+    request: Request[A, AccessToken]
+  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[A]] =
     ZIO.service[Slack].flatMap(_.apiCall(request))
+
+  def clientApiCall[A](
+    request: Request[A, ClientSecret]
+  ): URIO[Has[Slack] with Has[ClientSecret], SlackResponse[A]] =
+    ZIO.service[Slack].flatMap(_.clientApiCall(request))
+
+  def unauthenticatedApiCall[A](
+    request: Request[A, Unit]
+  ): URIO[Has[Slack], SlackResponse[A]] =
+    ZIO.service[Slack].flatMap(_.unauthenticatedApiCall(request))
+
+  def request(name: String): Request[Unit, AccessToken] = Request.make(name)
+
+  def request[A: Decoder](name: String, args: (String, SlackParamMagnet)*): Request[A, AccessToken] =
+    Request.make(name).formBody(args: _*).as[A]
+
+  implicit class EnrichedAuthRequest[+T, A](val call: Request[T, AccessToken]) extends AnyVal {
+    def toCall: URIO[Has[Slack] with Has[AccessToken], SlackResponse[T]] =
+      apiCall(call)
+  }
+
+  implicit class EnrichedUnAuthRequest[+T](val call: Request[T, Unit]) extends AnyVal {
+
+    def toCall: URIO[Has[Slack], SlackResponse[T]] =
+      unauthenticatedApiCall(call)
+  }
 }
 
 class HttpSlack private (baseUrl: String, client: SttpClient.Service) extends Slack {
 
-  def apiCall[A](request: Request[A]): UIO[SlackResponse[A]] =
+  private def makeCall[A](request: RequestT[Identity, SlackResponse[A], Any]) =
     client
-      .send(request.toRequest(baseUrl))
+      .send(request)
       .mapBoth(SlackError.fromThrowable, _.body)
       .merge
 
+  def apiCall[A](request: Request[A, AccessToken]): URIO[Has[AccessToken], SlackResponse[A]] =
+    ZIO.serviceWith[AccessToken](token => makeCall(request.toRequest(baseUrl).auth.bearer(token.token)))
+
+  override def unauthenticatedApiCall[A](request: Request[A, Unit]): UIO[SlackResponse[A]] =
+    makeCall(request.toRequest(baseUrl))
+
+  override def clientApiCall[A](request: Request[A, ClientSecret]): URIO[Has[ClientSecret], SlackResponse[A]] =
+    ZIO.serviceWith[ClientSecret](secret =>
+      makeCall(request.toRequest(baseUrl).auth.basic(secret.clientId, secret.clientSecret))
+    )
 }
 
 object HttpSlack {
   final val SlackBaseUrl = "https://slack.com/api/"
 
-  def make: ZIO[Has[SttpClient.Service], Nothing, Slack]              = make(SlackBaseUrl)
+  def make: ZIO[Has[SttpClient.Service], Nothing, Slack] = make(SlackBaseUrl)
+
   def make(url: String): ZIO[Has[SttpClient.Service], Nothing, Slack] =
     ZIO.service[SttpClient.Service].map(new HttpSlack(url, _))
 }
@@ -78,7 +109,15 @@ object HttpSlack {
  * @see `https://api.slack.com/web#slack-web-api__evaluating-responses`
  */
 sealed trait SlackResponse[+A] {
+
+  /**
+   * Whether or not the request was successful
+   */
   def isOk: Boolean
+
+  /**
+   * Converts the response into an either by unpacking the value into the right-hand channel and throwing away any warnings
+   */
   def toEither: Either[SlackError, A] = toEitherWith((a, _) => a)
   def toEitherWith[B](f: (A, List[String]) => B): Either[SlackError, B]
   def map[B](f: A => B): SlackResponse[B]
@@ -96,7 +135,7 @@ object SlackError {
    * Indicates an error occurred from the slack API these messages have a set structure and will
    * always have
    */
-  case class ApiError(error: String) extends SlackError
+  case class ApiError(error: String, needed: Option[String] = None, provided: Option[String] = None) extends SlackError
 
   /**
    * Errors that could not be parsed, these usually indicate some other type of network error
@@ -123,7 +162,7 @@ object SlackResponse {
   def decodeWith[A](f: Json => Either[io.circe.Error, A]): Decoder[SlackResponse[A]] = Decoder.instance { hcursor =>
     hcursor.downField("ok").as[Boolean].flatMap {
       if (_) f(hcursor.value)
-      else hcursor.downField("error").as[String].map(SlackError.ApiError)
+      else hcursor.downField("error").as[String].map(SlackError.ApiError(_))
     }
   }
 
@@ -133,7 +172,7 @@ object SlackResponse {
       .as[Boolean]
       .flatMap(
         if (_) hcursor.as[Ok[A]]
-        else hcursor.downField("error").as[String].map(SlackError.ApiError)
+        else hcursor.downField("error").as[String].map(SlackError.ApiError(_))
       )
   }
 

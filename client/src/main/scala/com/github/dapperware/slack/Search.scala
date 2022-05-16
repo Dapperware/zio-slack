@@ -1,8 +1,8 @@
 package com.github.dapperware.slack
 
-import com.github.dapperware.slack.Slack.EnrichedRequest
+import com.github.dapperware.slack.Slack.EnrichedUnauthenticatedRequest
 import io.circe.Json
-import zio.{Has, URIO}
+import zio.{ Has, URIO }
 
 trait Search {
 
@@ -29,13 +29,16 @@ trait Search {
       .toCall
 
   // TODO: Return proper search results (not JsValue)
-  def searchAll(query: String,
-                sort: Option[String] = None,
-                sortDir: Option[String] = None,
-                highlight: Option[String] = None,
-                count: Option[Int] = None,
-                page: Option[Int] = None): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Json]] =
-    Request.make("search.all")
+  def searchAll(
+    query: String,
+    sort: Option[String] = None,
+    sortDir: Option[String] = None,
+    highlight: Option[String] = None,
+    count: Option[Int] = None,
+    page: Option[Int] = None
+  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Json]] =
+    Request
+      .make("search.all")
       .formBody(
         "query"     -> query,
         "sort"      -> sort,
@@ -47,13 +50,16 @@ trait Search {
       .as[Json]
       .toCall
 
-  def searchMessages(query: String,
-                     sort: Option[String] = None,
-                     sortDir: Option[String] = None,
-                     highlight: Option[String] = None,
-                     count: Option[Int] = None,
-                     page: Option[Int] = None): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Json]] =
-    Request.make("search.messages")
+  def searchMessages(
+    query: String,
+    sort: Option[String] = None,
+    sortDir: Option[String] = None,
+    highlight: Option[String] = None,
+    count: Option[Int] = None,
+    page: Option[Int] = None
+  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Json]] =
+    Request
+      .make("search.messages")
       .formBody(
         "query"     -> query,
         "sort"      -> sort,

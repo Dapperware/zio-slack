@@ -4,9 +4,11 @@ import io.circe.Decoder
 import zio.Chunk
 import cats.syntax.apply._
 
-case class ResponseChunk[+T](items: Chunk[T],
-                             has_more: Option[Boolean] = None,
-                             response_metadata: Option[ResponseMetadata] = None)
+case class ResponseChunk[+T](
+  items: Chunk[T],
+  has_more: Option[Boolean] = None,
+  response_metadata: Option[ResponseMetadata] = None
+)
 
 object ResponseChunk {
   import io.circe.zio._
@@ -28,4 +30,5 @@ object Plural {
 
   implicit val pluralMembers: Plural[User]     = const("members")
   implicit val pluralChannels: Plural[Channel] = const("channels")
+  implicit val pluralMessages: Plural[Message] = const("messages")
 }
