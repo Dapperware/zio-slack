@@ -1,15 +1,18 @@
 package com.github.dapperware.slack
 
-import com.github.dapperware.slack.Slack.request
-import com.github.dapperware.slack.models.{ Plural, Reaction, ReactionsResponse, ResponseChunk }
+import com.github.dapperware.slack.Slack.{ request, EnrichedAuthRequest }
+import com.github.dapperware.slack.generated.GeneratedReactions
+import com.github.dapperware.slack.generated.requests.{
+  AddReactionsRequest,
+  GetReactionsRequest,
+  RemoveReactionsRequest
+}
+import com.github.dapperware.slack.models.{ Plural, ResponseChunk }
 import io.circe.Json
-import io.circe.syntax._
 
 trait Reactions {
   def addReactionToMessage(emojiName: String, channelId: String, timestamp: String) =
-    request("reactions.add").jsonBody(
-      Json.obj("name" -> emojiName.asJson, "channel" -> channelId.asJson, "timestamp" -> timestamp.asJson)
-    )
+    Reactions.addReactions(AddReactionsRequest(emojiName, channelId, timestamp)).toCall
 
   def removeReaction(
     emojiName: String,
@@ -18,15 +21,7 @@ trait Reactions {
     channelId: Option[String] = None,
     timestamp: Option[String] = None
   ) =
-    request("reactions.remove").jsonBody(
-      Json.obj(
-        "name"         -> emojiName.asJson,
-        "file"         -> file.asJson,
-        "file_comment" -> fileComment.asJson,
-        "channel"      -> channelId.asJson,
-        "timestamp"    -> timestamp.asJson
-      )
-    )
+    Reactions.removeReactions(RemoveReactionsRequest(emojiName, file, fileComment, channelId, timestamp)).toCall
 
   def getReactions(
     file: Option[String] = None,
@@ -35,15 +30,7 @@ trait Reactions {
     timestamp: Option[String] = None,
     full: Option[Boolean]
   ) =
-    request("reactions.get")
-      .formBody(
-        "file"         -> file,
-        "file_comment" -> fileComment,
-        "channel"      -> channelId,
-        "timestamp"    -> timestamp,
-        "full"         -> full
-      )
-      .as[List[Reaction]]
+    Reactions.getReactions(GetReactionsRequest(file, fileComment, channelId, full, timestamp)).toCall
 
   def getReactionsForMessage(channelId: String, timestamp: String, full: Option[Boolean]) =
     getReactions(channelId = Some(channelId), timestamp = Some(timestamp), full = full)
@@ -73,3 +60,5 @@ trait Reactions {
   def removeReactionFromMessage(emojiName: String, channelId: String, timestamp: String) =
     removeReaction(emojiName, channelId = Some(channelId), timestamp = Some(timestamp))
 }
+
+object Reactions extends GeneratedReactions

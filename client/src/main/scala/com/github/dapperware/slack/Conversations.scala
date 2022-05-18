@@ -1,33 +1,50 @@
 package com.github.dapperware.slack
 
-import com.github.dapperware.slack.Slack.request
+import com.github.dapperware.slack.Slack.{ request, EnrichedAuthRequest }
 import com.github.dapperware.slack.api.{ ChannelLike, ChannelLikeId }
+import com.github.dapperware.slack.generated.GeneratedConversations
+import com.github.dapperware.slack.generated.requests.{
+  ArchiveConversationsRequest,
+  CloseConversationsRequest,
+  CreateConversationsRequest,
+  InviteConversationsRequest,
+  JoinConversationsRequest,
+  KickConversationsRequest,
+  LeaveConversationsRequest,
+  RenameConversationsRequest,
+  SetPurposeConversationsRequest,
+  SetTopicConversationsRequest,
+  UnarchiveConversationsRequest
+}
+import com.github.dapperware.slack.generated.responses.{ CloseConversationsResponse, RenameConversationsResponse }
 import com.github.dapperware.slack.models.{ Channel, Conversation, HistoryChunk, Message, Plural, ResponseChunk }
 import io.circe.Json
 import io.circe.syntax._
 import sttp.client3.IsOption
+import zio.{ Has, URIO }
 
 trait Conversations {
 
   /**
    * https://api.slack.com/methods/conversations.archive
    */
-  def archiveConversation(channel: String): Request[Unit, AccessToken]                                   =
-    request("conversations.archive").formBody(Map("channel_id" -> channel))
+  def archiveConversation(channel: String): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Unit]] =
+    Conversations.archiveConversations(ArchiveConversationsRequest(Some(channel))).toCall
 
   /**
    * https://api.slack.com/methods/conversations.close
    */
-  def closeConversation(channelId: String): Request[Unit, AccessToken]                                   =
-    request("conversations.close").formBody(Map("channel_id" -> channelId))
+  def closeConversation(
+    channelId: String
+  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[CloseConversationsResponse]] =
+    Conversations.closeConversations(CloseConversationsRequest(Some(channelId))).toCall
 
   /**
    * https://api.slack.com/methods/conversations.create
    */
+  // FIXME the arguments required for this are incorrect
   def createConversation(name: String, isPrivate: Option[Boolean] = None, userIds: Option[List[String]]) =
-    request("conversations.create")
-      .formBody("name" -> name, "is_private" -> isPrivate, "user_ids" -> userIds.map(_.mkString(",")))
-      .at[Conversation]("channel")
+    Conversations.createConversations(CreateConversationsRequest(Some(name), isPrivate)).toCall
 
   /**
    * https://api.slack.com/methods/conversations.history
@@ -75,9 +92,7 @@ trait Conversations {
    * https://api.slack.com/methods/conversations.invite
    */
   def inviteToConversation(channel: String, users: List[String]) =
-    request("conversations.invite")
-      .formBody(Map("channel" -> channel, "users" -> users.mkString(",")))
-      .at[Channel]("channel")
+    Conversations.inviteConversations(InviteConversationsRequest(Some(channel), Some(users.mkString(",")))).toCall
 
   def inviteShareConversation(
     channel: String,
@@ -93,24 +108,19 @@ trait Conversations {
    * https://api.slack.com/methods/conversations.join
    */
   def joinConversation(channel: String) =
-    request("conversations.join")
-      .formBody(Map("channel" -> channel))
-      .at[Channel]("channel")
+    Conversations.joinConversations(JoinConversationsRequest(Some(channel))).toCall
 
   /**
    * https://api.slack.com/methods/conversations.kick
    */
   def kickFromConversation(channel: String, user: String) =
-    request("conversations.kick")
-      .jsonBody(Json.obj("channel" -> channel.asJson, "user" -> user.asJson))
-      .at[Channel]("channel")
+    Conversations.kickConversations(KickConversationsRequest(Some(channel), Some(user))).toCall
 
   /**
    * https://api.slack.com/methods/conversations.leave
    */
   def leaveConversation(channel: String) =
-    request("conversations.leave")
-      .formBody(Map("channel" -> channel))
+    Conversations.leaveConversations(LeaveConversationsRequest(Some(channel))).toCall
 
   /**
    * https://api.slack.com/methods/conversations.list
@@ -120,7 +130,7 @@ trait Conversations {
     excludeArchived: Option[Boolean] = None,
     limit: Option[Int] = None,
     types: Option[List[String]] = None
-  )                                      =
+  ) =
     request("conversations.list")
       .formBody(
         "cursor"           -> cursor,
@@ -166,9 +176,7 @@ trait Conversations {
    * https://api.slack.com/methods/conversations.rename
    */
   def renameConversation(channel: String, name: String) =
-    request("conversations.rename")
-      .formBody(Map("channel" -> channel, "name" -> name))
-      .at[Channel]("channel")
+    Conversations.renameConversations(RenameConversationsRequest(Some(channel), Some(name))).toCall
 
   /**
    * https://api.slack.com/methods/conversations.replies
@@ -201,9 +209,7 @@ trait Conversations {
     channel: String,
     purpose: String
   ) =
-    request("conversations.setPurpose")
-      .jsonBody(Json.obj("channel" -> channel.asJson, "purpose" -> purpose.asJson))
-      .at[Option[String]]("purpose")
+    Conversations.setPurposeConversations(SetPurposeConversationsRequest(Some(channel), Some(purpose))).toCall
 
   /**
    * https://api.slack.com/methods/conversations.setTopic
@@ -212,9 +218,10 @@ trait Conversations {
     channel: String,
     topic: String
   ) =
-    request("conversations.setTopic")
-      .jsonBody(Json.obj("channel" -> channel.asJson, "topic" -> topic.asJson))
-      .at[Conversation]("channel")
+//    request("conversations.setTopic")
+//      .jsonBody(Json.obj("channel" -> channel.asJson, "topic" -> topic.asJson))
+//      .at[Conversation]("channel")
+    Conversations.setTopicConversations(SetTopicConversationsRequest(Some(channel), Some(topic))).toCall
 
   /**
    * https://api.slack.com/methods/conversations.unarchive
@@ -222,7 +229,7 @@ trait Conversations {
   def unarchiveConversation(
     channel: String
   ) =
-    request("conversations.unarchive")
-      .jsonBody(Json.obj("channel" -> channel.asJson))
-      .at[Conversation]("channel")
+    Conversations.unarchiveConversations(UnarchiveConversationsRequest(Some(channel))).toCall
 }
+
+object Conversations extends GeneratedConversations

@@ -1,6 +1,7 @@
 package com.github.dapperware.slack
 
-import com.github.dapperware.slack.Slack.EnrichedUnauthenticatedRequest
+import com.github.dapperware.slack.Slack.EnrichedAuthRequest
+import com.github.dapperware.slack.generated.GeneratedViews
 import com.github.dapperware.slack.models.{ View, ViewPayload }
 import io.circe.Json
 import io.circe.syntax._
@@ -69,3 +70,5 @@ trait Views {
       .at[View]("view")
       .toCall
 }
+
+object Views extends GeneratedViews

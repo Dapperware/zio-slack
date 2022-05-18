@@ -1,7 +1,9 @@
 package com.github.dapperware.slack
 
-import com.github.dapperware.slack.Slack.{ request, EnrichedAuthRequest }
-import com.github.dapperware.slack.models.StarResponse
+import com.github.dapperware.slack.Slack.EnrichedAuthRequest
+import com.github.dapperware.slack.generated.GeneratedStars
+import com.github.dapperware.slack.generated.requests.{ AddStarsRequest, ListStarsRequest, RemoveStarsRequest }
+import com.github.dapperware.slack.generated.responses.ListStarsResponse
 import zio.{ Has, URIO }
 
 trait Stars {
@@ -11,28 +13,14 @@ trait Stars {
     fileComment: Option[String] = None,
     timestamp: Option[String] = None
   ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Unit]] =
-    request("stars.add")
-      .formBody(
-        "channel"      -> channel,
-        "file"         -> file,
-        "file_comment" -> fileComment,
-        "timestamp"    -> timestamp
-      )
-      .toCall
+    Stars.addStars(AddStarsRequest(channel, file, file_comment = fileComment, timestamp = timestamp)).toCall
 
   def listStars(
     user: Option[String] = None,
     count: Option[Int] = None,
     page: Option[Int] = None
-  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[StarResponse]] =
-    request("stars.list")
-      .formBody(
-        "user"  -> user,
-        "count" -> count,
-        "page"  -> page
-      )
-      .as[StarResponse]
-      .toCall
+  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[ListStarsResponse]] =
+    Stars.listStars(ListStarsRequest(user, count.map(_.toString), page.map(_.toString))).toCall
 
   def removeStars(
     channel: Option[String] = None,
@@ -40,13 +28,8 @@ trait Stars {
     fileComment: Option[String] = None,
     timestamp: Option[String] = None
   ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Unit]] =
-    request("stars.remove")
-      .formBody(
-        "channel"      -> channel,
-        "file"         -> file,
-        "file_comment" -> fileComment,
-        "timestamp"    -> timestamp
-      )
-      .toCall
+    Stars.removeStars(RemoveStarsRequest(channel, file, file_comment = fileComment, timestamp = timestamp)).toCall
 
 }
+
+object Stars extends GeneratedStars

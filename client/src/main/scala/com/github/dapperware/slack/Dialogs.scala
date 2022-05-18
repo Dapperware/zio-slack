@@ -1,11 +1,14 @@
 package com.github.dapperware.slack
 
-import com.github.dapperware.slack.Slack.request
+import com.github.dapperware.slack.generated.GeneratedDialog
+import com.github.dapperware.slack.generated.requests.OpenDialogRequest
 import com.github.dapperware.slack.models.Dialog
 
 trait Dialogs {
 
   def openDialog(triggerId: String, dialog: Dialog) =
-    request("dialog.open").formBody("trigger_id" -> triggerId, "dialog" -> dialog)
+    Dialogs.openDialog(OpenDialogRequest(triggerId, dialog))
 
 }
+
+object Dialogs extends GeneratedDialog

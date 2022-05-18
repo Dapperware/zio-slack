@@ -1,6 +1,7 @@
 package com.github.dapperware.slack
 
 import com.github.dapperware.slack.Slack.{ request, EnrichedAuthRequest }
+import com.github.dapperware.slack.generated.GeneratedChat
 import com.github.dapperware.slack.models.{ Attachment, Block, ResponseChunk, UpdateResponse }
 import io.circe.Json
 import io.circe.syntax._
@@ -204,3 +205,5 @@ trait Chats {
     )
 
 }
+
+object Chats extends GeneratedChat

@@ -1,6 +1,5 @@
 package com.github.dapperware.slack
 
-import com.github.dapperware.slack.Slack.EnrichedUnauthenticatedRequest
 import io.circe.Json
 import zio.{ Has, URIO }
 

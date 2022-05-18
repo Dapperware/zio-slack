@@ -1,8 +1,16 @@
 package com.github.dapperware.slack
 
 import com.github.dapperware.slack.Slack.request
+import com.github.dapperware.slack.generated.GeneratedReminders
+import com.github.dapperware.slack.generated.requests.{
+  CompleteRemindersRequest,
+  DeleteRemindersRequest,
+  InfoRemindersRequest
+}
+import com.github.dapperware.slack.generated.responses.ListRemindersResponse
 import com.github.dapperware.slack.models.Reminder
 import io.circe.Json
+import zio.{ Has, URIO }
 
 trait Reminders {
 
@@ -17,16 +25,19 @@ trait Reminders {
       )
       .at[Reminder]("reminder")
 
+  // FIXME the arguments shouldn't be optional
   def completeReminder(reminder: String) =
-    request("reminders.complete").formBody(Map("reminder" -> reminder))
+    Reminders.completeReminders(CompleteRemindersRequest(Some(reminder))).toCall
 
-  def deleteReminder(reminder: String)   =
-    request("reminders.delete").formBody(Map("reminder" -> reminder))
+  def deleteReminder(reminder: String) =
+    Reminders.deleteReminders(DeleteRemindersRequest(Some(reminder))).toCall
 
-  def getReminderInfo(reminder: String)  =
-    request("reminders.info").formBody(Map("reminder" -> reminder)).at[Reminder]("reminder")
+  def getReminderInfo(reminder: String) =
+    Reminders.infoReminders(InfoRemindersRequest(Some(reminder))).toCall
 
-  def listReminders                      =
-    request("reminders.list").at[List[Reminder]]("reminders")
+  def listReminders: URIO[Has[Slack] with Has[AccessToken], SlackResponse[ListRemindersResponse]] =
+    Reminders.listReminders.toCall
 
 }
+
+object Reminders extends GeneratedReminders

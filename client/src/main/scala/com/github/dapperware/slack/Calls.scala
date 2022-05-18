@@ -1,6 +1,7 @@
 package com.github.dapperware.slack
 
 import com.github.dapperware.slack.Slack.{ request, EnrichedAuthRequest }
+import com.github.dapperware.slack.generated.GeneratedCalls
 import com.github.dapperware.slack.models.{ Call, CallParticipant }
 import io.circe.{ Encoder, Json }
 import io.circe.syntax._
@@ -107,6 +108,8 @@ trait Calls {
       )
       .toCall
 }
+
+object Calls extends GeneratedCalls
 
 sealed trait CallParticipant
 

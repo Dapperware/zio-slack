@@ -1,10 +1,11 @@
 package com.github.dapperware.slack
 
 import com.github.dapperware.slack.Request.{ extractBodyAt, respondWith }
+import com.github.dapperware.slack.Slack.{ apiCall, clientApiCall, unauthenticatedApiCall }
 import com.github.dapperware.slack.client.RequestEntity
 import io.circe
-import io.circe.{ Decoder, Json }
-import sttp.client3
+import io.circe.syntax.EncoderOps
+import io.circe.{ Decoder, Encoder, Json }
 import sttp.client3.circe._
 import sttp.client3.json._
 import sttp.client3.{
@@ -22,6 +23,7 @@ import sttp.client3.{
 }
 import sttp.model.{ Part, StatusCode }
 import zio.duration.{ durationLong, Duration }
+import zio.{ Has, URIO }
 
 case class MethodName(name: String) extends AnyVal
 
@@ -43,9 +45,14 @@ case class Request[+T, Auth](
   def at[B: IsOption](key: String)(implicit ev: Decoder[B]): Request[B, Auth] =
     copy(responseAs = extractBodyAt[B](key).decodeJson)
 
-  def auth[A]: Request[T, A] = self.asInstanceOf[Request[T, A]]
+  def auth: RequestAuth[T] =
+    RequestAuth(self)
 
-  def jsonBody(json: Json): Request[T, Auth]                                                 = copy(body = SlackBody.JsonBody(json))
+  def jsonBody[A: Encoder](json: A): Request[T, Auth] = copy(body = SlackBody.JsonBody(json.asJson))
+
+  def formBody[A: FormEncoder](form: A): Request[T, Auth] =
+    copy(body = SlackBody.MixedBody(implicitly[FormEncoder[A]].encode(form).toMap))
+
   def formBody(form: (String, SlackParamMagnet)*): Request[T, Auth]                          =
     formBody(form.toList)
   def formBody(form: List[(String, SlackParamMagnet)]): Request[T, Auth]                     = formBody(
@@ -84,7 +91,30 @@ case class Request[+T, Auth](
   }
 }
 
+case class RequestAuth[+T] private (request: Request[T, _]) {
+  def clientSecret: Request[T, ClientSecret] = request.asInstanceOf[Request[T, ClientSecret]]
+  def accessToken: Request[T, AccessToken]   = request.asInstanceOf[Request[T, AccessToken]]
+  def none: Request[T, Unit]                 = request.asInstanceOf[Request[T, Unit]]
+
+}
+
 object Request {
+
+  implicit class EnrichedAuthRequest[+T](val call: Request[T, AccessToken]) extends AnyVal {
+    def toCall: URIO[Has[Slack] with Has[AccessToken], SlackResponse[T]] =
+      apiCall(call)
+  }
+
+  implicit class EnrichedClientAuthRequest[+T](val call: Request[T, ClientSecret]) extends AnyVal {
+    def toCall: URIO[Has[Slack] with Has[ClientSecret], SlackResponse[T]] =
+      clientApiCall(call)
+  }
+
+  implicit class EnrichedUnAuthRequest[+T](val call: Request[T, Unit]) extends AnyVal {
+
+    def toCall: URIO[Has[Slack], SlackResponse[T]] =
+      unauthenticatedApiCall(call)
+  }
 
   private def extractBodyAt[A: Decoder](key: String): Decoder[A] =
     Decoder.instance[A](_.downField(key).as[A])

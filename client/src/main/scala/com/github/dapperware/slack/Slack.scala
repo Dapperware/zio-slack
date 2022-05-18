@@ -62,16 +62,6 @@ object Slack
   def request[A: Decoder](name: String, args: (String, SlackParamMagnet)*): Request[A, AccessToken] =
     Request.make(name).formBody(args: _*).as[A]
 
-  implicit class EnrichedAuthRequest[+T, A](val call: Request[T, AccessToken]) extends AnyVal {
-    def toCall: URIO[Has[Slack] with Has[AccessToken], SlackResponse[T]] =
-      apiCall(call)
-  }
-
-  implicit class EnrichedUnAuthRequest[+T](val call: Request[T, Unit]) extends AnyVal {
-
-    def toCall: URIO[Has[Slack], SlackResponse[T]] =
-      unauthenticatedApiCall(call)
-  }
 }
 
 class HttpSlack private (baseUrl: String, client: SttpClient.Service) extends Slack {

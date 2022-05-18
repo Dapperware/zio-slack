@@ -1,6 +1,7 @@
 package com.github.dapperware.slack
 
-import com.github.dapperware.slack.Slack.EnrichedUnauthenticatedRequest
+import com.github.dapperware.slack.Slack.{ EnrichedAuthRequest, EnrichedUnauthenticatedRequest }
+import com.github.dapperware.slack.generated.GeneratedSearch
 import io.circe.Json
 import zio.{ Has, URIO }
 
@@ -71,3 +72,5 @@ trait Search {
       .as[Json]
       .toCall
 }
+
+object Search extends GeneratedSearch
