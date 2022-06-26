@@ -12,8 +12,10 @@ trait GeneratedApps {
    * Get a list of authorizations for the given event context. Each authorization represents an app installation that the event is visible to.
    * @see https://api.slack.com/methods/apps.event.authorizations.list
    */
-  def listAuthorizationsEventApps(req: ListAuthorizationsEventAppsRequest): Request[Unit, AccessToken] =
-    request("apps.event.authorizations.list").jsonBody(req).auth.accessToken
+  def listAuthorizationsEventApps(
+    req: ListAuthorizationsEventAppsRequest
+  ): Request[ListAuthorizationsEventAppsResponse, AccessToken] =
+    request("apps.event.authorizations.list").jsonBody(req).as[ListAuthorizationsEventAppsResponse].auth.accessToken
 
   /**
    * Allows an app to request additional scopes

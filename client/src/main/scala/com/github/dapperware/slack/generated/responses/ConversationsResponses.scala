@@ -2,7 +2,7 @@
 
 package com.github.dapperware.slack.generated.responses
 
-case class CloseConversationsResponse(already_closed: Option[Boolean] = None, no_op: Option[Boolean] = None)
+case class CloseConversationsResponse(already_closed: Option[Boolean], no_op: Option[Boolean])
 
 object CloseConversationsResponse {
   implicit val decoder: io.circe.Decoder[CloseConversationsResponse] =
@@ -14,6 +14,22 @@ case class CreateConversationsResponse(channel: com.github.dapperware.slack.mode
 object CreateConversationsResponse {
   implicit val decoder: io.circe.Decoder[CreateConversationsResponse] =
     io.circe.generic.semiauto.deriveDecoder[CreateConversationsResponse]
+}
+
+case class HistoryConversationsResponse(
+  latest: Option[String] = None,
+  oldest: Option[String] = None,
+  pin_count: Option[Int] = None,
+  has_more: Option[Boolean] = None,
+  channel_actions_ts: Option[String] = None,
+  channel_actions_count: Option[Int] = None,
+  messages: zio.Chunk[com.github.dapperware.slack.models.Message],
+  response_metadata: Option[com.github.dapperware.slack.models.ResponseMetadata] = None
+)
+
+object HistoryConversationsResponse {
+  implicit val decoder: io.circe.Decoder[HistoryConversationsResponse] =
+    io.circe.generic.semiauto.deriveDecoder[HistoryConversationsResponse]
 }
 
 case class InfoConversationsResponse(channel: com.github.dapperware.slack.models.Channel)
@@ -32,8 +48,8 @@ object InviteConversationsResponse {
 
 case class JoinConversationsResponse(
   channel: com.github.dapperware.slack.models.Channel,
-  response_metadata: Option[com.github.dapperware.slack.models.ResponseMetadata] = None,
-  warning: Option[String] = None
+  response_metadata: Option[com.github.dapperware.slack.models.ResponseMetadata],
+  warning: Option[String]
 )
 
 object JoinConversationsResponse {
@@ -41,7 +57,7 @@ object JoinConversationsResponse {
     io.circe.generic.semiauto.deriveDecoder[JoinConversationsResponse]
 }
 
-case class LeaveConversationsResponse(not_in_channel: Option[Boolean] = None)
+case class LeaveConversationsResponse(not_in_channel: Option[Boolean])
 
 object LeaveConversationsResponse {
   implicit val decoder: io.circe.Decoder[LeaveConversationsResponse] =
@@ -49,8 +65,8 @@ object LeaveConversationsResponse {
 }
 
 case class ListConversationsResponse(
-  channels: List[String],
-  response_metadata: Option[com.github.dapperware.slack.models.ResponseMetadata] = None
+  channels: zio.Chunk[Channels],
+  response_metadata: com.github.dapperware.slack.models.ResponseMetadata
 )
 
 object ListConversationsResponse {
@@ -69,9 +85,9 @@ object MembersConversationsResponse {
 }
 
 case class OpenConversationsResponse(
-  already_open: Option[Boolean] = None,
+  already_open: Option[Boolean],
   channel: com.github.dapperware.slack.models.Channel,
-  no_op: Option[Boolean] = None
+  no_op: Option[Boolean]
 )
 
 object OpenConversationsResponse {
@@ -86,7 +102,7 @@ object RenameConversationsResponse {
     io.circe.generic.semiauto.deriveDecoder[RenameConversationsResponse]
 }
 
-case class RepliesConversationsResponse(has_more: Option[Boolean] = None, messages: List[String])
+case class RepliesConversationsResponse(has_more: Option[Boolean], messages: List[String])
 
 object RepliesConversationsResponse {
   implicit val decoder: io.circe.Decoder[RepliesConversationsResponse] =

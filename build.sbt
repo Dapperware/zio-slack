@@ -37,9 +37,9 @@ ThisBuild / gitVersioningSnapshotLowerBound := "0.8.0"
 resolvers +=
   "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
-val circeV = "0.14.1"
-val zioV   = "1.0.12"
-val sttpV  = "3.3.18"
+val circeV = "0.14.2"
+val zioV   = "1.0.15"
+val sttpV  = "3.6.2"
 
 ThisBuild / publishTo := sonatypePublishToBundle.value
 
@@ -55,11 +55,11 @@ lazy val core = project
   .settings(
     testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
     libraryDependencies ++= Seq(
-      "dev.zio"                       %% "zio"                           % zioV,
-      "dev.zio"                       %% "zio-test"                      % zioV % Test,
-      "dev.zio"                       %% "zio-test-sbt"                  % zioV % Test,
-      "com.softwaremill.sttp.client3" %% "core"                          % sttpV,
-      "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio" % sttpV
+      "dev.zio"                       %% "zio"                            % zioV,
+      "dev.zio"                       %% "zio-test"                       % zioV % Test,
+      "dev.zio"                       %% "zio-test-sbt"                   % zioV % Test,
+      "com.softwaremill.sttp.client3" %% "core"                           % sttpV,
+      "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio1" % sttpV
     )
   )
 
@@ -71,12 +71,12 @@ lazy val client = project
   .settings(
     testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
     libraryDependencies ++= Seq(
-      "io.circe"                      %% "circe-generic"                 % circeV,
-      "dev.zio"                       %% "zio-test"                      % zioV % "it,test",
-      "dev.zio"                       %% "zio-test-sbt"                  % zioV % "it,test",
-      "com.softwaremill.sttp.client3" %% "core"                          % sttpV,
-      "com.softwaremill.sttp.client3" %% "circe"                         % sttpV,
-      "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio" % sttpV
+      "io.circe"                      %% "circe-generic"                  % circeV,
+      "dev.zio"                       %% "zio-test"                       % zioV % "it,test",
+      "dev.zio"                       %% "zio-test-sbt"                   % zioV % "it,test",
+      "com.softwaremill.sttp.client3" %% "core"                           % sttpV,
+      "com.softwaremill.sttp.client3" %% "circe"                          % sttpV,
+      "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio1" % sttpV
     )
     // addCompilerPlugin("org.typelevel" %% "kind-projector"     % "0.10.3"),
     // addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.1")
@@ -92,13 +92,13 @@ lazy val realtime = project
   .settings(
     testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
     libraryDependencies ++= Seq(
-      "io.circe"                      %% "circe-generic"                 % circeV,
-      "dev.zio"                       %% "zio-streams"                   % zioV,
-      "dev.zio"                       %% "zio-test"                      % zioV % "it,test",
-      "dev.zio"                       %% "zio-test-sbt"                  % zioV % "it,test",
-      "com.softwaremill.sttp.client3" %% "core"                          % sttpV,
-      "com.softwaremill.sttp.client3" %% "circe"                         % sttpV,
-      "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio" % sttpV
+      "io.circe"                      %% "circe-generic"                  % circeV,
+      "dev.zio"                       %% "zio-streams"                    % zioV,
+      "dev.zio"                       %% "zio-test"                       % zioV % "it,test",
+      "dev.zio"                       %% "zio-test-sbt"                   % zioV % "it,test",
+      "com.softwaremill.sttp.client3" %% "core"                           % sttpV,
+      "com.softwaremill.sttp.client3" %% "circe"                          % sttpV,
+      "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio1" % sttpV
     )
   )
   .configs(IntegrationTest)
@@ -111,8 +111,8 @@ lazy val examples = project
   .settings(
     publish / skip := true,
     libraryDependencies ++= Seq(
-      "dev.zio" %% "zio-config"          % "1.0.10",
-      "dev.zio" %% "zio-config-typesafe" % "1.0.10"
+      "dev.zio" %% "zio-config"          % "2.0.4",
+      "dev.zio" %% "zio-config-typesafe" % "2.0.4"
     )
   )
 

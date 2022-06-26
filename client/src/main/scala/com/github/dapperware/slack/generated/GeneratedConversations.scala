@@ -30,6 +30,13 @@ trait GeneratedConversations {
     request("conversations.create").jsonBody(req).as[CreateConversationsResponse].auth.accessToken
 
   /**
+   * Fetches a conversation's history of messages and events.
+   * @see https://api.slack.com/methods/conversations.history
+   */
+  def historyConversations(req: HistoryConversationsRequest): Request[HistoryConversationsResponse, AccessToken] =
+    request("conversations.history").formBody(req).as[HistoryConversationsResponse].auth.accessToken
+
+  /**
    * Retrieve information about a conversation.
    * @see https://api.slack.com/methods/conversations.info
    */

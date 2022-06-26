@@ -7,7 +7,7 @@ package com.github.dapperware.slack.generated.requests
  * @param channel Channel containing the message to be deleted.
  * @param as_user Pass true to delete the message as the authed user with `chat:write:user` scope. [Bot users](/bot-users) in this context are considered authed users. If unused or false, the message will be deleted with `chat:write:bot` scope.
  */
-case class DeleteChatRequest(ts: Option[Int] = None, channel: Option[String] = None, as_user: Option[Boolean] = None)
+case class DeleteChatRequest(ts: String, channel: String, as_user: Option[Boolean])
 
 object DeleteChatRequest {
   import io.circe.generic.semiauto.deriveEncoder
@@ -20,11 +20,7 @@ object DeleteChatRequest {
  * @param scheduled_message_id `scheduled_message_id` returned from call to chat.scheduleMessage
  * @param as_user Pass true to delete the message as the authed user with `chat:write:user` scope. [Bot users](/bot-users) in this context are considered authed users. If unused or false, the message will be deleted with `chat:write:bot` scope.
  */
-case class DeleteScheduledMessageChatRequest(
-  channel: String,
-  scheduled_message_id: String,
-  as_user: Option[Boolean] = None
-)
+case class DeleteScheduledMessageChatRequest(channel: String, scheduled_message_id: String, as_user: Option[Boolean])
 
 object DeleteScheduledMessageChatRequest {
   import io.circe.generic.semiauto.deriveEncoder
@@ -50,7 +46,7 @@ object GetPermalinkChatRequest {
  * @param channel Channel to send message to. Can be a public channel, private group or IM channel. Can be an encoded ID, or a name.
  * @param text Text of the message to send.
  */
-case class MeMessageChatRequest(channel: Option[String] = None, text: Option[String] = None)
+case class MeMessageChatRequest(channel: Option[String], text: Option[String])
 
 object MeMessageChatRequest {
   import io.circe.generic.semiauto.deriveEncoder
@@ -75,16 +71,16 @@ object MeMessageChatRequest {
 case class PostEphemeralChatRequest(
   channel: String,
   user: String,
-  as_user: Option[Boolean] = None,
-  attachments: Option[String] = None,
-  blocks: Option[String] = None,
-  icon_emoji: Option[String] = None,
-  icon_url: Option[String] = None,
-  link_names: Option[Boolean] = None,
-  parse: Option[String] = None,
-  text: Option[String] = None,
-  thread_ts: Option[String] = None,
-  username: Option[String] = None
+  as_user: Option[Boolean],
+  attachments: Option[String],
+  blocks: Option[String],
+  icon_emoji: Option[String],
+  icon_url: Option[String],
+  link_names: Option[Boolean],
+  parse: Option[String],
+  text: Option[String],
+  thread_ts: Option[String],
+  username: Option[String]
 )
 
 object PostEphemeralChatRequest {
@@ -112,20 +108,20 @@ object PostEphemeralChatRequest {
  */
 case class PostMessageChatRequest(
   channel: String,
-  as_user: Option[String] = None,
-  attachments: Option[String] = None,
-  blocks: Option[String] = None,
-  icon_emoji: Option[String] = None,
-  icon_url: Option[String] = None,
-  link_names: Option[Boolean] = None,
-  mrkdwn: Option[Boolean] = None,
-  parse: Option[String] = None,
-  reply_broadcast: Option[Boolean] = None,
-  text: Option[String] = None,
-  thread_ts: Option[String] = None,
-  unfurl_links: Option[Boolean] = None,
-  unfurl_media: Option[Boolean] = None,
-  username: Option[String] = None
+  as_user: Option[Boolean],
+  attachments: Option[String],
+  blocks: Option[String],
+  icon_emoji: Option[String],
+  icon_url: Option[String],
+  link_names: Option[Boolean],
+  mrkdwn: Option[Boolean],
+  parse: Option[String],
+  reply_broadcast: Option[Boolean],
+  text: Option[String],
+  thread_ts: Option[String],
+  unfurl_links: Option[Boolean],
+  unfurl_media: Option[Boolean],
+  username: Option[String]
 )
 
 object PostMessageChatRequest {
@@ -136,8 +132,8 @@ object PostMessageChatRequest {
 
 /**
  * @param channel Channel, private group, or DM channel to send message to. Can be an encoded ID, or a name. See [below](#channels) for more details.
- * @param text How this field works and whether it is required depends on other fields you use in your API call. [See below](#text_usage) for more detail.
  * @param post_at Unix EPOCH timestamp of time in future to send the message.
+ * @param text How this field works and whether it is required depends on other fields you use in your API call. [See below](#text_usage) for more detail.
  * @param parse Change how messages are treated. Defaults to `none`. See [chat.postMessage](chat.postMessage#formatting).
  * @param as_user Pass true to post the message as the authed user, instead of as a bot. Defaults to false. See [chat.postMessage](chat.postMessage#authorship).
  * @param link_names Find and link channel names and usernames.
@@ -149,18 +145,18 @@ object PostMessageChatRequest {
  * @param reply_broadcast Used in conjunction with `thread_ts` and indicates whether reply should be made visible to everyone in the channel or conversation. Defaults to `false`.
  */
 case class ScheduleMessageChatRequest(
-  channel: Option[String] = None,
-  text: Option[String] = None,
-  post_at: Option[String] = None,
-  parse: Option[String] = None,
-  as_user: Option[Boolean] = None,
-  link_names: Option[Boolean] = None,
-  attachments: Option[String] = None,
-  blocks: Option[String] = None,
-  unfurl_links: Option[Boolean] = None,
-  unfurl_media: Option[Boolean] = None,
-  thread_ts: Option[Int] = None,
-  reply_broadcast: Option[Boolean] = None
+  channel: String,
+  post_at: Int,
+  text: Option[String],
+  parse: Option[String],
+  as_user: Option[Boolean],
+  link_names: Option[Boolean],
+  attachments: Option[String],
+  blocks: Option[String],
+  unfurl_links: Option[Boolean],
+  unfurl_media: Option[Boolean],
+  thread_ts: Option[String],
+  reply_broadcast: Option[Boolean]
 )
 
 object ScheduleMessageChatRequest {
@@ -175,13 +171,15 @@ object ScheduleMessageChatRequest {
  * @param oldest A UNIX timestamp of the oldest value in the time range
  * @param limit Maximum number of original entries to return.
  * @param cursor For pagination purposes, this is the `cursor` value returned from a previous call to `chat.scheduledmessages.list` indicating where you want to start this call from.
+ * @param team_id Required for org-wide apps
  */
 case class ListScheduledMessagesChatRequest(
-  channel: Option[String] = None,
-  latest: Option[Int] = None,
-  oldest: Option[Int] = None,
-  limit: Option[Int] = None,
-  cursor: Option[String] = None
+  channel: Option[String],
+  latest: Option[String],
+  oldest: Option[String],
+  limit: Option[Int],
+  cursor: Option[String],
+  team_id: Option[String]
 )
 
 object ListScheduledMessagesChatRequest {
@@ -201,10 +199,10 @@ object ListScheduledMessagesChatRequest {
 case class UnfurlChatRequest(
   channel: String,
   ts: String,
-  unfurls: Option[String] = None,
-  user_auth_message: Option[String] = None,
-  user_auth_required: Option[Boolean] = None,
-  user_auth_url: Option[String] = None
+  unfurls: Option[String],
+  user_auth_message: Option[String],
+  user_auth_required: Option[Boolean],
+  user_auth_url: Option[String]
 )
 
 object UnfurlChatRequest {
@@ -226,12 +224,12 @@ object UnfurlChatRequest {
 case class UpdateChatRequest(
   channel: String,
   ts: String,
-  as_user: Option[String] = None,
-  attachments: Option[String] = None,
-  blocks: Option[String] = None,
-  link_names: Option[String] = None,
-  parse: Option[String] = None,
-  text: Option[String] = None
+  as_user: Option[Boolean],
+  attachments: Option[String],
+  blocks: Option[String],
+  link_names: Option[String],
+  parse: Option[String],
+  text: Option[String]
 )
 
 object UpdateChatRequest {

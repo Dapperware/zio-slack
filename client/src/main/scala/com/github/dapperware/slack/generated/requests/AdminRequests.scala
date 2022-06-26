@@ -7,11 +7,7 @@ package com.github.dapperware.slack.generated.requests
  * @param request_id The id of the request to approve.
  * @param team_id undefined
  */
-case class ApproveAppsAdminRequest(
-  app_id: Option[String] = None,
-  request_id: Option[String] = None,
-  team_id: Option[String] = None
-)
+case class ApproveAppsAdminRequest(app_id: Option[String], request_id: Option[String], team_id: Option[String])
 
 object ApproveAppsAdminRequest {
   import io.circe.generic.semiauto.deriveEncoder
@@ -26,10 +22,10 @@ object ApproveAppsAdminRequest {
  * @param enterprise_id undefined
  */
 case class ListApprovedAppsAdminRequest(
-  limit: Option[Int] = None,
-  cursor: Option[String] = None,
-  team_id: Option[String] = None,
-  enterprise_id: Option[String] = None
+  limit: Option[Int],
+  cursor: Option[String],
+  team_id: Option[String],
+  enterprise_id: Option[String]
 )
 
 object ListApprovedAppsAdminRequest {
@@ -45,11 +41,7 @@ object ListApprovedAppsAdminRequest {
  * @param cursor Set `cursor` to `next_cursor` returned by the previous call to list items in the next page
  * @param team_id undefined
  */
-case class ListRequestsAppsAdminRequest(
-  limit: Option[Int] = None,
-  cursor: Option[String] = None,
-  team_id: Option[String] = None
-)
+case class ListRequestsAppsAdminRequest(limit: Option[Int], cursor: Option[String], team_id: Option[String])
 
 object ListRequestsAppsAdminRequest {
   import com.github.dapperware.slack.FormEncoder
@@ -64,11 +56,7 @@ object ListRequestsAppsAdminRequest {
  * @param request_id The id of the request to restrict.
  * @param team_id undefined
  */
-case class RestrictAppsAdminRequest(
-  app_id: Option[String] = None,
-  request_id: Option[String] = None,
-  team_id: Option[String] = None
-)
+case class RestrictAppsAdminRequest(app_id: Option[String], request_id: Option[String], team_id: Option[String])
 
 object RestrictAppsAdminRequest {
   import io.circe.generic.semiauto.deriveEncoder
@@ -83,10 +71,10 @@ object RestrictAppsAdminRequest {
  * @param enterprise_id undefined
  */
 case class ListRestrictedAppsAdminRequest(
-  limit: Option[Int] = None,
-  cursor: Option[String] = None,
-  team_id: Option[String] = None,
-  enterprise_id: Option[String] = None
+  limit: Option[Int],
+  cursor: Option[String],
+  team_id: Option[String],
+  enterprise_id: Option[String]
 )
 
 object ListRestrictedAppsAdminRequest {
@@ -130,9 +118,9 @@ object ConvertToPrivateConversationsAdminRequest {
 case class CreateConversationsAdminRequest(
   name: String,
   is_private: Boolean,
-  description: Option[String] = None,
-  org_wide: Option[Boolean] = None,
-  team_id: Option[String] = None
+  description: Option[String],
+  org_wide: Option[Boolean],
+  team_id: Option[String]
 )
 
 object CreateConversationsAdminRequest {
@@ -156,7 +144,7 @@ object DeleteConversationsAdminRequest {
  * @param channel_id The channel to be disconnected from some workspaces.
  * @param leaving_team_ids The team to be removed from the channel. Currently only a single team id can be specified.
  */
-case class DisconnectSharedConversationsAdminRequest(channel_id: String, leaving_team_ids: Option[String] = None)
+case class DisconnectSharedConversationsAdminRequest(channel_id: String, leaving_team_ids: Option[String])
 
 object DisconnectSharedConversationsAdminRequest {
   import io.circe.generic.semiauto.deriveEncoder
@@ -172,10 +160,10 @@ object DisconnectSharedConversationsAdminRequest {
  * @param cursor Set `cursor` to `next_cursor` returned by the previous call to list items in the next page.
  */
 case class ListOriginalConnectedChannelInfoEkmConversationsAdminRequest(
-  channel_ids: Option[String] = None,
-  team_ids: Option[String] = None,
-  limit: Option[Int] = None,
-  cursor: Option[String] = None
+  channel_ids: Option[String],
+  team_ids: Option[String],
+  limit: Option[Int],
+  cursor: Option[String]
 )
 
 object ListOriginalConnectedChannelInfoEkmConversationsAdminRequest {
@@ -191,11 +179,7 @@ object ListOriginalConnectedChannelInfoEkmConversationsAdminRequest {
  * @param cursor Set `cursor` to `next_cursor` returned by the previous call to list items in the next page
  * @param limit The maximum number of items to return. Must be between 1 - 1000 both inclusive.
  */
-case class GetTeamsConversationsAdminRequest(
-  channel_id: String,
-  cursor: Option[String] = None,
-  limit: Option[Int] = None
-)
+case class GetTeamsConversationsAdminRequest(channel_id: String, cursor: Option[String], limit: Option[Int])
 
 object GetTeamsConversationsAdminRequest {
   import io.circe.generic.semiauto.deriveEncoder
@@ -235,7 +219,7 @@ object RenameConversationsAdminRequest {
 case class AddGroupRestrictAccessConversationsAdminRequest(
   group_id: String,
   channel_id: String,
-  team_id: Option[String] = None
+  team_id: Option[String]
 )
 
 object AddGroupRestrictAccessConversationsAdminRequest {
@@ -250,7 +234,7 @@ object AddGroupRestrictAccessConversationsAdminRequest {
  * @param channel_id undefined
  * @param team_id The workspace where the channel exists. This argument is required for channels only tied to one workspace, and optional for channels that are shared across an organization.
  */
-case class ListGroupsRestrictAccessConversationsAdminRequest(channel_id: String, team_id: Option[String] = None)
+case class ListGroupsRestrictAccessConversationsAdminRequest(channel_id: String, team_id: Option[String])
 
 object ListGroupsRestrictAccessConversationsAdminRequest {
   import com.github.dapperware.slack.FormEncoder
@@ -285,13 +269,13 @@ object RemoveGroupRestrictAccessConversationsAdminRequest {
  * @param sort_dir Sort direction. Possible values are `asc` for ascending order like (1, 2, 3) or (a, b, c), and `desc` for descending order like (3, 2, 1) or (c, b, a)
  */
 case class SearchConversationsAdminRequest(
-  team_ids: Option[String] = None,
-  query: Option[String] = None,
-  limit: Option[Int] = None,
-  cursor: Option[String] = None,
-  search_channel_types: Option[String] = None,
-  sort: Option[String] = None,
-  sort_dir: Option[String] = None
+  team_ids: Option[String],
+  query: Option[String],
+  limit: Option[Int],
+  cursor: Option[String],
+  search_channel_types: Option[String],
+  sort: Option[String],
+  sort_dir: Option[String]
 )
 
 object SearchConversationsAdminRequest {
@@ -321,9 +305,9 @@ object SetConversationPrefsConversationsAdminRequest {
  */
 case class SetTeamsConversationsAdminRequest(
   channel_id: String,
-  team_id: Option[String] = None,
-  target_team_ids: Option[String] = None,
-  org_channel: Option[Boolean] = None
+  team_id: Option[String],
+  target_team_ids: Option[String],
+  org_channel: Option[Boolean]
 )
 
 object SetTeamsConversationsAdminRequest {
@@ -375,7 +359,7 @@ object AddAliasEmojiAdminRequest {
  * @param cursor Set `cursor` to `next_cursor` returned by the previous call to list items in the next page
  * @param limit The maximum number of items to return. Must be between 1 - 1000 both inclusive.
  */
-case class ListEmojiAdminRequest(cursor: Option[String] = None, limit: Option[Int] = None)
+case class ListEmojiAdminRequest(cursor: Option[String], limit: Option[Int])
 
 object ListEmojiAdminRequest {
   import com.github.dapperware.slack.FormEncoder
@@ -416,7 +400,7 @@ object RenameEmojiAdminRequest {
  * @param invite_request_id ID of the request to invite.
  * @param team_id ID for the workspace where the invite request was made.
  */
-case class ApproveInviteRequestsAdminRequest(invite_request_id: String, team_id: Option[String] = None)
+case class ApproveInviteRequestsAdminRequest(invite_request_id: String, team_id: Option[String])
 
 object ApproveInviteRequestsAdminRequest {
   import io.circe.generic.semiauto.deriveEncoder
@@ -429,11 +413,7 @@ object ApproveInviteRequestsAdminRequest {
  * @param cursor Value of the `next_cursor` field sent as part of the previous API response
  * @param limit The number of results that will be returned by the API on each invocation. Must be between 1 - 1000, both inclusive
  */
-case class ListApprovedInviteRequestsAdminRequest(
-  team_id: Option[String] = None,
-  cursor: Option[String] = None,
-  limit: Option[Int] = None
-)
+case class ListApprovedInviteRequestsAdminRequest(team_id: Option[String], cursor: Option[String], limit: Option[Int])
 
 object ListApprovedInviteRequestsAdminRequest {
   import io.circe.generic.semiauto.deriveEncoder
@@ -447,11 +427,7 @@ object ListApprovedInviteRequestsAdminRequest {
  * @param cursor Value of the `next_cursor` field sent as part of the previous api response
  * @param limit The number of results that will be returned by the API on each invocation. Must be between 1 - 1000 both inclusive
  */
-case class ListDeniedInviteRequestsAdminRequest(
-  team_id: Option[String] = None,
-  cursor: Option[String] = None,
-  limit: Option[Int] = None
-)
+case class ListDeniedInviteRequestsAdminRequest(team_id: Option[String], cursor: Option[String], limit: Option[Int])
 
 object ListDeniedInviteRequestsAdminRequest {
   import io.circe.generic.semiauto.deriveEncoder
@@ -464,7 +440,7 @@ object ListDeniedInviteRequestsAdminRequest {
  * @param invite_request_id ID of the request to invite.
  * @param team_id ID for the workspace where the invite request was made.
  */
-case class DenyInviteRequestsAdminRequest(invite_request_id: String, team_id: Option[String] = None)
+case class DenyInviteRequestsAdminRequest(invite_request_id: String, team_id: Option[String])
 
 object DenyInviteRequestsAdminRequest {
   import io.circe.generic.semiauto.deriveEncoder
@@ -477,11 +453,7 @@ object DenyInviteRequestsAdminRequest {
  * @param cursor Value of the `next_cursor` field sent as part of the previous API response
  * @param limit The number of results that will be returned by the API on each invocation. Must be between 1 - 1000, both inclusive
  */
-case class ListInviteRequestsAdminRequest(
-  team_id: Option[String] = None,
-  cursor: Option[String] = None,
-  limit: Option[Int] = None
-)
+case class ListInviteRequestsAdminRequest(team_id: Option[String], cursor: Option[String], limit: Option[Int])
 
 object ListInviteRequestsAdminRequest {
   import io.circe.generic.semiauto.deriveEncoder
@@ -494,7 +466,7 @@ object ListInviteRequestsAdminRequest {
  * @param limit The maximum number of items to return.
  * @param cursor Set `cursor` to `next_cursor` returned by the previous call to list items in the next page.
  */
-case class ListAdminsTeamsAdminRequest(team_id: String, limit: Option[Int] = None, cursor: Option[String] = None)
+case class ListAdminsTeamsAdminRequest(team_id: String, limit: Option[Int], cursor: Option[String])
 
 object ListAdminsTeamsAdminRequest {
   import com.github.dapperware.slack.FormEncoder
@@ -513,8 +485,8 @@ object ListAdminsTeamsAdminRequest {
 case class CreateTeamsAdminRequest(
   team_domain: String,
   team_name: String,
-  team_description: Option[String] = None,
-  team_discoverability: Option[String] = None
+  team_description: Option[String],
+  team_discoverability: Option[String]
 )
 
 object CreateTeamsAdminRequest {
@@ -527,7 +499,7 @@ object CreateTeamsAdminRequest {
  * @param limit The maximum number of items to return. Must be between 1 - 100 both inclusive.
  * @param cursor Set `cursor` to `next_cursor` returned by the previous call to list items in the next page.
  */
-case class ListTeamsAdminRequest(limit: Option[Int] = None, cursor: Option[String] = None)
+case class ListTeamsAdminRequest(limit: Option[Int], cursor: Option[String])
 
 object ListTeamsAdminRequest {
   import io.circe.generic.semiauto.deriveEncoder
@@ -540,7 +512,7 @@ object ListTeamsAdminRequest {
  * @param limit The maximum number of items to return. Must be between 1 - 1000 both inclusive.
  * @param cursor Set `cursor` to `next_cursor` returned by the previous call to list items in the next page.
  */
-case class ListOwnersTeamsAdminRequest(team_id: String, limit: Option[Int] = None, cursor: Option[String] = None)
+case class ListOwnersTeamsAdminRequest(team_id: String, limit: Option[Int], cursor: Option[String])
 
 object ListOwnersTeamsAdminRequest {
   import com.github.dapperware.slack.FormEncoder
@@ -632,7 +604,7 @@ object SetNameSettingsTeamsAdminRequest {
  * @param channel_ids Comma separated string of channel IDs.
  * @param team_id The workspace to add default channels in.
  */
-case class AddChannelsUsergroupsAdminRequest(usergroup_id: String, channel_ids: String, team_id: Option[String] = None)
+case class AddChannelsUsergroupsAdminRequest(usergroup_id: String, channel_ids: String, team_id: Option[String])
 
 object AddChannelsUsergroupsAdminRequest {
   import io.circe.generic.semiauto.deriveEncoder
@@ -645,11 +617,7 @@ object AddChannelsUsergroupsAdminRequest {
  * @param team_ids A comma separated list of encoded team (workspace) IDs. Each workspace *MUST* belong to the organization associated with the token.
  * @param auto_provision When `true`, this method automatically creates new workspace accounts for the IDP group members.
  */
-case class AddTeamsUsergroupsAdminRequest(
-  usergroup_id: String,
-  team_ids: String,
-  auto_provision: Option[Boolean] = None
-)
+case class AddTeamsUsergroupsAdminRequest(usergroup_id: String, team_ids: String, auto_provision: Option[Boolean])
 
 object AddTeamsUsergroupsAdminRequest {
   import io.circe.generic.semiauto.deriveEncoder
@@ -664,8 +632,8 @@ object AddTeamsUsergroupsAdminRequest {
  */
 case class ListChannelsUsergroupsAdminRequest(
   usergroup_id: String,
-  team_id: Option[String] = None,
-  include_num_members: Option[Boolean] = None
+  team_id: Option[String],
+  include_num_members: Option[Boolean]
 )
 
 object ListChannelsUsergroupsAdminRequest {
@@ -697,9 +665,9 @@ object RemoveChannelsUsergroupsAdminRequest {
 case class AssignUsersAdminRequest(
   team_id: String,
   user_id: String,
-  is_restricted: Option[Boolean] = None,
-  is_ultra_restricted: Option[Boolean] = None,
-  channel_ids: Option[String] = None
+  is_restricted: Option[Boolean],
+  is_ultra_restricted: Option[Boolean],
+  channel_ids: Option[String]
 )
 
 object AssignUsersAdminRequest {
@@ -723,12 +691,12 @@ case class InviteUsersAdminRequest(
   team_id: String,
   email: String,
   channel_ids: String,
-  custom_message: Option[String] = None,
-  real_name: Option[String] = None,
-  resend: Option[Boolean] = None,
-  is_restricted: Option[Boolean] = None,
-  is_ultra_restricted: Option[Boolean] = None,
-  guest_expiration_ts: Option[String] = None
+  custom_message: Option[String],
+  real_name: Option[String],
+  resend: Option[Boolean],
+  is_restricted: Option[Boolean],
+  is_ultra_restricted: Option[Boolean],
+  guest_expiration_ts: Option[String]
 )
 
 object InviteUsersAdminRequest {
@@ -742,7 +710,7 @@ object InviteUsersAdminRequest {
  * @param cursor Set `cursor` to `next_cursor` returned by the previous call to list items in the next page.
  * @param limit Limit for how many users to be retrieved per page
  */
-case class ListUsersAdminRequest(team_id: String, cursor: Option[String] = None, limit: Option[Int] = None)
+case class ListUsersAdminRequest(team_id: String, cursor: Option[String], limit: Option[Int])
 
 object ListUsersAdminRequest {
   import io.circe.generic.semiauto.deriveEncoder
@@ -779,11 +747,7 @@ object InvalidateSessionUsersAdminRequest {
  * @param mobile_only Only expire mobile sessions (default: false)
  * @param web_only Only expire web sessions (default: false)
  */
-case class ResetSessionUsersAdminRequest(
-  user_id: String,
-  mobile_only: Option[Boolean] = None,
-  web_only: Option[Boolean] = None
-)
+case class ResetSessionUsersAdminRequest(user_id: String, mobile_only: Option[Boolean], web_only: Option[Boolean])
 
 object ResetSessionUsersAdminRequest {
   import io.circe.generic.semiauto.deriveEncoder

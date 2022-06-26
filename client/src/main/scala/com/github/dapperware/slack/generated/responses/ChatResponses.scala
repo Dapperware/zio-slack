@@ -16,7 +16,7 @@ object GetPermalinkChatResponse {
     io.circe.generic.semiauto.deriveDecoder[GetPermalinkChatResponse]
 }
 
-case class MeMessageChatResponse(channel: Option[String] = None, ts: Option[String] = None)
+case class MeMessageChatResponse(channel: Option[String], ts: Option[String])
 
 object MeMessageChatResponse {
   implicit val decoder: io.circe.Decoder[MeMessageChatResponse] =

@@ -12,42 +12,44 @@ trait GeneratedCalls {
    * Registers a new Call.
    * @see https://api.slack.com/methods/calls.add
    */
-  def addCalls(req: AddCallsRequest): Request[Unit, AccessToken] =
-    request("calls.add").jsonBody(req).auth.accessToken
+  def addCalls(req: AddCallsRequest): Request[AddCallsResponse, AccessToken] =
+    request("calls.add").jsonBody(req).as[AddCallsResponse].auth.accessToken
 
   /**
    * Ends a Call.
    * @see https://api.slack.com/methods/calls.end
    */
-  def endCalls(req: EndCallsRequest): Request[Unit, AccessToken] =
-    request("calls.end").jsonBody(req).auth.accessToken
+  def endCalls(req: EndCallsRequest): Request[EndCallsResponse, AccessToken] =
+    request("calls.end").jsonBody(req).as[EndCallsResponse].auth.accessToken
 
   /**
    * Returns information about a Call.
    * @see https://api.slack.com/methods/calls.info
    */
-  def infoCalls(req: InfoCallsRequest): Request[Unit, AccessToken] =
-    request("calls.info").jsonBody(req).auth.accessToken
+  def infoCalls(req: InfoCallsRequest): Request[InfoCallsResponse, AccessToken] =
+    request("calls.info").jsonBody(req).as[InfoCallsResponse].auth.accessToken
 
   /**
    * Registers new participants added to a Call.
    * @see https://api.slack.com/methods/calls.participants.add
    */
-  def addParticipantsCalls(req: AddParticipantsCallsRequest): Request[Unit, AccessToken] =
-    request("calls.participants.add").jsonBody(req).auth.accessToken
+  def addParticipantsCalls(req: AddParticipantsCallsRequest): Request[AddParticipantsCallsResponse, AccessToken] =
+    request("calls.participants.add").jsonBody(req).as[AddParticipantsCallsResponse].auth.accessToken
 
   /**
    * Registers participants removed from a Call.
    * @see https://api.slack.com/methods/calls.participants.remove
    */
-  def removeParticipantsCalls(req: RemoveParticipantsCallsRequest): Request[Unit, AccessToken] =
-    request("calls.participants.remove").jsonBody(req).auth.accessToken
+  def removeParticipantsCalls(
+    req: RemoveParticipantsCallsRequest
+  ): Request[RemoveParticipantsCallsResponse, AccessToken] =
+    request("calls.participants.remove").jsonBody(req).as[RemoveParticipantsCallsResponse].auth.accessToken
 
   /**
    * Updates information about a Call.
    * @see https://api.slack.com/methods/calls.update
    */
-  def updateCalls(req: UpdateCallsRequest): Request[Unit, AccessToken] =
-    request("calls.update").jsonBody(req).auth.accessToken
+  def updateCalls(req: UpdateCallsRequest): Request[UpdateCallsResponse, AccessToken] =
+    request("calls.update").jsonBody(req).as[UpdateCallsResponse].auth.accessToken
 
 }

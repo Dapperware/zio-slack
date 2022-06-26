@@ -1,54 +1,55 @@
 package com.github.dapperware.slack
 
-import com.github.dapperware.slack.Slack.EnrichedAuthRequest
 import com.github.dapperware.slack.generated.GeneratedViews
+import com.github.dapperware.slack.generated.requests.{
+  OpenViewsRequest,
+  PublishViewsRequest,
+  PushViewsRequest,
+  UpdateViewsRequest
+}
 import com.github.dapperware.slack.models.{ View, ViewPayload }
-import io.circe.Json
 import io.circe.syntax._
 import zio.{ Has, URIO }
 
 trait Views {
 
-  def openView(triggerId: String, view: ViewPayload): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Unit]] =
-    Request
-      .make("views.open")
-      .jsonBody(
-        Json.obj(
-          "trigger_id" -> triggerId.asJson,
-          "view"       -> view.asJson
+  def openView(
+    triggerId: String,
+    view: ViewPayload
+  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[View]] =
+    Views
+      .openViews(
+        OpenViewsRequest(
+          trigger_id = triggerId,
+          view = view.asJson.noSpaces
         )
       )
+      .map(_.view)
       .toCall
 
   def publishView(
     userId: String,
     view: ViewPayload,
     hash: Option[String] = None
-  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Unit]] =
-    Request
-      .make("views.publish")
-      .jsonBody(
-        Json.obj(
-          "user_id" -> userId.asJson,
-          "view"    -> view.asJson,
-          "hash"    -> hash.asJson
+  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[View]] =
+    Views
+      .publishViews(
+        PublishViewsRequest(
+          user_id = userId,
+          view = view.asJson.noSpaces,
+          hash = hash
         )
       )
+      .map(_.view)
       .toCall
 
   def pushView(
     triggerId: String,
     view: ViewPayload
-  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[ViewPayload]] =
-    Request
-      .make("views.push")
-      .jsonBody(
-        Json.obj(
-          "trigger_id" -> triggerId.asJson,
-          "view"       -> view.asJson
-        )
-      )
-      .at[ViewPayload]("view")
+  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[View]] =
+    Views
+      .pushViews(PushViewsRequest(trigger_id = triggerId, view = view.asJson.noSpaces))
+      .map(_.view)
       .toCall
 
   def updateView(
@@ -57,18 +58,18 @@ trait Views {
     hash: Option[String] = None,
     viewId: Option[String]
   ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[View]] =
-    Request
-      .make("views.update")
-      .jsonBody(
-        Json.obj(
-          "view"        -> view.asJson,
-          "external_id" -> externalId.asJson,
-          "hash"        -> hash.asJson,
-          "view_id"     -> viewId.asJson
+    Views
+      .updateViews(
+        UpdateViewsRequest(
+          view = Some(view.asJson.noSpaces),
+          external_id = externalId,
+          hash = hash,
+          view_id = viewId
         )
       )
-      .at[View]("view")
+      .map(_.view)
       .toCall
+
 }
 
 object Views extends GeneratedViews

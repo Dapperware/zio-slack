@@ -6,7 +6,7 @@ package com.github.dapperware.slack.generated.requests
  * @param file File to delete a comment from.
  * @param id The comment to delete.
  */
-case class DeleteCommentsFilesRequest(file: Option[String] = None, id: Option[String] = None)
+case class DeleteCommentsFilesRequest(file: Option[String], id: Option[String])
 
 object DeleteCommentsFilesRequest {
   import io.circe.generic.semiauto.deriveEncoder
@@ -17,7 +17,7 @@ object DeleteCommentsFilesRequest {
 /**
  * @param file ID of file to delete.
  */
-case class DeleteFilesRequest(file: Option[String] = None)
+case class DeleteFilesRequest(file: Option[String])
 
 object DeleteFilesRequest {
   import io.circe.generic.semiauto.deriveEncoder
@@ -36,14 +36,14 @@ object DeleteFilesRequest {
  * @param show_files_hidden_by_limit Show truncated file info for files hidden due to being too old, and the team who owns the file being over the file limit.
  */
 case class ListFilesRequest(
-  user: Option[String] = None,
-  channel: Option[String] = None,
-  ts_from: Option[Int] = None,
-  ts_to: Option[Int] = None,
-  types: Option[String] = None,
-  count: Option[String] = None,
-  page: Option[String] = None,
-  show_files_hidden_by_limit: Option[Boolean] = None
+  user: Option[String],
+  channel: Option[String],
+  ts_from: Option[Int],
+  ts_to: Option[Int],
+  types: Option[String],
+  count: Option[String],
+  page: Option[String],
+  show_files_hidden_by_limit: Option[Boolean]
 )
 
 object ListFilesRequest {
@@ -71,12 +71,12 @@ object ListFilesRequest {
  * @param indexable_file_contents A text file (txt, pdf, doc, etc.) containing textual search terms that are used to improve discovery of the remote file.
  */
 case class AddRemoteFilesRequest(
-  external_id: Option[String] = None,
-  title: Option[String] = None,
-  filetype: Option[String] = None,
-  external_url: Option[String] = None,
-  preview_image: Option[String] = None,
-  indexable_file_contents: Option[String] = None
+  external_id: Option[String],
+  title: Option[String],
+  filetype: Option[String],
+  external_url: Option[String],
+  preview_image: Option[String],
+  indexable_file_contents: Option[String]
 )
 
 object AddRemoteFilesRequest {
@@ -98,7 +98,7 @@ object AddRemoteFilesRequest {
  * @param file Specify a file by providing its ID.
  * @param external_id Creator defined GUID for the file.
  */
-case class InfoRemoteFilesRequest(file: Option[String] = None, external_id: Option[String] = None)
+case class InfoRemoteFilesRequest(file: Option[String], external_id: Option[String])
 
 object InfoRemoteFilesRequest {
   import com.github.dapperware.slack.FormEncoder
@@ -116,11 +116,11 @@ object InfoRemoteFilesRequest {
  * @param cursor Paginate through collections of data by setting the `cursor` parameter to a `next_cursor` attribute returned by a previous request's `response_metadata`. Default value fetches the first "page" of the collection. See [pagination](/docs/pagination) for more detail.
  */
 case class ListRemoteFilesRequest(
-  channel: Option[String] = None,
-  ts_from: Option[Int] = None,
-  ts_to: Option[Int] = None,
-  limit: Option[Int] = None,
-  cursor: Option[String] = None
+  channel: Option[String],
+  ts_from: Option[Int],
+  ts_to: Option[Int],
+  limit: Option[Int],
+  cursor: Option[String]
 )
 
 object ListRemoteFilesRequest {
@@ -141,7 +141,7 @@ object ListRemoteFilesRequest {
  * @param file Specify a file by providing its ID.
  * @param external_id Creator defined GUID for the file.
  */
-case class RemoveRemoteFilesRequest(file: Option[String] = None, external_id: Option[String] = None)
+case class RemoveRemoteFilesRequest(file: Option[String], external_id: Option[String])
 
 object RemoveRemoteFilesRequest {
   import com.github.dapperware.slack.FormEncoder
@@ -156,11 +156,7 @@ object RemoveRemoteFilesRequest {
  * @param external_id The globally unique identifier (GUID) for the file, as set by the app registering the file with Slack.  Either this field or `file` or both are required.
  * @param channels Comma-separated list of channel IDs where the file will be shared.
  */
-case class ShareRemoteFilesRequest(
-  file: Option[String] = None,
-  external_id: Option[String] = None,
-  channels: Option[String] = None
-)
+case class ShareRemoteFilesRequest(file: Option[String], external_id: Option[String], channels: Option[String])
 
 object ShareRemoteFilesRequest {
   import com.github.dapperware.slack.FormEncoder
@@ -180,13 +176,13 @@ object ShareRemoteFilesRequest {
  * @param indexable_file_contents File containing contents that can be used to improve searchability for the remote file.
  */
 case class UpdateRemoteFilesRequest(
-  file: Option[String] = None,
-  external_id: Option[String] = None,
-  title: Option[String] = None,
-  filetype: Option[String] = None,
-  external_url: Option[String] = None,
-  preview_image: Option[String] = None,
-  indexable_file_contents: Option[String] = None
+  file: Option[String],
+  external_id: Option[String],
+  title: Option[String],
+  filetype: Option[String],
+  external_url: Option[String],
+  preview_image: Option[String],
+  indexable_file_contents: Option[String]
 )
 
 object UpdateRemoteFilesRequest {

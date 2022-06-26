@@ -1,6 +1,5 @@
 package com.github.dapperware.slack
 
-import com.github.dapperware.slack.Slack.EnrichedAuthRequest
 import com.github.dapperware.slack.generated.GeneratedBots
 import com.github.dapperware.slack.generated.requests.InfoBotsRequest
 import com.github.dapperware.slack.generated.responses.InfoBotsResponse

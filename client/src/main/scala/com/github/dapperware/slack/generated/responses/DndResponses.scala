@@ -18,9 +18,9 @@ case class InfoDndResponse(
   dnd_enabled: Boolean,
   next_dnd_end_ts: Int,
   next_dnd_start_ts: Int,
-  snooze_enabled: Option[Boolean] = None,
-  snooze_endtime: Option[Int] = None,
-  snooze_remaining: Option[Int] = None
+  snooze_enabled: Option[Boolean],
+  snooze_endtime: Option[Int],
+  snooze_remaining: Option[Int]
 )
 
 object InfoDndResponse {

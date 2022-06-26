@@ -16,11 +16,16 @@ trait Stars {
     Stars.addStars(AddStarsRequest(channel, file, file_comment = fileComment, timestamp = timestamp)).toCall
 
   def listStars(
-    user: Option[String] = None,
+    cursor: Option[String] = None,
     count: Option[Int] = None,
-    page: Option[Int] = None
+    page: Option[Int] = None,
+    limit: Option[Int] = None
   ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[ListStarsResponse]] =
-    Stars.listStars(ListStarsRequest(user, count.map(_.toString), page.map(_.toString))).toCall
+    Stars
+      .listStars(
+        ListStarsRequest(count = count.map(_.toString), page = page.map(_.toString), limit = limit, cursor = cursor)
+      )
+      .toCall
 
   def removeStars(
     channel: Option[String] = None,

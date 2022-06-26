@@ -23,11 +23,11 @@ object AddReactionsRequest {
  * @param timestamp Timestamp of the message to get reactions for.
  */
 case class GetReactionsRequest(
-  channel: Option[String] = None,
-  file: Option[String] = None,
-  file_comment: Option[String] = None,
-  full: Option[Boolean] = None,
-  timestamp: Option[String] = None
+  channel: Option[String],
+  file: Option[String],
+  file_comment: Option[String],
+  full: Option[Boolean],
+  timestamp: Option[String]
 )
 
 object GetReactionsRequest {
@@ -53,12 +53,12 @@ object GetReactionsRequest {
  * @param limit The maximum number of items to return. Fewer than the requested number of items may be returned, even if the end of the list hasn't been reached.
  */
 case class ListReactionsRequest(
-  user: Option[String] = None,
-  full: Option[Boolean] = None,
-  count: Option[Int] = None,
-  page: Option[Int] = None,
-  cursor: Option[String] = None,
-  limit: Option[Int] = None
+  user: Option[String],
+  full: Option[Boolean],
+  count: Option[Int],
+  page: Option[Int],
+  cursor: Option[String],
+  limit: Option[Int]
 )
 
 object ListReactionsRequest {
@@ -85,10 +85,10 @@ object ListReactionsRequest {
  */
 case class RemoveReactionsRequest(
   name: String,
-  file: Option[String] = None,
-  file_comment: Option[String] = None,
-  channel: Option[String] = None,
-  timestamp: Option[String] = None
+  file: Option[String],
+  file_comment: Option[String],
+  channel: Option[String],
+  timestamp: Option[String]
 )
 
 object RemoveReactionsRequest {

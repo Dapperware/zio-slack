@@ -19,7 +19,7 @@ object OpenViewsRequest {
  * @param view A [view payload](/reference/surfaces/views). This must be a JSON-encoded string.
  * @param hash A string that represents view state to protect against possible race conditions.
  */
-case class PublishViewsRequest(user_id: String, view: String, hash: Option[String] = None)
+case class PublishViewsRequest(user_id: String, view: String, hash: Option[String])
 
 object PublishViewsRequest {
   import io.circe.generic.semiauto.deriveEncoder
@@ -46,10 +46,10 @@ object PushViewsRequest {
  * @param hash A string that represents view state to protect against possible race conditions.
  */
 case class UpdateViewsRequest(
-  view_id: Option[String] = None,
-  external_id: Option[String] = None,
-  view: Option[String] = None,
-  hash: Option[String] = None
+  view_id: Option[String],
+  external_id: Option[String],
+  view: Option[String],
+  hash: Option[String]
 )
 
 object UpdateViewsRequest {

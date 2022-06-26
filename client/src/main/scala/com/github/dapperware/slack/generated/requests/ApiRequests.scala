@@ -6,7 +6,7 @@ package com.github.dapperware.slack.generated.requests
  * @param error Error response to return
  * @param foo example property to return
  */
-case class TestApiRequest(error: Option[String] = None, foo: Option[String] = None)
+case class TestApiRequest(error: Option[String], foo: Option[String])
 
 object TestApiRequest {
   import io.circe.generic.semiauto.deriveEncoder

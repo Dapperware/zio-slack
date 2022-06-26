@@ -6,7 +6,7 @@ package com.github.dapperware.slack.generated.requests
  * @param workflow_step_execute_id Context identifier that maps to the correct workflow step execution.
  * @param outputs Key-value object of outputs from your step. Keys of this object reflect the configured `key` properties of your [`outputs`](/reference/workflows/workflow_step#output) array from your `workflow_step` object.
  */
-case class StepCompletedWorkflowsRequest(workflow_step_execute_id: String, outputs: Option[String] = None)
+case class StepCompletedWorkflowsRequest(workflow_step_execute_id: String, outputs: Option[String])
 
 object StepCompletedWorkflowsRequest {
   import io.circe.generic.semiauto.deriveEncoder
@@ -35,10 +35,10 @@ object StepFailedWorkflowsRequest {
  */
 case class UpdateStepWorkflowsRequest(
   workflow_step_edit_id: String,
-  inputs: Option[String] = None,
-  outputs: Option[String] = None,
-  step_name: Option[String] = None,
-  step_image_url: Option[String] = None
+  inputs: Option[String],
+  outputs: Option[String],
+  step_name: Option[String],
+  step_image_url: Option[String]
 )
 
 object UpdateStepWorkflowsRequest {

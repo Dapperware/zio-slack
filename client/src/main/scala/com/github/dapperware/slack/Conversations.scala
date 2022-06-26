@@ -1,23 +1,11 @@
 package com.github.dapperware.slack
 
-import com.github.dapperware.slack.Slack.{ request, EnrichedAuthRequest }
+import com.github.dapperware.slack.Slack.request
 import com.github.dapperware.slack.api.{ ChannelLike, ChannelLikeId }
 import com.github.dapperware.slack.generated.GeneratedConversations
-import com.github.dapperware.slack.generated.requests.{
-  ArchiveConversationsRequest,
-  CloseConversationsRequest,
-  CreateConversationsRequest,
-  InviteConversationsRequest,
-  JoinConversationsRequest,
-  KickConversationsRequest,
-  LeaveConversationsRequest,
-  RenameConversationsRequest,
-  SetPurposeConversationsRequest,
-  SetTopicConversationsRequest,
-  UnarchiveConversationsRequest
-}
-import com.github.dapperware.slack.generated.responses.{ CloseConversationsResponse, RenameConversationsResponse }
-import com.github.dapperware.slack.models.{ Channel, Conversation, HistoryChunk, Message, Plural, ResponseChunk }
+import com.github.dapperware.slack.generated.requests._
+import com.github.dapperware.slack.generated.responses.{ CloseConversationsResponse, CreateConversationsResponse }
+import com.github.dapperware.slack.models.{ Channel, HistoryChunk, Message, Plural, ResponseChunk }
 import io.circe.Json
 import io.circe.syntax._
 import sttp.client3.IsOption
@@ -43,7 +31,11 @@ trait Conversations {
    * https://api.slack.com/methods/conversations.create
    */
   // FIXME the arguments required for this are incorrect
-  def createConversation(name: String, isPrivate: Option[Boolean] = None, userIds: Option[List[String]]) =
+  def createConversation(
+    name: String,
+    isPrivate: Option[Boolean] = None,
+    userIds: Option[List[String]]
+  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[CreateConversationsResponse]] =
     Conversations.createConversations(CreateConversationsRequest(Some(name), isPrivate)).toCall
 
   /**
@@ -56,7 +48,20 @@ trait Conversations {
     latest: Option[String] = None,
     limit: Option[Int] = None,
     oldest: Option[String] = None
-  ) =
+  ) = {
+    Conversations
+      .historyConversations(
+        HistoryConversationsRequest(
+          channel = Some(channelId),
+          cursor = cursor,
+          inclusive = inclusive,
+          latest = latest,
+          limit = limit,
+          oldest = oldest
+        )
+      )
+      .toCall
+
     request("conversations.history")
       .formBody(
         "channel"   -> channelId,
@@ -67,6 +72,7 @@ trait Conversations {
         "oldest"    -> oldest
       )
       .as[HistoryChunk]
+  }
 
   def getSingleMessage(channelId: String, ts: String) =
     getConversationHistory(channelId, latest = Some(ts), inclusive = Some(true), limit = Some(1))
@@ -130,15 +136,17 @@ trait Conversations {
     excludeArchived: Option[Boolean] = None,
     limit: Option[Int] = None,
     types: Option[List[String]] = None
-  ) =
-    request("conversations.list")
-      .formBody(
-        "cursor"           -> cursor,
-        "exclude_archived" -> excludeArchived,
-        "limit"            -> limit,
-        "types"            -> types.map(_.mkString(","))
+  ): Request[ResponseChunk[Channel], AccessToken] =
+    Conversations
+      .listConversations(
+        ListConversationsRequest(
+          exclude_archived = excludeArchived,
+          cursor = cursor,
+          limit = limit,
+          types = types.map(_.mkString(","))
+        )
       )
-      .as[ResponseChunk[Channel]]
+      .toCall
 
   /**
    * https://api.slack.com/methods/conversations.members

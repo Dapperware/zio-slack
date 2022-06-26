@@ -9,10 +9,10 @@ package com.github.dapperware.slack.generated.requests
  * @param timestamp Timestamp of the message to add star to.
  */
 case class AddStarsRequest(
-  channel: Option[String] = None,
-  file: Option[String] = None,
-  file_comment: Option[String] = None,
-  timestamp: Option[String] = None
+  channel: Option[String],
+  file: Option[String],
+  file_comment: Option[String],
+  timestamp: Option[String]
 )
 
 object AddStarsRequest {
@@ -27,12 +27,7 @@ object AddStarsRequest {
  * @param cursor Parameter for pagination. Set `cursor` equal to the `next_cursor` attribute returned by the previous request's `response_metadata`. This parameter is optional, but pagination is mandatory: the default value simply fetches the first "page" of the collection. See [pagination](/docs/pagination) for more details.
  * @param limit The maximum number of items to return. Fewer than the requested number of items may be returned, even if the end of the list hasn't been reached.
  */
-case class ListStarsRequest(
-  count: Option[String] = None,
-  page: Option[String] = None,
-  cursor: Option[String] = None,
-  limit: Option[Int] = None
-)
+case class ListStarsRequest(count: Option[String], page: Option[String], cursor: Option[String], limit: Option[Int])
 
 object ListStarsRequest {
   import com.github.dapperware.slack.FormEncoder
@@ -48,10 +43,10 @@ object ListStarsRequest {
  * @param timestamp Timestamp of the message to remove star from.
  */
 case class RemoveStarsRequest(
-  channel: Option[String] = None,
-  file: Option[String] = None,
-  file_comment: Option[String] = None,
-  timestamp: Option[String] = None
+  channel: Option[String],
+  file: Option[String],
+  file_comment: Option[String],
+  timestamp: Option[String]
 )
 
 object RemoveStarsRequest {

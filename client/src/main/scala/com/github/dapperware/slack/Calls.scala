@@ -1,12 +1,12 @@
 package com.github.dapperware.slack
 
-import com.github.dapperware.slack.Slack.{ request, EnrichedAuthRequest }
 import com.github.dapperware.slack.generated.GeneratedCalls
-import com.github.dapperware.slack.models.{ Call, CallParticipant }
-import io.circe.{ Encoder, Json }
+import com.github.dapperware.slack.generated.requests._
+import com.github.dapperware.slack.models.Call
 import io.circe.syntax._
-import zio.{ Has, URIO }
+import io.circe.{ Encoder, Json }
 import zio.duration.Duration
+import zio.{ Has, URIO }
 
 import java.time.Instant
 
@@ -25,41 +25,36 @@ trait Calls {
     title: Option[String] = None,
     users: Option[List[CallParticipant]]
   ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Call]] =
-    request("calls.add")
-      .jsonBody(
-        Json.obj(
-          "external_unique_id"   -> externalUniqueId.asJson,
-          "join_url"             -> joinUrl.asJson,
-          "created_by"           -> createdBy.asJson,
-          "date_start"           -> dateStart.asJson,
-          "desktop_app_join_url" -> desktopAppJoinUrl.asJson,
-          "external_display_id"  -> externalDisplayId.asJson,
-          "title"                -> title.asJson,
-          "users"                -> users.asJson
+    Calls
+      .addCalls(
+        AddCallsRequest(
+          external_unique_id = externalUniqueId,
+          join_url = joinUrl,
+          external_display_id = externalDisplayId,
+          desktop_app_join_url = desktopAppJoinUrl,
+          date_start = dateStart.map(_.getEpochSecond.toInt),
+          title = title,
+          created_by = createdBy,
+          users = users.map(_.asJson.noSpaces)
         )
       )
-      .at[Call]("call")
+      .map(_.call)
       .toCall
 
   /**
    * https://api.slack.com/methods/calls.end
    */
-  def endCall(id: String, duration: Option[Duration]): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Call]] =
-    request("calls.end")
-      .jsonBody(
-        Json.obj(
-          "id"       -> id.asJson,
-          "duration" -> duration.map(_.toSeconds).asJson
-        )
-      )
-      .at[Call]("call")
-      .toCall
+  def endCall(
+    id: String,
+    duration: Option[Duration]
+  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Call]] =
+    Calls.endCalls(EndCallsRequest(id, duration = duration.map(_.toSeconds.toInt))).map(_.call).toCall
 
   /**
    * https://api.slack.com/methods/calls.info
    */
   def getCallInfo(id: String): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Call]] =
-    request("calls.info").jsonBody(Json.obj("id" -> id.asJson)).at[Call]("call").toCall
+    Calls.infoCalls(InfoCallsRequest(id)).map(_.call).toCall
 
   /**
    * https://api.slack.com/methods/calls.update
@@ -69,43 +64,30 @@ trait Calls {
     desktopAppJoinUrl: Option[String],
     joinUrl: Option[String],
     title: Option[String]
-  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Call]]                           =
-    request("calls.update")
-      .jsonBody(
-        Json.obj(
-          "id"                   -> id.asJson,
-          "desktop_app_join_url" -> desktopAppJoinUrl.asJson,
-          "join_url"             -> joinUrl.asJson,
-          "title"                -> title.asJson
-        )
+  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Call]] =
+    Calls
+      .updateCalls(
+        UpdateCallsRequest(id = id, title = title, join_url = joinUrl, desktop_app_join_url = desktopAppJoinUrl)
       )
-      .at[Call]("call")
+      .map(_.call)
       .toCall
 
   def addParticipants(
     id: String,
     users: List[CallParticipant]
-  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Unit]] =
-    request("calls.participants.add")
-      .jsonBody(
-        Json.obj(
-          "id"    -> id.asJson,
-          "users" -> users.asJson
-        )
-      )
+  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Call]] =
+    Calls
+      .addParticipantsCalls(AddParticipantsCallsRequest(id = id, users = users.asJson.noSpaces))
+      .map(_.call)
       .toCall
 
   def removeParticipants(
     id: String,
     users: List[CallParticipant]
-  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Unit]] =
-    request("calls.participants.remove")
-      .jsonBody(
-        Json.obj(
-          "id"    -> id.asJson,
-          "users" -> users.asJson
-        )
-      )
+  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Call]] =
+    Calls
+      .removeParticipantsCalls(RemoveParticipantsCallsRequest(id = id, users = users.asJson.noSpaces))
+      .map(_.call)
       .toCall
 }
 

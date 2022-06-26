@@ -7,11 +7,7 @@ package com.github.dapperware.slack.generated.requests
  * @param cursor undefined
  * @param limit undefined
  */
-case class ListAuthorizationsEventAppsRequest(
-  event_context: String,
-  cursor: Option[String] = None,
-  limit: Option[Int] = None
-)
+case class ListAuthorizationsEventAppsRequest(event_context: String, cursor: Option[String], limit: Option[Int])
 
 object ListAuthorizationsEventAppsRequest {
   import io.circe.generic.semiauto.deriveEncoder
@@ -37,7 +33,7 @@ object RequestPermissionsAppsRequest {
  * @param cursor Paginate through collections of data by setting the `cursor` parameter to a `next_cursor` attribute returned by a previous request's `response_metadata`. Default value fetches the first "page" of the collection. See [pagination](/docs/pagination) for more detail.
  * @param limit The maximum number of items to return.
  */
-case class ListResourcesPermissionsAppsRequest(cursor: Option[String] = None, limit: Option[Int] = None)
+case class ListResourcesPermissionsAppsRequest(cursor: Option[String], limit: Option[Int])
 
 object ListResourcesPermissionsAppsRequest {
   import com.github.dapperware.slack.FormEncoder

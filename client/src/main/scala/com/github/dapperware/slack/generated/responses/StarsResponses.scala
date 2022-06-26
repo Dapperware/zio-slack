@@ -2,10 +2,7 @@
 
 package com.github.dapperware.slack.generated.responses
 
-case class ListStarsResponse(
-  items: List[String],
-  paging: Option[com.github.dapperware.slack.models.PagingObject] = None
-)
+case class ListStarsResponse(items: List[String], paging: Option[com.github.dapperware.slack.models.PagingObject])
 
 object ListStarsResponse {
   implicit val decoder: io.circe.Decoder[ListStarsResponse] = io.circe.generic.semiauto.deriveDecoder[ListStarsResponse]

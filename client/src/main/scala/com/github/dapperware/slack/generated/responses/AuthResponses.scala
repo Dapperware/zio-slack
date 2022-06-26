@@ -10,8 +10,8 @@ object RevokeAuthResponse {
 }
 
 case class TestAuthResponse(
-  bot_id: Option[String] = None,
-  is_enterprise_install: Option[Boolean] = None,
+  bot_id: Option[String],
+  is_enterprise_install: Option[Boolean],
   team: String,
   team_id: String,
   url: String,

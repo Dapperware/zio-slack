@@ -5,7 +5,7 @@ package com.github.dapperware.slack.generated.requests
 /**
  * @param bot Bot user to get info on
  */
-case class InfoBotsRequest(bot: Option[String] = None)
+case class InfoBotsRequest(bot: Option[String])
 
 object InfoBotsRequest {
   import com.github.dapperware.slack.FormEncoder

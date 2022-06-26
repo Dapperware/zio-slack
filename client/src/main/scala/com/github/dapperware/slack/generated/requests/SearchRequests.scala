@@ -12,11 +12,11 @@ package com.github.dapperware.slack.generated.requests
  */
 case class MessagesSearchRequest(
   query: String,
-  count: Option[Int] = None,
-  highlight: Option[Boolean] = None,
-  page: Option[Int] = None,
-  sort: Option[String] = None,
-  sort_dir: Option[String] = None
+  count: Option[Int],
+  highlight: Option[Boolean],
+  page: Option[Int],
+  sort: Option[String],
+  sort_dir: Option[String]
 )
 
 object MessagesSearchRequest {

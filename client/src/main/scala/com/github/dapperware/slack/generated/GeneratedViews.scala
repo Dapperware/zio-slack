@@ -12,28 +12,28 @@ trait GeneratedViews {
    * Open a view for a user.
    * @see https://api.slack.com/methods/views.open
    */
-  def openViews(req: OpenViewsRequest): Request[Unit, AccessToken] =
-    request("views.open").jsonBody(req).auth.accessToken
+  def openViews(req: OpenViewsRequest): Request[OpenViewsResponse, AccessToken] =
+    request("views.open").jsonBody(req).as[OpenViewsResponse].auth.accessToken
 
   /**
    * Publish a static view for a User.
    * @see https://api.slack.com/methods/views.publish
    */
-  def publishViews(req: PublishViewsRequest): Request[Unit, AccessToken] =
-    request("views.publish").jsonBody(req).auth.accessToken
+  def publishViews(req: PublishViewsRequest): Request[PublishViewsResponse, AccessToken] =
+    request("views.publish").jsonBody(req).as[PublishViewsResponse].auth.accessToken
 
   /**
    * Push a view onto the stack of a root view.
    * @see https://api.slack.com/methods/views.push
    */
-  def pushViews(req: PushViewsRequest): Request[Unit, AccessToken] =
-    request("views.push").jsonBody(req).auth.accessToken
+  def pushViews(req: PushViewsRequest): Request[PushViewsResponse, AccessToken] =
+    request("views.push").jsonBody(req).as[PushViewsResponse].auth.accessToken
 
   /**
    * Update an existing view.
    * @see https://api.slack.com/methods/views.update
    */
-  def updateViews(req: UpdateViewsRequest): Request[Unit, AccessToken] =
-    request("views.update").jsonBody(req).auth.accessToken
+  def updateViews(req: UpdateViewsRequest): Request[UpdateViewsResponse, AccessToken] =
+    request("views.update").jsonBody(req).as[UpdateViewsResponse].auth.accessToken
 
 }

@@ -10,11 +10,11 @@ package com.github.dapperware.slack.generated.requests
  * @param cursor Paginate through collections of data by setting the `cursor` parameter to a `next_cursor` attribute returned by a previous request's `response_metadata`. Default value fetches the first "page" of the collection. See [pagination](/docs/pagination) for more detail.
  */
 case class ConversationsUsersRequest(
-  user: Option[String] = None,
-  types: Option[String] = None,
-  exclude_archived: Option[Boolean] = None,
-  limit: Option[Int] = None,
-  cursor: Option[String] = None
+  user: Option[String],
+  types: Option[String],
+  exclude_archived: Option[Boolean],
+  limit: Option[Int],
+  cursor: Option[String]
 )
 
 object ConversationsUsersRequest {
@@ -34,7 +34,7 @@ object ConversationsUsersRequest {
 /**
  * @param user User to get presence info on. Defaults to the authed user.
  */
-case class GetPresenceUsersRequest(user: Option[String] = None)
+case class GetPresenceUsersRequest(user: Option[String])
 
 object GetPresenceUsersRequest {
   import com.github.dapperware.slack.FormEncoder
@@ -48,7 +48,7 @@ object GetPresenceUsersRequest {
  * @param include_locale Set this to `true` to receive the locale for this user. Defaults to `false`
  * @param user User to get info on
  */
-case class InfoUsersRequest(include_locale: Option[Boolean] = None, user: Option[String] = None)
+case class InfoUsersRequest(include_locale: Option[Boolean], user: Option[String])
 
 object InfoUsersRequest {
   import com.github.dapperware.slack.FormEncoder
@@ -62,11 +62,7 @@ object InfoUsersRequest {
  * @param cursor Paginate through collections of data by setting the `cursor` parameter to a `next_cursor` attribute returned by a previous request's `response_metadata`. Default value fetches the first "page" of the collection. See [pagination](/docs/pagination) for more detail.
  * @param include_locale Set this to `true` to receive the locale for users. Defaults to `false`
  */
-case class ListUsersRequest(
-  limit: Option[Int] = None,
-  cursor: Option[String] = None,
-  include_locale: Option[Boolean] = None
-)
+case class ListUsersRequest(limit: Option[Int], cursor: Option[String], include_locale: Option[Boolean])
 
 object ListUsersRequest {
   import com.github.dapperware.slack.FormEncoder

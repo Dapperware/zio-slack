@@ -47,7 +47,8 @@ case class Call(
   desktop_app_join_url: String,
   external_display_id: String,
   title: String,
-  users: Chunk[CallParticipant]
+  users: Chunk[CallParticipant],
+  channels: Option[List[String]] = None
 )
 
 object Call {

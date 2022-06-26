@@ -5,7 +5,7 @@ package com.github.dapperware.slack.generated.requests
 /**
  * @param reminder The ID of the reminder to be marked as complete
  */
-case class CompleteRemindersRequest(reminder: Option[String] = None)
+case class CompleteRemindersRequest(reminder: Option[String])
 
 object CompleteRemindersRequest {
   import io.circe.generic.semiauto.deriveEncoder
@@ -16,7 +16,7 @@ object CompleteRemindersRequest {
 /**
  * @param reminder The ID of the reminder
  */
-case class DeleteRemindersRequest(reminder: Option[String] = None)
+case class DeleteRemindersRequest(reminder: Option[String])
 
 object DeleteRemindersRequest {
   import io.circe.generic.semiauto.deriveEncoder
@@ -27,7 +27,7 @@ object DeleteRemindersRequest {
 /**
  * @param reminder The ID of the reminder
  */
-case class InfoRemindersRequest(reminder: Option[String] = None)
+case class InfoRemindersRequest(reminder: Option[String])
 
 object InfoRemindersRequest {
   import com.github.dapperware.slack.FormEncoder

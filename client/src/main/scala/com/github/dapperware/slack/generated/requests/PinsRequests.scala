@@ -6,7 +6,7 @@ package com.github.dapperware.slack.generated.requests
  * @param channel Channel to pin the item in.
  * @param timestamp Timestamp of the message to pin.
  */
-case class AddPinsRequest(channel: String, timestamp: Option[String] = None)
+case class AddPinsRequest(channel: String, timestamp: Option[String])
 
 object AddPinsRequest {
   import io.circe.generic.semiauto.deriveEncoder
@@ -30,7 +30,7 @@ object ListPinsRequest {
  * @param channel Channel where the item is pinned to.
  * @param timestamp Timestamp of the message to un-pin.
  */
-case class RemovePinsRequest(channel: String, timestamp: Option[String] = None)
+case class RemovePinsRequest(channel: String, timestamp: Option[String])
 
 object RemovePinsRequest {
   import io.circe.generic.semiauto.deriveEncoder

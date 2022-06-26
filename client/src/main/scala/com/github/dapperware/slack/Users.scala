@@ -1,11 +1,12 @@
 package com.github.dapperware.slack
 
-import com.github.dapperware.slack.Slack.{ request, EnrichedAuthRequest }
+import com.github.dapperware.slack.Slack.request
 import com.github.dapperware.slack.client.RequestEntity
 import com.github.dapperware.slack.generated.GeneratedUsers
 import com.github.dapperware.slack.generated.requests.{
   GetPresenceUsersRequest,
   ListUsersRequest,
+  LookupByEmailUsersRequest,
   SetPresenceUsersRequest
 }
 import com.github.dapperware.slack.generated.responses.{
@@ -14,7 +15,7 @@ import com.github.dapperware.slack.generated.responses.{
   ListUsersResponse
 }
 import com.github.dapperware.slack.models.User
-import zio.{ Has, URIO, ZIO }
+import zio.{ Has, URIO }
 
 trait Users {
   // TODO: Full payload for authed user: https://api.slack.com/methods/users.getPresence
@@ -22,22 +23,32 @@ trait Users {
     Users.getPresenceUsers(GetPresenceUsersRequest(Some(userId))).toCall
 
   def getUserInfo(userId: String): URIO[Has[Slack] with Has[AccessToken], SlackResponse[User]] =
-    Users.infoUsers(InfoUsersResponse()).toCall
+    Users.infoUsers(InfoUsersResponse(user = userId)).toCall
 
-  def listUsers(): URIO[Has[Slack] with Has[AccessToken], SlackResponse[ListUsersResponse]] =
-    Users.listUsers(ListUsersRequest()).toCall
+  def listUsers(
+    cursor: Option[String] = None,
+    limit: Option[Int] = None,
+    includeLocale: Option[Boolean] = None,
+    presence: Option[Boolean] = None
+  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[ListUsersResponse]] =
+    Users
+      .listUsers(
+        ListUsersRequest(
+          limit = limit,
+          cursor = cursor,
+          include_locale = includeLocale
+        )
+      )
+      .toCall
 
-  def setUserActive(userId: String): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Unit]] =
+  def setUserActive(): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Unit]] =
     Users.setActiveUsers.toCall
 
   def setUserPresence(presence: String): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Unit]] =
     Users.setPresenceUsers(SetPresenceUsersRequest(presence)).toCall
 
   def lookupUserByEmail(emailId: String): URIO[Has[Slack] with Has[AccessToken], SlackResponse[User]] =
-    request("users.lookupByEmail")
-      .formBody(Map("email" -> emailId))
-      .at[User]("user")
-      .toCall
+    Users.lookupByEmailUsers(LookupByEmailUsersRequest(email = emailId)).map(_.user).toCall
 
   def deletePhoto: URIO[Has[Slack] with Has[AccessToken], SlackResponse[Unit]] =
     Users.deletePhotoUsers.toCall

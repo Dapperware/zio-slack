@@ -7,11 +7,7 @@ package com.github.dapperware.slack.generated.requests
  * @param redirect_uri This must match the originally submitted URI (if one was sent).
  * @param single_channel Request the user to add your app only to a single channel. Only valid with a [legacy workspace app](https://api.slack.com/legacy-workspace-apps).
  */
-case class AccessOauthRequest(
-  code: Option[String] = None,
-  redirect_uri: Option[String] = None,
-  single_channel: Option[Boolean] = None
-)
+case class AccessOauthRequest(code: Option[String], redirect_uri: Option[String], single_channel: Option[Boolean])
 
 object AccessOauthRequest {
   import com.github.dapperware.slack.FormEncoder
@@ -25,11 +21,7 @@ object AccessOauthRequest {
  * @param redirect_uri This must match the originally submitted URI (if one was sent).
  * @param single_channel Request the user to add your app only to a single channel.
  */
-case class TokenOauthRequest(
-  code: Option[String] = None,
-  redirect_uri: Option[String] = None,
-  single_channel: Option[Boolean] = None
-)
+case class TokenOauthRequest(code: Option[String], redirect_uri: Option[String], single_channel: Option[Boolean])
 
 object TokenOauthRequest {
   import com.github.dapperware.slack.FormEncoder
@@ -42,7 +34,7 @@ object TokenOauthRequest {
  * @param code The `code` param returned via the OAuth callback.
  * @param redirect_uri This must match the originally submitted URI (if one was sent).
  */
-case class AccessV2OauthRequest(code: String, redirect_uri: Option[String] = None)
+case class AccessV2OauthRequest(code: String, redirect_uri: Option[String])
 
 object AccessV2OauthRequest {
   import com.github.dapperware.slack.FormEncoder

@@ -19,8 +19,8 @@ trait GeneratedPins {
    * Lists items pinned to a channel.
    * @see https://api.slack.com/methods/pins.list
    */
-  def listPins(req: ListPinsRequest): Request[Unit, AccessToken] =
-    request("pins.list").formBody(req).auth.accessToken
+  def listPins(req: ListPinsRequest): Request[ListPinsResponse, AccessToken] =
+    request("pins.list").formBody(req).as[ListPinsResponse].auth.accessToken
 
   /**
    * Un-pins an item from a channel.

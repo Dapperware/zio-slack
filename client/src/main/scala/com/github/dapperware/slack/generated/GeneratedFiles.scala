@@ -47,8 +47,8 @@ trait GeneratedFiles {
    * Retrieve information about a remote file added to Slack
    * @see https://api.slack.com/methods/files.remote.list
    */
-  def listRemoteFiles(req: ListRemoteFilesRequest): Request[Unit, AccessToken] =
-    request("files.remote.list").formBody(req).auth.accessToken
+  def listRemoteFiles(req: ListRemoteFilesRequest): Request[ListRemoteFilesResponse, AccessToken] =
+    request("files.remote.list").formBody(req).as[ListRemoteFilesResponse].auth.accessToken
 
   /**
    * Remove a remote file.

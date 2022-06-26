@@ -8,9 +8,9 @@ package com.github.dapperware.slack.generated.requests
  * @param include_disabled Include disabled User Groups.
  */
 case class ListUsergroupsRequest(
-  include_users: Option[Boolean] = None,
-  include_count: Option[Boolean] = None,
-  include_disabled: Option[Boolean] = None
+  include_users: Option[Boolean],
+  include_count: Option[Boolean],
+  include_disabled: Option[Boolean]
 )
 
 object ListUsergroupsRequest {
@@ -29,7 +29,7 @@ object ListUsergroupsRequest {
  * @param usergroup The encoded ID of the User Group to update.
  * @param include_disabled Allow results that involve disabled User Groups.
  */
-case class ListUsersUsergroupsRequest(usergroup: String, include_disabled: Option[Boolean] = None)
+case class ListUsersUsergroupsRequest(usergroup: String, include_disabled: Option[Boolean])
 
 object ListUsersUsergroupsRequest {
   import com.github.dapperware.slack.FormEncoder

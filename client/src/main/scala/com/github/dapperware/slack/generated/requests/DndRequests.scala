@@ -5,7 +5,7 @@ package com.github.dapperware.slack.generated.requests
 /**
  * @param user User to fetch status for (defaults to current user)
  */
-case class InfoDndRequest(user: Option[String] = None)
+case class InfoDndRequest(user: Option[String])
 
 object InfoDndRequest {
   import com.github.dapperware.slack.FormEncoder
@@ -30,7 +30,7 @@ object SetSnoozeDndRequest {
 /**
  * @param users Comma-separated list of users to fetch Do Not Disturb status for
  */
-case class TeamInfoDndRequest(users: Option[String] = None)
+case class TeamInfoDndRequest(users: Option[String])
 
 object TeamInfoDndRequest {
   import com.github.dapperware.slack.FormEncoder

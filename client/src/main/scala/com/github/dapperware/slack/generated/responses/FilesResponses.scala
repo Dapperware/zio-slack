@@ -7,3 +7,13 @@ case class ListFilesResponse(files: List[String], paging: com.github.dapperware.
 object ListFilesResponse {
   implicit val decoder: io.circe.Decoder[ListFilesResponse] = io.circe.generic.semiauto.deriveDecoder[ListFilesResponse]
 }
+
+case class ListRemoteFilesResponse(
+  file: zio.Chunk[File],
+  response_metadata: com.github.dapperware.slack.models.ResponseMetadata
+)
+
+object ListRemoteFilesResponse {
+  implicit val decoder: io.circe.Decoder[ListRemoteFilesResponse] =
+    io.circe.generic.semiauto.deriveDecoder[ListRemoteFilesResponse]
+}

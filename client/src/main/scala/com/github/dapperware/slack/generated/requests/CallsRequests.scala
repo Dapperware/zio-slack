@@ -15,12 +15,12 @@ package com.github.dapperware.slack.generated.requests
 case class AddCallsRequest(
   external_unique_id: String,
   join_url: String,
-  external_display_id: Option[String] = None,
-  desktop_app_join_url: Option[String] = None,
-  date_start: Option[Int] = None,
-  title: Option[String] = None,
-  created_by: Option[String] = None,
-  users: Option[String] = None
+  external_display_id: Option[String],
+  desktop_app_join_url: Option[String],
+  date_start: Option[Int],
+  title: Option[String],
+  created_by: Option[String],
+  users: Option[String]
 )
 
 object AddCallsRequest {
@@ -33,7 +33,7 @@ object AddCallsRequest {
  * @param id `id` returned when registering the call using the [`calls.add`](/methods/calls.add) method.
  * @param duration Call duration in seconds
  */
-case class EndCallsRequest(id: String, duration: Option[Int] = None)
+case class EndCallsRequest(id: String, duration: Option[Int])
 
 object EndCallsRequest {
   import io.circe.generic.semiauto.deriveEncoder
@@ -84,9 +84,9 @@ object RemoveParticipantsCallsRequest {
  */
 case class UpdateCallsRequest(
   id: String,
-  title: Option[String] = None,
-  join_url: Option[String] = None,
-  desktop_app_join_url: Option[String] = None
+  title: Option[String],
+  join_url: Option[String],
+  desktop_app_join_url: Option[String]
 )
 
 object UpdateCallsRequest {

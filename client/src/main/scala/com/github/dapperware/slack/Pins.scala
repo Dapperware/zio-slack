@@ -1,8 +1,8 @@
 package com.github.dapperware.slack
 
-import com.github.dapperware.slack.Slack.{ request, EnrichedAuthRequest }
 import com.github.dapperware.slack.generated.GeneratedPins
 import com.github.dapperware.slack.generated.requests.{ AddPinsRequest, ListPinsRequest, RemovePinsRequest }
+import com.github.dapperware.slack.generated.responses.ListPinsResponse
 import zio.{ Has, URIO }
 
 trait Pins {
@@ -21,7 +21,7 @@ trait Pins {
   // TODO This is wrong response type
   def listPins(
     channelId: String
-  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Unit]] =
+  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[ListPinsResponse]] =
     Pins.listPins(ListPinsRequest(channelId)).toCall
 }
 

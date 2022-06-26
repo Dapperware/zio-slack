@@ -26,7 +26,7 @@ trait GeneratedOauth {
    * Exchanges a temporary OAuth verifier code for an access token.
    * @see https://api.slack.com/methods/oauth.v2.access
    */
-  def accessV2Oauth(req: AccessV2OauthRequest): Request[Unit, ClientSecret] =
-    request("oauth.v2.access").formBody(req).auth.clientSecret
+  def accessV2Oauth(req: AccessV2OauthRequest): Request[AccessV2OauthResponse, ClientSecret] =
+    request("oauth.v2.access").formBody(req).as[AccessV2OauthResponse].auth.clientSecret
 
 }

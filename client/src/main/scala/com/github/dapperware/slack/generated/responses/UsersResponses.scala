@@ -4,7 +4,7 @@ package com.github.dapperware.slack.generated.responses
 
 case class ConversationsUsersResponse(
   channels: List[String],
-  response_metadata: Option[com.github.dapperware.slack.models.ResponseMetadata] = None
+  response_metadata: Option[com.github.dapperware.slack.models.ResponseMetadata]
 )
 
 object ConversationsUsersResponse {
@@ -13,11 +13,11 @@ object ConversationsUsersResponse {
 }
 
 case class GetPresenceUsersResponse(
-  auto_away: Option[Boolean] = None,
-  connection_count: Option[Int] = None,
-  last_activity: Option[Int] = None,
-  manual_away: Option[Boolean] = None,
-  online: Option[Boolean] = None,
+  auto_away: Option[Boolean],
+  connection_count: Option[Int],
+  last_activity: Option[Int],
+  manual_away: Option[Boolean],
+  online: Option[Boolean],
   presence: String
 )
 
@@ -35,7 +35,7 @@ object InfoUsersResponse {
 case class ListUsersResponse(
   cache_ts: Int,
   members: List[String],
-  response_metadata: Option[com.github.dapperware.slack.models.ResponseMetadata] = None
+  response_metadata: Option[com.github.dapperware.slack.models.ResponseMetadata]
 )
 
 object ListUsersResponse {

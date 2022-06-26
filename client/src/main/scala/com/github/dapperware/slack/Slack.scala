@@ -66,7 +66,7 @@ object Slack
 
 class HttpSlack private (baseUrl: String, client: SttpClient.Service) extends Slack {
 
-  private def makeCall[A](request: RequestT[Identity, SlackResponse[A], Any]) =
+  private def makeCall[A](request: RequestT[Identity, SlackResponse[A], Any]): URIO[Any, SlackResponse[A]] =
     client
       .send(request)
       .mapBoth(SlackError.fromThrowable, _.body)
@@ -91,6 +91,8 @@ object HttpSlack {
 
   def make(url: String): ZIO[Has[SttpClient.Service], Nothing, Slack] =
     ZIO.service[SttpClient.Service].map(new HttpSlack(url, _))
+
+  def layer = make.toLayer
 }
 
 /**
@@ -109,7 +111,15 @@ sealed trait SlackResponse[+A] {
    * Converts the response into an either by unpacking the value into the right-hand channel and throwing away any warnings
    */
   def toEither: Either[SlackError, A] = toEitherWith((a, _) => a)
+
+  /**
+   * More powerful version of `toEither` which allows the caller to handle the warnings that may be present in the response
+   */
   def toEitherWith[B](f: (A, List[String]) => B): Either[SlackError, B]
+
+  /**
+   * Maps over over the body of the response
+   */
   def map[B](f: A => B): SlackResponse[B]
 }
 sealed abstract class SlackError extends SlackResponse[Nothing] {

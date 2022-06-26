@@ -1,6 +1,6 @@
 package com.github.dapperware.slack
 
-import com.github.dapperware.slack.Slack.{ request, EnrichedAuthRequest }
+import com.github.dapperware.slack.Slack.request
 import com.github.dapperware.slack.generated.GeneratedReactions
 import com.github.dapperware.slack.generated.requests.{
   AddReactionsRequest,

@@ -2,7 +2,7 @@
 
 package com.github.dapperware.slack.generated.responses
 
-case class CreateConversationsAdminResponse(channel_id: Option[String] = None)
+case class CreateConversationsAdminResponse(channel_id: Option[String])
 
 object CreateConversationsAdminResponse {
   implicit val decoder: io.circe.Decoder[CreateConversationsAdminResponse] =
@@ -10,7 +10,7 @@ object CreateConversationsAdminResponse {
 }
 
 case class GetTeamsConversationsAdminResponse(
-  response_metadata: Option[com.github.dapperware.slack.models.ResponseMetadata] = None,
+  response_metadata: Option[com.github.dapperware.slack.models.ResponseMetadata],
   team_ids: List[String]
 )
 
