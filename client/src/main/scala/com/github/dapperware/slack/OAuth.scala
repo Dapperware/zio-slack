@@ -12,14 +12,14 @@ trait OAuth { self: Slack =>
     code: String,
     redirectUri: Option[String] = None
   ): URIO[Has[ClientSecret], SlackResponse[AccessV2OauthResponse]] =
-    clientApiCall(OAuth.accessV2Oauth(AccessV2OauthRequest(code, redirectUri)))
+    apiCall(OAuth.accessV2Oauth(AccessV2OauthRequest(code, redirectUri)))
 
   def accessOAuth(
     code: String,
     redirectUri: Option[String] = None,
     singleChannel: Option[Boolean] = None
   ): URIO[Has[ClientSecret], SlackResponse[Unit]] =
-    clientApiCall(
+    apiCall(
       OAuth
         .accessOauth(AccessOauthRequest(code = code, redirect_uri = redirectUri, single_channel = singleChannel))
     )
@@ -28,7 +28,7 @@ trait OAuth { self: Slack =>
     clientId: String,
     clientSecret: String
   ): URIO[Has[ClientSecret], SlackResponse[AccessV2OauthResponse]] =
-    clientApiCall(
+    apiCall(
       request("oauth.v2.exchange")
         .formBody("client_id" -> clientId, "client_secret" -> clientSecret)
         .auth

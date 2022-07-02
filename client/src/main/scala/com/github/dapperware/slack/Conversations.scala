@@ -75,7 +75,7 @@ trait Conversations { self: Slack =>
 
   def getSingleMessage(channelId: String, ts: String): ZIO[Has[AccessToken], Nothing, SlackResponse[Option[Message]]] =
     getConversationHistory(channelId, latest = Some(ts), inclusive = Some(true), limit = Some(1))
-      .map(_.map(_.messagess.headOption))
+      .map(_.map(_.messages.headOption))
 
   /**
    * https://api.slack.com/methods/conversations.info

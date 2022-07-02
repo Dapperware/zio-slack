@@ -21,7 +21,7 @@ private[slack] trait RtmAccessors { _: Slack.type =>
     batchPresenceAware: Option[Boolean] = None,
     presenceSub: Option[Boolean] = None
   ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[ConnectRtmResponse]] =
-    URIO.serviceWith(_.connectRtm(batchPresenceAware, presenceSub))
+    URIO.accessM(_.get.connectRtm(batchPresenceAware, presenceSub))
 
 }
 

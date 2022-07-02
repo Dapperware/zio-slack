@@ -37,7 +37,7 @@ trait GeneratedApps {
    * Uninstalls your app from a workspace.
    * @see https://api.slack.com/methods/apps.uninstall
    */
-  def uninstallApps: Request[Unit, AccessToken] =
-    request("apps.uninstall").auth.accessToken
+  def uninstallApps(req: UninstallAppsRequest): Request[Unit, AccessToken] =
+    request("apps.uninstall").formBody(req).auth.accessToken
 
 }

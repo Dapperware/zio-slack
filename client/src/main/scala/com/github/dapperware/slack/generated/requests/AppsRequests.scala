@@ -42,3 +42,17 @@ object ListResourcesPermissionsAppsRequest {
       List("cursor" -> req.cursor, "limit" -> req.limit)
     }
 }
+
+/**
+ * @param client_id Issued when you created your application.
+ * @param client_secret Issued when you created your application.
+ */
+case class UninstallAppsRequest(client_id: String, client_secret: String)
+
+object UninstallAppsRequest {
+  import com.github.dapperware.slack.FormEncoder
+  implicit val encoder: FormEncoder[UninstallAppsRequest] = FormEncoder.fromParams.contramap[UninstallAppsRequest] {
+    req =>
+      List("client_id" -> req.client_id, "client_secret" -> req.client_secret)
+  }
+}

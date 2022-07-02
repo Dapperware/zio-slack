@@ -37,7 +37,7 @@ trait Reminders { self: Slack =>
   def getReminderInfo(reminder: String): URIO[Has[AccessToken], SlackResponse[InfoRemindersResponse]] =
     apiCall(Reminders.infoReminders(InfoRemindersRequest(Some(reminder))))
 
-  def listReminders: URIO[Has[Slack] with Has[AccessToken], SlackResponse[ListRemindersResponse]] =
+  def listReminders: URIO[Has[AccessToken], SlackResponse[ListRemindersResponse]] =
     apiCall(Reminders.listReminders)
 
 }

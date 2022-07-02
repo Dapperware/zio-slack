@@ -58,7 +58,7 @@ trait Search { self: Slack =>
     highlight: Option[String] = None,
     count: Option[Int] = None,
     page: Option[Int] = None
-  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Json]] =
+  ): URIO[Has[AccessToken], SlackResponse[Json]] =
     apiCall(
       request("search.messages")
         .formBody(

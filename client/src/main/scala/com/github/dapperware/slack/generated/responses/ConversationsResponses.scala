@@ -23,7 +23,7 @@ case class HistoryConversationsResponse(
   has_more: Option[Boolean] = None,
   channel_actions_ts: Option[String] = None,
   channel_actions_count: Option[Int] = None,
-  messagess: zio.Chunk[com.github.dapperware.slack.models.Message],
+  messages: zio.Chunk[com.github.dapperware.slack.models.Message],
   response_metadata: Option[com.github.dapperware.slack.models.ResponseMetadata] = None
 )
 
