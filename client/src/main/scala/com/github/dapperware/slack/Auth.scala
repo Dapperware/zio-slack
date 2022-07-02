@@ -5,13 +5,21 @@ import com.github.dapperware.slack.generated.requests.RevokeAuthRequest
 import com.github.dapperware.slack.generated.responses.{ RevokeAuthResponse, TestAuthResponse }
 import zio.{ Has, URIO }
 
-trait Auth {
+trait Auth { self: Slack =>
+  def testAuth: URIO[Has[AccessToken], SlackResponse[TestAuthResponse]] =
+    apiCall(Auth.testAuth)
+
+  def revokeAuth(test: Option[Boolean]): URIO[Has[AccessToken], SlackResponse[RevokeAuthResponse]] =
+    apiCall(Auth.revokeAuth(RevokeAuthRequest(test)))
+
+}
+
+private[slack] trait AuthAccessors { _: Slack.type =>
   def testAuth: URIO[Has[Slack] with Has[AccessToken], SlackResponse[TestAuthResponse]] =
-    Auth.testAuth.toCall
+    URIO.accessM(_.get.testAuth)
 
-  def revokeAuth(req: RevokeAuthRequest): URIO[Has[Slack] with Has[AccessToken], SlackResponse[RevokeAuthResponse]] =
-    Auth.revokeAuth(req).toCall
-
+  def revokeAuth(test: Option[Boolean]): URIO[Has[Slack] with Has[AccessToken], SlackResponse[RevokeAuthResponse]] =
+    URIO.accessM(_.get.revokeAuth(test))
 }
 
 object Auth extends GeneratedAuth

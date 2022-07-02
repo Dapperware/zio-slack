@@ -13,28 +13,28 @@ import com.github.dapperware.slack.models.TriggerAction
 
 object SerializationSpec extends DefaultRunnableSpec {
 
-  val plainTextObjectGen: Gen[Sized with Random, PlainTextObject] = 
+  val plainTextObjectGen: Gen[Sized with Random, PlainTextObject] =
     for {
-      text <- Gen.alphaNumericString
+      text  <- Gen.alphaNumericString
       emoji <- Gen.option(Gen.boolean)
-      typ <- Gen.const("plain_text")
+      typ   <- Gen.const("plain_text")
     } yield PlainTextObject(text, emoji, typ)
 
-
-  val dispatchActionConfigGen: Gen[Sized with Random, DispatchActionConfig] = 
+  val dispatchActionConfigGen: Gen[Sized with Random, DispatchActionConfig] =
     for {
-      triggerActionsOn <- Gen.listOf(Gen.oneOf(Gen.const(TriggerAction.OnEnterPressed), Gen.const(TriggerAction.OnCharacterEntered)))
+      triggerActionsOn <-
+        Gen.listOf(Gen.oneOf(Gen.const(TriggerAction.OnEnterPressed), Gen.const(TriggerAction.OnCharacterEntered)))
     } yield DispatchActionConfig(triggerActionsOn)
 
   implicit val blockInputGen: Gen[Sized with Random, PlainTextInput] =
     for {
-      actionId <- Gen.alphaNumericString
-      placeholder <- Gen.option(plainTextObjectGen)
-      initialValue <- Gen.option(Gen.alphaNumericString)
-      multiline <- Gen.option(Gen.boolean)
-      minLenght_ <- Gen.int(0, Int.MaxValue - 1)
-      minLength <- Gen.option(Gen.const(minLenght_))
-      maxLength <- Gen.option(Gen.int(minLenght_, Int.MaxValue))
+      actionId             <- Gen.alphaNumericString
+      placeholder          <- Gen.option(plainTextObjectGen)
+      initialValue         <- Gen.option(Gen.alphaNumericString)
+      multiline            <- Gen.option(Gen.boolean)
+      minLenght_           <- Gen.int(0, Int.MaxValue - 1)
+      minLength            <- Gen.option(Gen.const(minLenght_))
+      maxLength            <- Gen.option(Gen.int(minLenght_, Int.MaxValue))
       dispatchActionConfig <- Gen.option(dispatchActionConfigGen)
     } yield PlainTextInput(actionId, placeholder, initialValue, multiline, minLength, minLength, dispatchActionConfig)
 
@@ -63,7 +63,7 @@ object SerializationSpec extends DefaultRunnableSpec {
         assert(parser.parse(json).flatMap(_.as[ResponseChunk[String]]))(
           isRight(
             equalTo(
-              ResponseChunk[String](Chunk("A", "B"), Some(true), Some(ResponseMetadata(Some("C"))))
+              ResponseChunk[String](Chunk("A", "B"), Some(ResponseMetadata(Some("C"))))
             )
           )
         )

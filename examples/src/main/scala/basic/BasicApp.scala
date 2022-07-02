@@ -2,22 +2,25 @@ package basic
 
 import com.github.dapperware.slack.realtime.SlackRealtimeClient
 import com.github.dapperware.slack.realtime.models.{ SendMessage, UserTyping }
-import com.github.dapperware.slack.{ AccessToken, HttpSlack, Slack, SlackClient, SlackError }
+import com.github.dapperware.slack.{ AccessToken, HttpSlack, Slack, SlackError }
 import common.{ accessToken, default, BasicConfig }
 import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio.console.{ putStrLn, Console }
 import zio.stream.ZStream
-import zio.{ App, ExitCode, Has, Layer, ZIO, ZManaged }
+import zio.{ App, ExitCode, Has, ZIO, ZLayer, ZManaged }
+import zio.magic._
 
 object BasicApp extends App {
 
-  val accessTokenAndBasic: Layer[Throwable, Has[AccessToken] with Has[BasicConfig]] = default >+> accessToken.toLayer
-
-  val slackClients: Layer[Throwable, Has[Slack] with Has[SlackRealtimeClient]] =
-    AsyncHttpClientZioBackend.layer() >>> (HttpSlack.layer ++ SlackRealtimeClient.live)
-
-  val layers: Layer[Throwable, Has[Slack] with Has[AccessToken] with Has[SlackRealtimeClient] with Has[BasicConfig]] =
-    slackClients ++ accessTokenAndBasic
+  val layers
+    : ZLayer[Any, Throwable, Has[Slack] with Has[SlackRealtimeClient] with Has[AccessToken] with Has[BasicConfig]] =
+    ZLayer.fromMagic[Has[Slack] with Has[SlackRealtimeClient] with Has[AccessToken] with Has[BasicConfig]](
+      AsyncHttpClientZioBackend.layer(),
+      HttpSlack.layer,
+      SlackRealtimeClient.live,
+      accessToken.toLayer,
+      default
+    )
 
   override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, ExitCode] =
     (for {
@@ -32,7 +35,7 @@ object BasicApp extends App {
       // Test that we can receive messages
       receiver <- SlackRealtimeClient.connect(ZStream(SendMessage(config.channel, "Hi realtime!")))
       _        <- receiver.collectM {
-                    case UserTyping(channel, user) => putStrLn(s"User $user is typing in $channel")
+                    case UserTyping(channel, user) => putStrLn(s"User $user is typing in $channel").orDie
                     case _                         => ZIO.unit
                   }.runDrain.toManaged_
     } yield ()

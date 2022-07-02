@@ -13,6 +13,7 @@ import zio.clock.Clock
 import zio.duration._
 import zio.random.Random
 import zio.stream.ZStream
+import zio.magic._
 
 /**
  * Every 3 hours, randomly pick a channel that the bot is part of and send a chuck norris joke to it.
@@ -40,11 +41,13 @@ object JokeApp extends App {
       .runCollect
       .flatMap(c => random.shuffle(c.toList))
 
-  val accessTokenLayer: Layer[Throwable, Has[AccessToken] with Has[BasicConfig]] =
-    (common.default >+> accessToken.toLayer)
-
   val layers: ZLayer[Any, Throwable, SttpClient with Has[Slack] with Has[AccessToken] with Has[BasicConfig]] =
-    (AsyncHttpClientZioBackend.layer() >+> (HttpSlack.layer ++ accessTokenLayer))
+    ZLayer.fromMagic[SttpClient with Has[Slack] with Has[AccessToken] with Has[BasicConfig]](
+      common.default,
+      accessToken.toLayer,
+      HttpSlack.layer,
+      AsyncHttpClientZioBackend.layer()
+    )
 
   val result: ZIO[Clock with Has[Slack] with Has[AccessToken] with SttpClient with Random, SlackError, Unit] =
     for {

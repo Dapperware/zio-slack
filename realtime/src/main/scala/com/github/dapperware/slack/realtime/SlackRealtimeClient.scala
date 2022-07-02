@@ -13,7 +13,6 @@ import zio.stream.{ Take, ZStream }
 import zio.{ Has, IO, Promise, Task, UIO, URLayer, ZManaged }
 
 trait SlackRealtimeClient {
-  private[slack] def openWebsocket: ZManaged[Has[AccessToken], SlackError, WebSocket[Task]]
 
   def connect[R, E1 >: SlackError](
     outbound: ZStream[R, E1, OutboundMessage]
@@ -21,7 +20,7 @@ trait SlackRealtimeClient {
 }
 
 class SlackRealtimeClientImpl(slack: Slack, client: SttpClient.Service) extends SlackRealtimeClient {
-  override private[slack] def openWebsocket: ZManaged[Has[AccessToken], SlackError, WebSocket[Task]] = for {
+  private def openWebsocket: ZManaged[Has[AccessToken], SlackError, WebSocket[Task]] = for {
     url  <- Slack.connectRtm().map(_.toEither).absolve.map(_.url).toManaged_.provideSome[Has[AccessToken]](_.add(slack))
     done <- Promise.makeManaged[Nothing, Boolean]
     p    <- Promise.makeManaged[Nothing, WebSocket[Task]]
@@ -81,8 +80,8 @@ class SlackRealtimeClientImpl(slack: Slack, client: SttpClient.Service) extends 
 }
 
 object SlackRealtimeClient {
-  def live: URLayer[Has[Slack] with Has[Service], Has[SlackRealtimeClientImpl]] =
-    (new SlackRealtimeClientImpl(_, _)).toLayer
+  def live: URLayer[Has[Slack] with Has[Service], Has[SlackRealtimeClient]] =
+    (new SlackRealtimeClientImpl(_, _)).toLayer[SlackRealtimeClient]
 
   def connect[R, E1 >: SlackError](
     outbound: ZStream[R, E1, OutboundMessage]

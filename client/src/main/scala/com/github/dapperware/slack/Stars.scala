@@ -5,14 +5,46 @@ import com.github.dapperware.slack.generated.requests.{ AddStarsRequest, ListSta
 import com.github.dapperware.slack.generated.responses.ListStarsResponse
 import zio.{ Has, URIO }
 
-trait Stars {
+trait Stars { self: Slack =>
+  def addStars(
+    channel: Option[String] = None,
+    file: Option[String],
+    fileComment: Option[String] = None,
+    timestamp: Option[String] = None
+  ): URIO[Has[AccessToken], SlackResponse[Unit]] =
+    apiCall(Stars.addStars(AddStarsRequest(channel, file, file_comment = fileComment, timestamp = timestamp)))
+
+  def listStars(
+    cursor: Option[String] = None,
+    count: Option[Int] = None,
+    page: Option[Int] = None,
+    limit: Option[Int] = None
+  ): URIO[Has[AccessToken], SlackResponse[ListStarsResponse]] =
+    apiCall(
+      Stars
+        .listStars(
+          ListStarsRequest(count = count.map(_.toString), page = page.map(_.toString), limit = limit, cursor = cursor)
+        )
+    )
+
+  def removeStars(
+    channel: Option[String] = None,
+    file: Option[String],
+    fileComment: Option[String] = None,
+    timestamp: Option[String] = None
+  ): URIO[Has[AccessToken], SlackResponse[Unit]] =
+    apiCall(Stars.removeStars(RemoveStarsRequest(channel, file, file_comment = fileComment, timestamp = timestamp)))
+
+}
+
+private[slack] trait StarsAccessors { _: Slack.type =>
   def addStars(
     channel: Option[String] = None,
     file: Option[String],
     fileComment: Option[String] = None,
     timestamp: Option[String] = None
   ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Unit]] =
-    Stars.addStars(AddStarsRequest(channel, file, file_comment = fileComment, timestamp = timestamp)).toCall
+    URIO.accessM(_.get.addStars(channel, file, fileComment, timestamp))
 
   def listStars(
     cursor: Option[String] = None,
@@ -20,11 +52,7 @@ trait Stars {
     page: Option[Int] = None,
     limit: Option[Int] = None
   ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[ListStarsResponse]] =
-    Stars
-      .listStars(
-        ListStarsRequest(count = count.map(_.toString), page = page.map(_.toString), limit = limit, cursor = cursor)
-      )
-      .toCall
+    URIO.accessM(_.get.listStars(cursor, count, page, limit))
 
   def removeStars(
     channel: Option[String] = None,
@@ -32,7 +60,7 @@ trait Stars {
     fileComment: Option[String] = None,
     timestamp: Option[String] = None
   ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Unit]] =
-    Stars.removeStars(RemoveStarsRequest(channel, file, file_comment = fileComment, timestamp = timestamp)).toCall
+    URIO.accessM(_.get.removeStars(channel, file, fileComment, timestamp))
 
 }
 

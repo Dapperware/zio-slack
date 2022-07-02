@@ -1,13 +1,12 @@
 package com.github.dapperware.slack
 
 import com.github.dapperware.slack.Request.{ extractBodyAt, respondWith }
-import com.github.dapperware.slack.Slack.{ apiCall, clientApiCall, unauthenticatedApiCall }
 import com.github.dapperware.slack.client.RequestEntity
 import io.circe
 import io.circe.syntax.EncoderOps
 import io.circe.{ Decoder, Encoder, Json }
 import sttp.client3.circe._
-import sttp.client3.json._
+import sttp.client3.json.RichResponseAs
 import sttp.client3.{
   asString,
   basicRequest,
@@ -23,9 +22,6 @@ import sttp.client3.{
 }
 import sttp.model.{ Part, StatusCode }
 import zio.duration.{ durationLong, Duration }
-import zio.{ Has, URIO }
-
-case class MethodName(name: String) extends AnyVal
 
 case class Request[+T, Auth](
   method: MethodName,
@@ -93,30 +89,7 @@ case class Request[+T, Auth](
   }
 }
 
-case class RequestAuth[+T] private (request: Request[T, _]) {
-  def clientSecret: Request[T, ClientSecret] = request.asInstanceOf[Request[T, ClientSecret]]
-  def accessToken: Request[T, AccessToken]   = request.asInstanceOf[Request[T, AccessToken]]
-  def none: Request[T, Unit]                 = request.asInstanceOf[Request[T, Unit]]
-
-}
-
 object Request {
-
-  implicit class EnrichedAuthRequest[+T](val call: Request[T, AccessToken]) extends AnyVal {
-    def toCall: URIO[Has[Slack] with Has[AccessToken], SlackResponse[T]] =
-      apiCall(call)
-  }
-
-  implicit class EnrichedClientAuthRequest[+T](val call: Request[T, ClientSecret]) extends AnyVal {
-    def toCall: URIO[Has[Slack] with Has[ClientSecret], SlackResponse[T]] =
-      clientApiCall(call)
-  }
-
-  implicit class EnrichedUnAuthRequest[+T](val call: Request[T, Unit]) extends AnyVal {
-
-    def toCall: URIO[Has[Slack], SlackResponse[T]] =
-      unauthenticatedApiCall(call)
-  }
 
   private def extractBodyAt[A: Decoder](key: String): Decoder[A] =
     Decoder.instance[A](_.downField(key).as[A])
@@ -129,23 +102,4 @@ object Request {
   def make(method: MethodName, body: SlackBody = SlackBody.empty): Request[Unit, AccessToken] =
     Request(method, body, _ => Right(()))
 
-}
-
-sealed trait SlackBody
-
-object SlackBody {
-  val empty: SlackBody                                                                          = fromForm(Map.empty[String, String])
-  def fromJson(json: Json): SlackBody                                                           = SlackBody.JsonBody(json)
-  def fromForm(first: (String, SlackParamMagnet), rest: (String, SlackParamMagnet)*): SlackBody = fromForm(
-    first +: rest.toList
-  )
-  def fromForm(form: List[(String, SlackParamMagnet)]): SlackBody                               =
-    SlackBody.MixedBody(form.flatMap(p => p._2.produce.map(p._1 -> _)).toMap, None)
-  def fromForm(form: Map[String, String]): SlackBody                                            = SlackBody.MixedBody(form)
-  def fromMixed(form: Map[String, String], entity: RequestEntity): SlackBody                    = SlackBody.MixedBody(form, Some(entity))
-  def fromParts(parts: List[Part[BasicRequestBody]]): SlackBody                                 = SlackBody.PartBody(parts)
-
-  case class JsonBody(json: Json)                                                       extends SlackBody
-  case class PartBody(parts: List[Part[BasicRequestBody]])                              extends SlackBody
-  case class MixedBody(form: Map[String, String], entity: Option[RequestEntity] = None) extends SlackBody
 }

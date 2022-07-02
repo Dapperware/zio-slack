@@ -5,13 +5,23 @@ import com.github.dapperware.slack.generated.requests.ConnectRtmRequest
 import com.github.dapperware.slack.generated.responses.ConnectRtmResponse
 import zio.{ Has, URIO }
 
-trait Rtm {
+trait Rtm { self: Slack =>
+
+  def connectRtm(
+    batchPresenceAware: Option[Boolean] = None,
+    presenceSub: Option[Boolean] = None
+  ): URIO[Has[AccessToken], SlackResponse[ConnectRtmResponse]] =
+    apiCall(Rtm.connectRtm(ConnectRtmRequest(batch_presence_aware = batchPresenceAware, presence_sub = presenceSub)))
+
+}
+
+private[slack] trait RtmAccessors { _: Slack.type =>
 
   def connectRtm(
     batchPresenceAware: Option[Boolean] = None,
     presenceSub: Option[Boolean] = None
   ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[ConnectRtmResponse]] =
-    Rtm.connectRtm(ConnectRtmRequest(batch_presence_aware = batchPresenceAware, presence_sub = presenceSub)).toCall
+    URIO.serviceWith(_.connectRtm(batchPresenceAware, presenceSub))
 
 }
 

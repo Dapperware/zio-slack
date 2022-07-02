@@ -1,13 +1,12 @@
 package com.github.dapperware.slack
 
 import com.github.dapperware.slack.Slack.request
-import com.github.dapperware.slack.generated.requests.AddRemoteFilesRequest
 import com.github.dapperware.slack.models.RemoteFile
 import io.circe.Decoder
 import sttp.client3.multipart
-import zio.Chunk
+import zio.{ Chunk, Has, URIO }
 
-trait RemoteFiles {
+trait RemoteFiles { self: Slack =>
   def addRemoteFile(
     externalId: String,
     externalUrl: String,
@@ -15,19 +14,33 @@ trait RemoteFiles {
     fileType: Option[String] = None,
     indexableFileContents: Option[Chunk[Byte]] = None,
     previewImage: Option[Chunk[Byte]] = None
-  ) =
-    RemoteFiles
-      .addRemoteFiles(
-        AddRemoteFilesRequest(
-          external_id = externalId,
-          external_url = externalUrl,
-          title = title,
-          file_type = fileType,
-          indexable_file_contents = indexableFileContents,
-          preview_image = previewImage
+  ): URIO[Has[AccessToken], SlackResponse[RemoteFile]] =
+    apiCall(
+      RemoteFiles
+        .addRemoteFiles(
+          AddRemoteFilesRequest(
+            external_id = externalId,
+            external_url = externalUrl,
+            title = title,
+            file_type = fileType,
+            indexable_file_contents = indexableFileContents,
+            preview_image = previewImage
+          )
         )
-      )
-      .toCall
+        .map(_.file)
+    )
+}
+
+private[slack] trait RemoteFilesAccessors {
+  def addRemoteFile(
+    externalId: String,
+    externalUrl: String,
+    title: String,
+    fileType: Option[String] = None,
+    indexableFileContents: Option[Chunk[Byte]] = None,
+    previewImage: Option[Chunk[Byte]] = None
+  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[RemoteFile]] =
+    URIO.accessM(_.get.addRemoteFile(externalId, externalUrl, title, fileType, indexableFileContents, previewImage))
 }
 
 case class AddRemoteFilesRequest(

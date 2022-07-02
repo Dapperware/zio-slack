@@ -8,6 +8,7 @@ import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio._
 import zio.console._
 import zio.stream.ZStream
+import zio.magic._
 
 /**
  * A simple interactive application to show how to use slack zio for much profit
@@ -31,13 +32,14 @@ object ChatApp extends App {
       t.replaceAllLiterally(s"<@$ref>", s"@$replace")
     }
 
-  val accessTokenAndBasic: Layer[Throwable, Has[AccessToken] with Has[BasicConfig]] = default >+> accessToken.toLayer
-
-  val slackClients: Layer[Throwable, Has[Slack] with Has[SlackRealtimeClient]] =
-    AsyncHttpClientZioBackend.layer() >>> (HttpSlack.layer ++ SlackRealtimeClient.live)
-
-  private val layers: ZLayer[Any, Throwable, Has[Slack] with Has[SlackRealtimeClient] with Has[BasicConfig]] =
-    slackClients ++ accessTokenAndBasic
+  val layers: Layer[Throwable, Has[Slack] with Has[SlackRealtimeClient] with Has[BasicConfig] with Has[AccessToken]] =
+    ZLayer.fromMagic[Has[Slack] with Has[SlackRealtimeClient] with Has[BasicConfig] with Has[AccessToken]](
+      AsyncHttpClientZioBackend.layer(),
+      HttpSlack.layer,
+      SlackRealtimeClient.live,
+      default,
+      accessToken.toLayer
+    )
 
   override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, ExitCode] = {
     val messageSender = ZStream
@@ -60,9 +62,10 @@ object ChatApp extends App {
                          val references = ZIO.foreach(findReferences(text)) { ref =>
                            Slack.getUserInfo(ref).map(_.toEither.map(ref -> _.user.name)).absolve
                          }
-                         (Slack.getConversationInfo(channel) <&> (Slack.getUserInfo(user) <&> references)).flatMap {
-                           case (c, (u, r)) =>
-                             putStrLn(s"${c.name}: ${u.name} -> ${replaceReferences(text, r)}")
+                         (Slack.getConversationInfo(channel).map(_.toEither).absolve <&>
+                           Slack.getUserInfo(user).map(_.toEither).absolve <&>
+                           references).flatMap { case ((c, u), r) =>
+                           putStrLn(s"${c.name}: ${u.user.name} -> ${replaceReferences(text, r)}")
                          }
                        }.runDrain.fork
         _           <- putStrLn("Ready for input!")
