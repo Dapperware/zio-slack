@@ -28,11 +28,11 @@ object Starred {
   }
 }
 
-case class StarredMessage(message: Message)                     extends Starred
-case class StarredFile(file: SlackFile)                         extends Starred
-case class StarredFileComment(comment: String, file: SlackFile) extends Starred
-case class StarredChannel(channel: String)                      extends Starred
-case class StarredGroup(group: String)                          extends Starred
+case class StarredMessage(message: Message)                extends Starred
+case class StarredFile(file: File)                         extends Starred
+case class StarredFileComment(comment: String, file: File) extends Starred
+case class StarredChannel(channel: String)                 extends Starred
+case class StarredGroup(group: String)                     extends Starred
 
 case class StarResponse(items: Chunk[Starred], response_metadata: Option[ResponseMetadata] = None)
 

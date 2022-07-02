@@ -35,6 +35,7 @@ object Slack
     with Reactions
     with Reminders
     with RemoteFiles
+    with Rtm
     with Search
     with Stars
     with Teams
@@ -57,10 +58,10 @@ object Slack
   ): URIO[Has[Slack], SlackResponse[A]] =
     ZIO.service[Slack].flatMap(_.unauthenticatedApiCall(request))
 
-  def request(name: String): Request[Unit, AccessToken] = Request.make(name)
+  def request(name: String): Request[Unit, AccessToken] = Request.make(MethodName(name))
 
   def request[A: Decoder](name: String, args: (String, SlackParamMagnet)*): Request[A, AccessToken] =
-    Request.make(name).formBody(args: _*).as[A]
+    Request.make(MethodName(name)).formBody(args: _*).as[A]
 
 }
 
@@ -159,11 +160,12 @@ object SlackError {
 
 object SlackResponse {
 
-  def decodeWith[A](f: Json => Either[io.circe.Error, A]): Decoder[SlackResponse[A]] = Decoder.instance { hcursor =>
-    hcursor.downField("ok").as[Boolean].flatMap {
-      if (_) f(hcursor.value)
-      else hcursor.downField("error").as[String].map(SlackError.ApiError(_))
-    }
+  def decodeWith[A](f: Json => Either[io.circe.DecodingFailure, A]): Decoder[SlackResponse[A]] = Decoder.instance {
+    hcursor =>
+      hcursor.downField("ok").as[Boolean].flatMap {
+        if (_) f(hcursor.value).map(SlackResponse.Ok(_, Nil))
+        else hcursor.downField("error").as[String].map(SlackError.ApiError(_))
+      }
   }
 
   implicit def decoder[A: Decoder]: Decoder[SlackResponse[A]] = Decoder.instance { hcursor =>

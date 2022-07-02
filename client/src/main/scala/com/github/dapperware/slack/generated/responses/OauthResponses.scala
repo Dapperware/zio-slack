@@ -9,9 +9,9 @@ case class AccessV2OauthResponse(
   token_type: Option[String] = None,
   bot_user_id: Option[String] = None,
   app_id: Option[String] = None,
-  authed_user: Option[AuthedUser] = None,
-  team: Option[AuthedTeam] = None,
-  enterprise: Option[AuthedEnterprise] = None,
+  authed_user: Option[com.github.dapperware.slack.models.AuthedUser] = None,
+  team: Option[com.github.dapperware.slack.models.AuthedTeam] = None,
+  enterprise: Option[com.github.dapperware.slack.models.AuthedEnterprise] = None,
   refresh_token: Option[String] = None,
   is_enterprise_install: Option[Boolean] = None
 )

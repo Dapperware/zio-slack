@@ -1,6 +1,13 @@
 package com.github.dapperware.slack.models
 
-case class Dialog(callback_id: String, title: String, submit_label: String, elements: Seq[DialogElement])
+case class Dialog(
+  callback_id: String,
+  title: String,
+  submit_label: String,
+  elements: Seq[DialogElement],
+  state: Option[String] = None,
+  notify_on_cancel: Option[Boolean] = None
+)
 
 trait DialogElement {
   val `type`: String
@@ -11,25 +18,27 @@ trait DialogElement {
   val optional: Boolean
 }
 
-case class TextElement(label: String,
-                       name: String,
-                       optional: Boolean = false,
-                       max_length: Option[Int] = None,
-                       min_length: Option[Int] = None,
-                       hint: Option[String] = None,
-                       subtype: Option[String] = None,
-                       placeholder: Option[String] = None,
-                       value: Option[String] = None,
-                       `type`: String = "text")
-    extends DialogElement
+case class TextElement(
+  label: String,
+  name: String,
+  optional: Boolean = false,
+  max_length: Option[Int] = None,
+  min_length: Option[Int] = None,
+  hint: Option[String] = None,
+  subtype: Option[String] = None,
+  placeholder: Option[String] = None,
+  value: Option[String] = None,
+  `type`: String = "text"
+) extends DialogElement
 
-case class SelectElement(label: String,
-                         name: String,
-                         options: Seq[OptionElement],
-                         optional: Boolean = false,
-                         placeholder: Option[String] = None,
-                         value: Option[String] = None,
-                         `type`: String = "select")
-    extends DialogElement
+case class SelectElement(
+  label: String,
+  name: String,
+  options: Seq[OptionElement],
+  optional: Boolean = false,
+  placeholder: Option[String] = None,
+  value: Option[String] = None,
+  `type`: String = "select"
+) extends DialogElement
 
 case class OptionElement(label: String, value: String)

@@ -1,6 +1,5 @@
 package com.github.dapperware.slack
 
-import com.github.dapperware.slack.ClientSecret
 import sttp.client3._
 import sttp.model.Header
 import zio.test.Assertion.contains

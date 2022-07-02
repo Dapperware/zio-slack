@@ -1,8 +1,8 @@
 package com.github.dapperware.slack.models
 
 import cats.syntax.functor._
-import io.circe.{ Codec, Decoder }
 import io.circe.generic.semiauto._
+import io.circe.{ Codec, Decoder }
 
 final case class View(
   id: String,

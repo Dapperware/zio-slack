@@ -23,7 +23,7 @@ case class HistoryConversationsResponse(
   has_more: Option[Boolean] = None,
   channel_actions_ts: Option[String] = None,
   channel_actions_count: Option[Int] = None,
-  messages: zio.Chunk[com.github.dapperware.slack.models.Message],
+  messagess: zio.Chunk[com.github.dapperware.slack.models.Message],
   response_metadata: Option[com.github.dapperware.slack.models.ResponseMetadata] = None
 )
 
@@ -65,7 +65,7 @@ object LeaveConversationsResponse {
 }
 
 case class ListConversationsResponse(
-  channels: zio.Chunk[Channels],
+  channels: zio.Chunk[com.github.dapperware.slack.models.Channel],
   response_metadata: com.github.dapperware.slack.models.ResponseMetadata
 )
 

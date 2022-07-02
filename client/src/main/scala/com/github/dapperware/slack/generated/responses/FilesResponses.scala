@@ -9,7 +9,7 @@ object ListFilesResponse {
 }
 
 case class ListRemoteFilesResponse(
-  file: zio.Chunk[File],
+  files: zio.Chunk[com.github.dapperware.slack.models.File],
   response_metadata: com.github.dapperware.slack.models.ResponseMetadata
 )
 

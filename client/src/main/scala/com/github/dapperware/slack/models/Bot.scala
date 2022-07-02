@@ -1,8 +1,8 @@
 package com.github.dapperware.slack.models
 
-import java.time.Instant
-
 import io.circe.Decoder
+
+import java.time.Instant
 
 case class Bot(
   id: String,

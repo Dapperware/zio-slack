@@ -1,45 +1,42 @@
 package com.github.dapperware.slack.realtime
 
-import com.github.dapperware.slack.api.{ as, request, sendM }
 import com.github.dapperware.slack.realtime.models.{ Hello, OutboundMessage, SlackEvent }
-import com.github.dapperware.slack.{ SlackEnv, SlackError, SlackException }
+import com.github.dapperware.slack.{ AccessToken, Slack, SlackError, SlackException }
 import io.circe.Json
 import io.circe.parser.parse
-import sttp.client3.asynchttpclient.zio.{ send, SttpClient }
+import io.circe.syntax._
+import sttp.client3.asynchttpclient.zio.SttpClient
+import sttp.client3.asynchttpclient.zio.SttpClient.Service
 import sttp.client3.{ asWebSocketAlways, basicRequest, UriContext }
 import sttp.ws.{ WebSocket, WebSocketClosed, WebSocketFrame }
 import zio.stream.{ Take, ZStream }
-import zio.{ Has, IO, Promise, Task, UIO, ZIO, ZLayer, ZManaged }
-import io.circe.syntax._
+import zio.{ Has, IO, Promise, Task, UIO, URLayer, ZManaged }
 
 trait SlackRealtimeClient {
-  private[slack] def openWebsocket: ZManaged[SlackEnv, SlackError, WebSocket[Task]]
-}
-
-object SlackRealtimeClient {
-  def live: ZLayer[SttpClient, Nothing, Has[SlackRealtimeClient]] =
-    ZIO
-      .environment[SttpClient]
-      .map { client =>
-        new SlackRealtimeClient {
-          private[slack] override def openWebsocket: ZManaged[SlackEnv, SlackError, WebSocket[Task]] =
-            for {
-              url  <- (sendM(request("rtm.connect")) >>= as[String]("url")).toManaged_
-              done <- Promise.makeManaged[Nothing, Boolean]
-              p    <- Promise.makeManaged[Nothing, WebSocket[Task]]
-              _    <- send(basicRequest.get(uri"$url").response(asWebSocketAlways(p.succeed(_) *> done.await.unit)))
-                        .provide(client)
-                        .forkManaged
-              ws   <- p.await.toManaged(_ => done.succeed(true))
-            } yield ws
-        }
-      }
-      .toLayer
+  private[slack] def openWebsocket: ZManaged[Has[AccessToken], SlackError, WebSocket[Task]]
 
   def connect[R, E1 >: SlackError](
     outbound: ZStream[R, E1, OutboundMessage]
-  ): ZManaged[R with SlackRealtimeEnv, E1, MessageStream] =
-    for {
+  ): ZManaged[R with Has[AccessToken], E1, MessageStream]
+}
+
+class SlackRealtimeClientImpl(slack: Slack, client: SttpClient.Service) extends SlackRealtimeClient {
+  override private[slack] def openWebsocket: ZManaged[Has[AccessToken], SlackError, WebSocket[Task]] = for {
+    url  <- Slack.connectRtm().map(_.toEither).absolve.map(_.url).toManaged_.provideSome[Has[AccessToken]](_.add(slack))
+    done <- Promise.makeManaged[Nothing, Boolean]
+    p    <- Promise.makeManaged[Nothing, WebSocket[Task]]
+    _    <-
+      client
+        .send(basicRequest.get(uri"$url").response(asWebSocketAlways[Task, Unit](p.succeed(_) *> done.await.unit)))
+        .forkManaged
+    ws   <- p.await.toManaged(_ => done.succeed(true))
+  } yield ws
+
+  def connect[R, E1 >: SlackError](
+    outbound: ZStream[R, E1, OutboundMessage]
+  ): ZManaged[R with Has[AccessToken], E1, MessageStream] =
+    (for {
+
       ws     <- openAndHandshake
       // Reads the messages being sent from the caller and buffers them while we wait to send them
       // to slack
@@ -47,6 +44,7 @@ object SlackRealtimeClient {
                   queue <- outbound.toQueueUnbounded
                   _     <- ZStream.fromQueue(queue).forever.flattenTake.zipWithIndex.foreachManaged { case (ev, idx) =>
                              ws.send(WebSocketFrame.text(ev.asJson.deepMerge(Json.obj("id" -> idx.asJson)).noSpaces))
+                               .mapError(SlackError.fromThrowable)
 
                            }
                 } yield ()).fork
@@ -56,17 +54,11 @@ object SlackRealtimeClient {
                   .fromEffect(readMessage(ws))
                   .forever
                   .flattenTake
-    } yield receive
-
-  private[slack] def openWebsocket: ZManaged[SlackEnv with Has[SlackRealtimeClient], SlackError, WebSocket[Task]] =
-    ZManaged.accessManaged[Has[SlackRealtimeClient] with SlackEnv](_.get.openWebsocket)
+                  .mapError(SlackError.fromThrowable)
+    } yield receive)
 
   def parseMessage(message: String): IO[io.circe.Error, SlackEvent] =
-    IO.fromEither(parse(message).flatMap { json =>
-      for {
-        message <- json.as[SlackEvent]
-      } yield message
-    })
+    IO.fromEither(parse(message).flatMap(_.as[SlackEvent]))
 
   private def readMessage(ws: WebSocket[Task]): Task[Take[Nothing, SlackEvent]] =
     ws.receiveText()
@@ -75,7 +67,7 @@ object SlackRealtimeClient {
         UIO.succeed(Take.end)
       }
 
-  private val openAndHandshake: ZManaged[SlackRealtimeEnv, SlackError, WebSocket[Task]] = for {
+  private val openAndHandshake: ZManaged[Has[AccessToken], SlackError, WebSocket[Task]] = for {
     ws <- openWebsocket
     // After the socket has been opened the first message we expect is the "hello" message
     // Chew that off the front of the socket, if we don't receive it we should return an exception
@@ -83,6 +75,20 @@ object SlackRealtimeClient {
             .filterOrFail(
               _.fold(false, _ => false, _.headOption.collectFirst { case Hello(_) => true }.getOrElse(false))
             )(SlackException.ProtocolError("Protocol error did not receive hello as first message"))
+            .mapError(SlackError.fromThrowable)
             .toManaged_
   } yield ws
+}
+
+object SlackRealtimeClient {
+  def live: URLayer[Has[Slack] with Has[Service], Has[SlackRealtimeClientImpl]] =
+    (new SlackRealtimeClientImpl(_, _)).toLayer
+
+  def connect[R, E1 >: SlackError](
+    outbound: ZStream[R, E1, OutboundMessage]
+  ): ZManaged[R with Has[Slack] with Has[AccessToken] with Has[SlackRealtimeClient], E1, MessageStream] =
+    ZManaged.accessManaged[R with Has[Slack] with Has[AccessToken] with Has[SlackRealtimeClient]](
+      _.get[SlackRealtimeClient].connect(outbound)
+    )
+
 }

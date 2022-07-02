@@ -1,10 +1,8 @@
 package chat
 
-import com.github.dapperware.slack.api.web.{ getConversationInfo, getUserInfo }
-import com.github.dapperware.slack.SlackClient
+import com.github.dapperware.slack.realtime.SlackRealtimeClient
 import com.github.dapperware.slack.realtime.models.{ Message, SendMessage }
-import com.github.dapperware.slack.{ realtime, AccessToken }
-import com.github.dapperware.slack.realtime.{ SlackRealtimeClient, SlackRealtimeEnv }
+import com.github.dapperware.slack.{ AccessToken, HttpSlack, Slack }
 import common.{ accessToken, default, BasicConfig }
 import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio._
@@ -35,10 +33,10 @@ object ChatApp extends App {
 
   val accessTokenAndBasic: Layer[Throwable, Has[AccessToken] with Has[BasicConfig]] = default >+> accessToken.toLayer
 
-  val slackClients: Layer[Throwable, Has[SlackClient] with Has[SlackRealtimeClient]] =
-    AsyncHttpClientZioBackend.layer() >>> (SlackClient.live ++ SlackRealtimeClient.live)
+  val slackClients: Layer[Throwable, Has[Slack] with Has[SlackRealtimeClient]] =
+    AsyncHttpClientZioBackend.layer() >>> (HttpSlack.layer ++ SlackRealtimeClient.live)
 
-  private val layers: ZLayer[Any, Throwable, SlackRealtimeEnv with Has[BasicConfig]] =
+  private val layers: ZLayer[Any, Throwable, Has[Slack] with Has[SlackRealtimeClient] with Has[BasicConfig]] =
     slackClients ++ accessTokenAndBasic
 
   override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, ExitCode] = {
@@ -60,9 +58,9 @@ object ChatApp extends App {
       for {
         socketFiber <- receiver.collectM { case Message(_, channel, user, text, _, _) =>
                          val references = ZIO.foreach(findReferences(text)) { ref =>
-                           getUserInfo(ref).map(ref -> _.name)
+                           Slack.getUserInfo(ref).map(_.toEither.map(ref -> _.user.name)).absolve
                          }
-                         (getConversationInfo(channel) <&> (getUserInfo(user) <&> references)).flatMap {
+                         (Slack.getConversationInfo(channel) <&> (Slack.getUserInfo(user) <&> references)).flatMap {
                            case (c, (u, r)) =>
                              putStrLn(s"${c.name}: ${u.name} -> ${replaceReferences(text, r)}")
                          }

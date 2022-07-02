@@ -1,11 +1,11 @@
 package com.github.dapperware.slack.models
 
-import io.circe.{ Codec, Decoder, Encoder }
-import io.circe.generic.semiauto.{ deriveCodec, deriveDecoder }
-import zio.Chunk
 import cats.syntax.applicativeError._
 import cats.syntax.functor._
+import io.circe.generic.semiauto.{ deriveCodec, deriveDecoder }
 import io.circe.syntax.EncoderOps
+import io.circe.{ Codec, Decoder, Encoder }
+import zio.Chunk
 
 import java.time.Instant
 
@@ -52,6 +52,5 @@ case class Call(
 )
 
 object Call {
-  import io.circe.zio._
   implicit val decoder: Decoder[Call] = deriveDecoder[Call]
 }

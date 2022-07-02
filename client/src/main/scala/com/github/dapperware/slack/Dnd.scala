@@ -1,10 +1,10 @@
 package com.github.dapperware.slack
 
 import com.github.dapperware.slack.Slack.request
-import com.github.dapperware.slack.api.DndInfo
 import com.github.dapperware.slack.generated.GeneratedDnd
 import com.github.dapperware.slack.generated.requests.{ SetSnoozeDndRequest, TeamInfoDndRequest }
 import com.github.dapperware.slack.generated.responses.{ EndSnoozeDndResponse, SetSnoozeDndResponse }
+import com.github.dapperware.slack.models.DndInfo
 import zio.{ Has, URIO }
 
 trait Dnd {

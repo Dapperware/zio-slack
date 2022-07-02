@@ -1,11 +1,10 @@
 package slack.api
 
-import com.github.dapperware.slack.api.web
-import com.github.dapperware.slack.SlackClient
 import com.github.dapperware.slack.models.RemoteFile
 import zio.test._
 import zio.test.Assertion
 import Assertion._
+import com.github.dapperware.slack.{ HttpSlack, Slack }
 import sttp.client3.asynchttpclient.zio.stubbing._
 import sttp.client3.asynchttpclient.zio.SttpClient
 import sttp.client3.asynchttpclient.zio.SttpClientStubbing
@@ -106,7 +105,7 @@ object SlackRemoteFilesSpec extends DefaultRunnableSpec with MockSttpBackend {
           isExpectedContent(req.toString)
       ).thenRespond(response)
 
-      val effect = stubEffect *> web.addRemoteFile("foo-external-id", "foo-external-url", "foo-title", Some("txt"))
+      val effect = stubEffect *> Slack.addRemoteFile("foo-external-id", "foo-external-url", "foo-title", Some("txt"))
       assertM(effect)(equalTo(expectedResponse))
     },
     testM("sends parameters to add remote files - WITH indexable file contents") {
@@ -117,7 +116,7 @@ object SlackRemoteFilesSpec extends DefaultRunnableSpec with MockSttpBackend {
           isExpectedContent(req.toString, "Part(indexable_file_contents,ByteArrayBody(")
       ).thenRespond(response)
 
-      val effect = stubEffect *> web.addRemoteFile(
+      val effect = stubEffect *> Slack.addRemoteFile(
         "foo-external-id",
         "foo-external-url",
         "foo-title",
@@ -138,7 +137,7 @@ object SlackRemoteFilesSpec extends DefaultRunnableSpec with MockSttpBackend {
           )
       ).thenRespond(response)
 
-      val effect = stubEffect *> web.addRemoteFile(
+      val effect = stubEffect *> Slack.addRemoteFile(
         "foo-external-id",
         "foo-external-url",
         "foo-title",
@@ -148,6 +147,6 @@ object SlackRemoteFilesSpec extends DefaultRunnableSpec with MockSttpBackend {
       )
       assertM(effect)(equalTo(expectedResponse))
     }
-  ).provideLayer((stubLayer >>> SlackClient.live) ++ accessTokenLayer("foo-access-token") ++ stubLayer)
+  ).provideLayer((stubLayer >>> HttpSlack.layer) ++ accessTokenLayer("foo-access-token") ++ stubLayer)
 
 }

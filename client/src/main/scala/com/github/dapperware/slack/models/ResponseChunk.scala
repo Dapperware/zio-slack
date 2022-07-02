@@ -1,8 +1,8 @@
 package com.github.dapperware.slack.models
 
+import cats.syntax.apply._
 import io.circe.Decoder
 import zio.Chunk
-import cats.syntax.apply._
 
 case class ResponseChunk[+T](
   items: Chunk[T],

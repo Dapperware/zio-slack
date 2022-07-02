@@ -1,7 +1,6 @@
 package com.github.dapperware.slack
 
 import com.github.dapperware.slack.generated.GeneratedApps
-import com.github.dapperware.slack.generated.requests.UninstallAppsRequest
 import zio.{ Has, ZIO }
 
 trait Apps {

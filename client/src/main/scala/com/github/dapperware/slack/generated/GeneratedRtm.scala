@@ -6,4 +6,13 @@ import com.github.dapperware.slack.generated.responses._
 import com.github.dapperware.slack.{ AccessToken, ClientSecret, Request, Slack }
 import Slack.request
 
-trait GeneratedRtm {}
+trait GeneratedRtm {
+
+  /**
+   * Starts a Real Time Messaging session.
+   * @see https://api.slack.com/methods/rtm.connect
+   */
+  def connectRtm(req: ConnectRtmRequest): Request[ConnectRtmResponse, AccessToken] =
+    request("rtm.connect").formBody(req).as[ConnectRtmResponse].auth.accessToken
+
+}

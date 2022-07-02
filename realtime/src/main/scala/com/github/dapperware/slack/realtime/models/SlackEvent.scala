@@ -2,7 +2,7 @@ package com.github.dapperware.slack.realtime.models
 
 import com.github.dapperware.slack.models._
 import com.github.dapperware.slack.models
-import com.github.dapperware.slack.models.{ Attachment, Channel, Im, ReactionItem, SlackFile, User }
+import com.github.dapperware.slack.models.{ Attachment, Channel, File, Im, ReactionItem, User }
 import io.circe.Decoder.Result
 import io.circe._
 import io.circe.generic.semiauto._
@@ -14,13 +14,14 @@ sealed trait SlackEvent extends Serializable with Product
 case class Hello(`type`: String) extends SlackEvent
 
 // TODO: Message Sub-types
-case class Message(ts: String,
-                   channel: String,
-                   user: String,
-                   text: String,
-                   is_starred: Option[Boolean],
-                   thread_ts: Option[String])
-    extends SlackEvent
+case class Message(
+  ts: String,
+  channel: String,
+  user: String,
+  text: String,
+  is_starred: Option[Boolean],
+  thread_ts: Option[String]
+) extends SlackEvent
 
 case class EditMessage(user: Option[String], text: String, ts: String)
 
@@ -28,33 +29,36 @@ case class ReplyMarker(user: String, ts: String)
 
 case class ReplyMessage(user: String, text: String, thread_ts: String, reply_count: Int, replies: Seq[ReplyMarker])
 
-case class MessageChanged(message: EditMessage,
-                          previous_message: EditMessage,
-                          ts: String,
-                          event_ts: String,
-                          channel: String)
-    extends SlackEvent
+case class MessageChanged(
+  message: EditMessage,
+  previous_message: EditMessage,
+  ts: String,
+  event_ts: String,
+  channel: String
+) extends SlackEvent
 
 case class MessageDeleted(ts: String, deleted_ts: String, event_ts: String, channel: String) extends SlackEvent
 
 case class MessageReplied(ts: String, event_ts: String, channel: String, message: ReplyMessage) extends SlackEvent
 
-case class BotMessage(ts: String,
-                      channel: String,
-                      text: String,
-                      bot_id: String,
-                      username: Option[String],
-                      attachments: Option[Seq[Attachment]])
-    extends SlackEvent
+case class BotMessage(
+  ts: String,
+  channel: String,
+  text: String,
+  bot_id: String,
+  username: Option[String],
+  attachments: Option[Seq[Attachment]]
+) extends SlackEvent
 
 // TODO: Message Sub-types
-case class MessageWithSubtype(ts: String,
-                              channel: String,
-                              user: String,
-                              text: String,
-                              is_starred: Option[Boolean],
-                              messageSubType: MessageSubtype)
-    extends SlackEvent
+case class MessageWithSubtype(
+  ts: String,
+  channel: String,
+  user: String,
+  text: String,
+  is_starred: Option[Boolean],
+  messageSubType: MessageSubtype
+) extends SlackEvent
 
 sealed trait MessageSubtype {
   def subtype: String
@@ -73,25 +77,27 @@ object MessageSubtypes {
     val subtype = "channel_name"
   }
 
-  case class FileShareMessage(file: SlackFile) extends MessageSubtype {
+  case class FileShareMessage(file: File) extends MessageSubtype {
     val subtype = "file_share"
   }
 
 }
 
-case class ReactionAdded(reaction: String,
-                         item: ReactionItem,
-                         event_ts: String,
-                         user: String,
-                         item_user: Option[String])
-    extends SlackEvent
+case class ReactionAdded(
+  reaction: String,
+  item: ReactionItem,
+  event_ts: String,
+  user: String,
+  item_user: Option[String]
+) extends SlackEvent
 
-case class ReactionRemoved(reaction: String,
-                           item: ReactionItem,
-                           event_ts: String,
-                           user: String,
-                           item_user: Option[String])
-    extends SlackEvent
+case class ReactionRemoved(
+  reaction: String,
+  item: ReactionItem,
+  event_ts: String,
+  user: String,
+  item_user: Option[String]
+) extends SlackEvent
 
 case class UserTyping(channel: String, user: String) extends SlackEvent
 
@@ -161,12 +167,14 @@ case class FileChange(file_id: String) extends SlackEvent
 
 case class FileDeleted(file_id: String, event_ts: String) extends SlackEvent
 
-case class FileCommentAdded(file_id: String,
-                            comment: Json // TODO: SlackComment?
+case class FileCommentAdded(
+  file_id: String,
+  comment: Json // TODO: SlackComment?
 ) extends SlackEvent
 
-case class FileCommentEdited(file_id: String,
-                             comment: Json // TODO: SlackComment?
+case class FileCommentEdited(
+  file_id: String,
+  comment: Json // TODO: SlackComment?
 ) extends SlackEvent
 
 case class FileCommentDeleted(file_id: String, comment: String) extends SlackEvent
@@ -187,15 +195,17 @@ case class UserChange(user: User) extends SlackEvent
 
 case class TeamJoin(user: User) extends SlackEvent
 
-case class StarAdded(user: String,
-                     item: Json, // TODO: Different item types -- https://api.slack.com/methods/stars.list
-                     event_ts: String)
-    extends SlackEvent
+case class StarAdded(
+  user: String,
+  item: Json, // TODO: Different item types -- https://api.slack.com/methods/stars.list
+  event_ts: String
+) extends SlackEvent
 
-case class StarRemoved(user: String,
-                       item: Json, // TODO: Different item types -- https://api.slack.com/methods/stars.list
-                       event_ts: String)
-    extends SlackEvent
+case class StarRemoved(
+  user: String,
+  item: Json, // TODO: Different item types -- https://api.slack.com/methods/stars.list
+  event_ts: String
+) extends SlackEvent
 
 case class EmojiChanged(event_ts: String) extends SlackEvent
 
@@ -203,8 +213,9 @@ case class CommandsChanged(event_ts: String) extends SlackEvent
 
 case class TeamPlanChanged(plan: String) extends SlackEvent
 
-case class TeamPrefChanged(name: String,
-                           value: String // TODO: Primitive type?
+case class TeamPrefChanged(
+  name: String,
+  value: String // TODO: Primitive type?
 ) extends SlackEvent
 
 case class TeamRename(name: String) extends SlackEvent
@@ -223,8 +234,9 @@ case class AccountsChanged(`type`: String) extends SlackEvent
 
 case class TeamMigrationStarted(`type`: String) extends SlackEvent
 
-case class ReconnectUrl(`type`: String,
-                        url: Option[String] // Optional because currently undocumented and could change
+case class ReconnectUrl(
+  `type`: String,
+  url: Option[String] // Optional because currently undocumented and could change
 ) extends SlackEvent
 
 case class Reply(ok: Boolean, reply_to: Long, ts: String, text: String) extends SlackEvent
@@ -235,19 +247,20 @@ case class AppsUninstalled(app_id: String, event_ts: String) extends SlackEvent
 
 case class AppsInstalled(app: models.App, event_ts: String) extends SlackEvent
 
-case class DesktopNotification(`type`: String,
-                               title: String,
-                               subtitle: String,
-                               msg: String,
-                               content: String,
-                               channel: String,
-                               launch_uri: String,
-                               avatar_image: String,
-                               ssb_filename: String,
-                               image_url: Option[String],
-                               is_shared: Boolean,
-                               event_ts: String)
-    extends SlackEvent
+case class DesktopNotification(
+  `type`: String,
+  title: String,
+  subtitle: String,
+  msg: String,
+  content: String,
+  channel: String,
+  launch_uri: String,
+  avatar_image: String,
+  ssb_filename: String,
+  image_url: Option[String],
+  is_shared: Boolean,
+  event_ts: String
+) extends SlackEvent
 
 case class DndUpdatedUser(`type`: String, user: String, dnd_status: DndStatus, event_ts: String) extends SlackEvent
 
@@ -281,93 +294,93 @@ case class MobileInAppNotification(
 
 object SlackEvent {
   // Event Formats
-  implicit val helloFmt: Codec.AsObject[Hello]                 = deriveCodec[Hello]
-  implicit val messageFmt: Codec.AsObject[Message]               = deriveCodec[Message]
-  implicit val messageRepl: Codec.AsObject[Reply]             = deriveCodec[Reply]
-  implicit val replyMarkerFmt: Codec.AsObject[ReplyMarker]           = deriveCodec[ReplyMarker]
-  implicit val editMessageFmt: Codec.AsObject[EditMessage]           = deriveCodec[EditMessage]
-  implicit val replyMessageFmt: Codec.AsObject[ReplyMessage]          = deriveCodec[ReplyMessage]
-  implicit val botMessageFmt: Codec.AsObject[BotMessage]            = deriveCodec[BotMessage]
-  implicit val messageChangedFmt: Codec.AsObject[MessageChanged]        = deriveCodec[MessageChanged]
-  implicit val messageDeletedFmt: Codec.AsObject[MessageDeleted]        = deriveCodec[MessageDeleted]
-  implicit val messageRepliedFmt: Codec.AsObject[MessageReplied]        = deriveCodec[MessageReplied]
-  implicit val reactionAddedFmt: Codec.AsObject[ReactionAdded]         = deriveCodec[ReactionAdded]
-  implicit val reactionRemovedFmt: Codec.AsObject[ReactionRemoved]       = deriveCodec[ReactionRemoved]
-  implicit val userTypingFmt: Codec.AsObject[UserTyping]            = deriveCodec[UserTyping]
-  implicit val channelMarkedFmt: Codec.AsObject[ChannelMarked]         = deriveCodec[ChannelMarked]
-  implicit val channelCreatedFmt: Codec.AsObject[ChannelCreated]        = deriveCodec[ChannelCreated]
-  implicit val channelJoinedFmt: Codec.AsObject[ChannelJoined]         = deriveCodec[ChannelJoined]
-  implicit val channelLeftFmt: Codec.AsObject[ChannelLeft]           = deriveCodec[ChannelLeft]
-  implicit val channelDeletedFmt: Codec.AsObject[ChannelDeleted]        = deriveCodec[ChannelDeleted]
-  implicit val channelRenameFmt: Codec.AsObject[ChannelRename]         = deriveCodec[ChannelRename]
-  implicit val channelArchiveFmt: Codec.AsObject[ChannelArchive]        = deriveCodec[ChannelArchive]
-  implicit val channelUnarchiveFmt: Codec.AsObject[ChannelUnarchive]      = deriveCodec[ChannelUnarchive]
+  implicit val helloFmt: Codec.AsObject[Hello]                                  = deriveCodec[Hello]
+  implicit val messageFmt: Codec.AsObject[Message]                              = deriveCodec[Message]
+  implicit val messageRepl: Codec.AsObject[Reply]                               = deriveCodec[Reply]
+  implicit val replyMarkerFmt: Codec.AsObject[ReplyMarker]                      = deriveCodec[ReplyMarker]
+  implicit val editMessageFmt: Codec.AsObject[EditMessage]                      = deriveCodec[EditMessage]
+  implicit val replyMessageFmt: Codec.AsObject[ReplyMessage]                    = deriveCodec[ReplyMessage]
+  implicit val botMessageFmt: Codec.AsObject[BotMessage]                        = deriveCodec[BotMessage]
+  implicit val messageChangedFmt: Codec.AsObject[MessageChanged]                = deriveCodec[MessageChanged]
+  implicit val messageDeletedFmt: Codec.AsObject[MessageDeleted]                = deriveCodec[MessageDeleted]
+  implicit val messageRepliedFmt: Codec.AsObject[MessageReplied]                = deriveCodec[MessageReplied]
+  implicit val reactionAddedFmt: Codec.AsObject[ReactionAdded]                  = deriveCodec[ReactionAdded]
+  implicit val reactionRemovedFmt: Codec.AsObject[ReactionRemoved]              = deriveCodec[ReactionRemoved]
+  implicit val userTypingFmt: Codec.AsObject[UserTyping]                        = deriveCodec[UserTyping]
+  implicit val channelMarkedFmt: Codec.AsObject[ChannelMarked]                  = deriveCodec[ChannelMarked]
+  implicit val channelCreatedFmt: Codec.AsObject[ChannelCreated]                = deriveCodec[ChannelCreated]
+  implicit val channelJoinedFmt: Codec.AsObject[ChannelJoined]                  = deriveCodec[ChannelJoined]
+  implicit val channelLeftFmt: Codec.AsObject[ChannelLeft]                      = deriveCodec[ChannelLeft]
+  implicit val channelDeletedFmt: Codec.AsObject[ChannelDeleted]                = deriveCodec[ChannelDeleted]
+  implicit val channelRenameFmt: Codec.AsObject[ChannelRename]                  = deriveCodec[ChannelRename]
+  implicit val channelArchiveFmt: Codec.AsObject[ChannelArchive]                = deriveCodec[ChannelArchive]
+  implicit val channelUnarchiveFmt: Codec.AsObject[ChannelUnarchive]            = deriveCodec[ChannelUnarchive]
   implicit val channelHistoryChangedFmt: Codec.AsObject[ChannelHistoryChanged]  = deriveCodec[ChannelHistoryChanged]
-  implicit val imCreatedFmt: Codec.AsObject[ImCreated]             = deriveCodec[ImCreated]
-  implicit val imOpenedFmt: Codec.AsObject[ImOpened]              = deriveCodec[ImOpened]
-  implicit val imCloseFmt: Codec.AsObject[ImClose]                = deriveCodec[ImClose]
-  implicit val imMarkedFmt: Codec.AsObject[ImMarked]              = deriveCodec[ImMarked]
-  implicit val imHistoryChangedFmt: Codec.AsObject[ImHistoryChanged]      = deriveCodec[ImHistoryChanged]
-  implicit val mpImOpenFmt: Codec.AsObject[MpImOpen]              = deriveCodec[MpImOpen]
-  implicit val mpImCloseFmt: Codec.AsObject[MpImClose]             = deriveCodec[MpImClose]
-  implicit val mpImJoinFmt: Codec.AsObject[MpImJoined]              = deriveCodec[MpImJoined]
-  implicit val groupJoinFmt: Codec.AsObject[GroupJoined]             = deriveCodec[GroupJoined]
-  implicit val groupLeftFmt: Codec.AsObject[GroupLeft]             = deriveCodec[GroupLeft]
-  implicit val groupOpenFmt: Codec.AsObject[GroupOpen]             = deriveCodec[GroupOpen]
-  implicit val groupCloseFmt: Codec.AsObject[GroupClose]            = deriveCodec[GroupClose]
-  implicit val groupArchiveFmt: Codec.AsObject[GroupArchive]          = deriveCodec[GroupArchive]
-  implicit val groupUnarchiveFmt: Codec.AsObject[GroupUnarchive]        = deriveCodec[GroupUnarchive]
-  implicit val groupRenameFmt: Codec.AsObject[GroupRename]           = deriveCodec[GroupRename]
-  implicit val groupMarkedFmt: Codec.AsObject[GroupMarked]           = deriveCodec[GroupMarked]
-  implicit val groupHistoryChangedFmt: Codec.AsObject[GroupHistoryChanged]   = deriveCodec[GroupHistoryChanged]
-  implicit val fileCreatedFmt: Codec.AsObject[FileCreated]           = deriveCodec[FileCreated]
-  implicit val fileSharedFmt: Codec.AsObject[FileShared]            = deriveCodec[FileShared]
-  implicit val fileUnsharedFmt: Codec.AsObject[FileUnshared]          = deriveCodec[FileUnshared]
-  implicit val filePublicFmt: Codec.AsObject[FilePublic]            = deriveCodec[FilePublic]
-  implicit val filePrivateFmt: Codec.AsObject[FilePrivate]           = deriveCodec[FilePrivate]
-  implicit val fileChangeFmt: Codec.AsObject[FileChange]            = deriveCodec[FileChange]
-  implicit val fileDeletedFmt: Codec.AsObject[FileDeleted]           = deriveCodec[FileDeleted]
-  implicit val fileCommentAddedFmt: Codec.AsObject[FileCommentAdded]      = deriveCodec[FileCommentAdded]
-  implicit val fileCommentEditedFmt: Codec.AsObject[FileCommentEdited]     = deriveCodec[FileCommentEdited]
-  implicit val fileCommentDeletedFmt: Codec.AsObject[FileCommentDeleted]    = deriveCodec[FileCommentDeleted]
-  implicit val pinAddedFmt: Codec.AsObject[PinAdded]              = deriveCodec[PinAdded]
-  implicit val pinRemovedFmt: Codec.AsObject[PinRemoved]            = deriveCodec[PinRemoved]
-  implicit val presenceChangeFmt: Codec.AsObject[PresenceChange]        = deriveCodec[PresenceChange]
-  implicit val manualPresenceChangeFmt: Codec.AsObject[ManualPresenceChange]  = deriveCodec[ManualPresenceChange]
-  implicit val prefChangeFmt: Codec.AsObject[PrefChange]            = deriveCodec[PrefChange]
-  implicit val userChangeFmt: Codec.AsObject[UserChange]            = deriveCodec[UserChange]
-  implicit val teamJoinFmt: Codec.AsObject[TeamJoin]              = deriveCodec[TeamJoin]
-  implicit val starAddedFmt: Codec.AsObject[StarAdded]             = deriveCodec[StarAdded]
-  implicit val starRemovedFmt: Codec.AsObject[StarRemoved]           = deriveCodec[StarRemoved]
-  implicit val emojiChangedFmt: Codec.AsObject[EmojiChanged]          = deriveCodec[EmojiChanged]
-  implicit val commandsChangedFmt: Codec.AsObject[CommandsChanged]       = deriveCodec[CommandsChanged]
-  implicit val teamPlanChangedFmt: Codec.AsObject[TeamPlanChanged]       = deriveCodec[TeamPlanChanged]
-  implicit val teamPrefChangedFmt: Codec.AsObject[TeamPrefChanged]       = deriveCodec[TeamPrefChanged]
-  implicit val teamRenameFmt: Codec.AsObject[TeamRename]            = deriveCodec[TeamRename]
-  implicit val teamDomainChangeFmt: Codec.AsObject[TeamDomainChange]      = deriveCodec[TeamDomainChange]
-  implicit val botAddedFmt: Codec.AsObject[BotAdded]              = deriveCodec[BotAdded]
-  implicit val botChangedFmt: Codec.AsObject[BotChanged]            = deriveCodec[BotChanged]
-  implicit val accountsChangedFmt: Codec.AsObject[AccountsChanged]       = deriveCodec[AccountsChanged]
-  implicit val teamMigrationStartedFmt: Codec.AsObject[TeamMigrationStarted]  = deriveCodec[TeamMigrationStarted]
-  implicit val reconnectUrlFmt: Codec.AsObject[ReconnectUrl]          = deriveCodec[ReconnectUrl]
-  implicit val appsChangedFmt: Codec.AsObject[AppsChanged]           = deriveCodec[AppsChanged]
-  implicit val appsUninstalledFmt: Codec.AsObject[AppsUninstalled]       = deriveCodec[AppsUninstalled]
-  implicit val appsInstalledFmt: Codec.AsObject[AppsInstalled]         = deriveCodec[AppsInstalled]
-  implicit val desktopNotificationFmt: Codec.AsObject[DesktopNotification]   = deriveCodec[DesktopNotification]
-  implicit val dndStatusFmt: Codec.AsObject[DndStatus]             = deriveCodec[DndStatus]
-  implicit val dndUpdateUserFmt: Codec.AsObject[DndUpdatedUser]         = deriveCodec[DndUpdatedUser]
-  implicit val memberJoined: Codec.AsObject[MemberJoined]             = deriveCodec[MemberJoined]
-  implicit val memberLeft: Codec.AsObject[MemberLeft]               = deriveCodec[MemberLeft]
-  implicit val pong: Codec.AsObject[Pong]                     = deriveCodec[Pong]
-  implicit val mobileInAppNotification: Codec.AsObject[MobileInAppNotification]  = deriveCodec[MobileInAppNotification]
+  implicit val imCreatedFmt: Codec.AsObject[ImCreated]                          = deriveCodec[ImCreated]
+  implicit val imOpenedFmt: Codec.AsObject[ImOpened]                            = deriveCodec[ImOpened]
+  implicit val imCloseFmt: Codec.AsObject[ImClose]                              = deriveCodec[ImClose]
+  implicit val imMarkedFmt: Codec.AsObject[ImMarked]                            = deriveCodec[ImMarked]
+  implicit val imHistoryChangedFmt: Codec.AsObject[ImHistoryChanged]            = deriveCodec[ImHistoryChanged]
+  implicit val mpImOpenFmt: Codec.AsObject[MpImOpen]                            = deriveCodec[MpImOpen]
+  implicit val mpImCloseFmt: Codec.AsObject[MpImClose]                          = deriveCodec[MpImClose]
+  implicit val mpImJoinFmt: Codec.AsObject[MpImJoined]                          = deriveCodec[MpImJoined]
+  implicit val groupJoinFmt: Codec.AsObject[GroupJoined]                        = deriveCodec[GroupJoined]
+  implicit val groupLeftFmt: Codec.AsObject[GroupLeft]                          = deriveCodec[GroupLeft]
+  implicit val groupOpenFmt: Codec.AsObject[GroupOpen]                          = deriveCodec[GroupOpen]
+  implicit val groupCloseFmt: Codec.AsObject[GroupClose]                        = deriveCodec[GroupClose]
+  implicit val groupArchiveFmt: Codec.AsObject[GroupArchive]                    = deriveCodec[GroupArchive]
+  implicit val groupUnarchiveFmt: Codec.AsObject[GroupUnarchive]                = deriveCodec[GroupUnarchive]
+  implicit val groupRenameFmt: Codec.AsObject[GroupRename]                      = deriveCodec[GroupRename]
+  implicit val groupMarkedFmt: Codec.AsObject[GroupMarked]                      = deriveCodec[GroupMarked]
+  implicit val groupHistoryChangedFmt: Codec.AsObject[GroupHistoryChanged]      = deriveCodec[GroupHistoryChanged]
+  implicit val fileCreatedFmt: Codec.AsObject[FileCreated]                      = deriveCodec[FileCreated]
+  implicit val fileSharedFmt: Codec.AsObject[FileShared]                        = deriveCodec[FileShared]
+  implicit val fileUnsharedFmt: Codec.AsObject[FileUnshared]                    = deriveCodec[FileUnshared]
+  implicit val filePublicFmt: Codec.AsObject[FilePublic]                        = deriveCodec[FilePublic]
+  implicit val filePrivateFmt: Codec.AsObject[FilePrivate]                      = deriveCodec[FilePrivate]
+  implicit val fileChangeFmt: Codec.AsObject[FileChange]                        = deriveCodec[FileChange]
+  implicit val fileDeletedFmt: Codec.AsObject[FileDeleted]                      = deriveCodec[FileDeleted]
+  implicit val fileCommentAddedFmt: Codec.AsObject[FileCommentAdded]            = deriveCodec[FileCommentAdded]
+  implicit val fileCommentEditedFmt: Codec.AsObject[FileCommentEdited]          = deriveCodec[FileCommentEdited]
+  implicit val fileCommentDeletedFmt: Codec.AsObject[FileCommentDeleted]        = deriveCodec[FileCommentDeleted]
+  implicit val pinAddedFmt: Codec.AsObject[PinAdded]                            = deriveCodec[PinAdded]
+  implicit val pinRemovedFmt: Codec.AsObject[PinRemoved]                        = deriveCodec[PinRemoved]
+  implicit val presenceChangeFmt: Codec.AsObject[PresenceChange]                = deriveCodec[PresenceChange]
+  implicit val manualPresenceChangeFmt: Codec.AsObject[ManualPresenceChange]    = deriveCodec[ManualPresenceChange]
+  implicit val prefChangeFmt: Codec.AsObject[PrefChange]                        = deriveCodec[PrefChange]
+  implicit val userChangeFmt: Codec.AsObject[UserChange]                        = deriveCodec[UserChange]
+  implicit val teamJoinFmt: Codec.AsObject[TeamJoin]                            = deriveCodec[TeamJoin]
+  implicit val starAddedFmt: Codec.AsObject[StarAdded]                          = deriveCodec[StarAdded]
+  implicit val starRemovedFmt: Codec.AsObject[StarRemoved]                      = deriveCodec[StarRemoved]
+  implicit val emojiChangedFmt: Codec.AsObject[EmojiChanged]                    = deriveCodec[EmojiChanged]
+  implicit val commandsChangedFmt: Codec.AsObject[CommandsChanged]              = deriveCodec[CommandsChanged]
+  implicit val teamPlanChangedFmt: Codec.AsObject[TeamPlanChanged]              = deriveCodec[TeamPlanChanged]
+  implicit val teamPrefChangedFmt: Codec.AsObject[TeamPrefChanged]              = deriveCodec[TeamPrefChanged]
+  implicit val teamRenameFmt: Codec.AsObject[TeamRename]                        = deriveCodec[TeamRename]
+  implicit val teamDomainChangeFmt: Codec.AsObject[TeamDomainChange]            = deriveCodec[TeamDomainChange]
+  implicit val botAddedFmt: Codec.AsObject[BotAdded]                            = deriveCodec[BotAdded]
+  implicit val botChangedFmt: Codec.AsObject[BotChanged]                        = deriveCodec[BotChanged]
+  implicit val accountsChangedFmt: Codec.AsObject[AccountsChanged]              = deriveCodec[AccountsChanged]
+  implicit val teamMigrationStartedFmt: Codec.AsObject[TeamMigrationStarted]    = deriveCodec[TeamMigrationStarted]
+  implicit val reconnectUrlFmt: Codec.AsObject[ReconnectUrl]                    = deriveCodec[ReconnectUrl]
+  implicit val appsChangedFmt: Codec.AsObject[AppsChanged]                      = deriveCodec[AppsChanged]
+  implicit val appsUninstalledFmt: Codec.AsObject[AppsUninstalled]              = deriveCodec[AppsUninstalled]
+  implicit val appsInstalledFmt: Codec.AsObject[AppsInstalled]                  = deriveCodec[AppsInstalled]
+  implicit val desktopNotificationFmt: Codec.AsObject[DesktopNotification]      = deriveCodec[DesktopNotification]
+  implicit val dndStatusFmt: Codec.AsObject[DndStatus]                          = deriveCodec[DndStatus]
+  implicit val dndUpdateUserFmt: Codec.AsObject[DndUpdatedUser]                 = deriveCodec[DndUpdatedUser]
+  implicit val memberJoined: Codec.AsObject[MemberJoined]                       = deriveCodec[MemberJoined]
+  implicit val memberLeft: Codec.AsObject[MemberLeft]                           = deriveCodec[MemberLeft]
+  implicit val pong: Codec.AsObject[Pong]                                       = deriveCodec[Pong]
+  implicit val mobileInAppNotification: Codec.AsObject[MobileInAppNotification] = deriveCodec[MobileInAppNotification]
 
   // Message sub-types
   import MessageSubtypes._
 
-  implicit val messageSubtypeMeMessageFmt: Codec.AsObject[MeMessage]          = deriveCodec[MeMessage]
+  implicit val messageSubtypeMeMessageFmt: Codec.AsObject[MeMessage]                   = deriveCodec[MeMessage]
   implicit val messageSubtypeChannelNameMessageFmt: Codec.AsObject[ChannelNameMessage] = deriveCodec[ChannelNameMessage]
-  implicit val messageSubtypeFileShareMessageFmt: Codec.AsObject[FileShareMessage]   = deriveCodec[FileShareMessage]
-  implicit val messageSubtypeHandledSubtypeFmt: Codec.AsObject[UnhandledSubtype]     = deriveCodec[UnhandledSubtype]
+  implicit val messageSubtypeFileShareMessageFmt: Codec.AsObject[FileShareMessage]     = deriveCodec[FileShareMessage]
+  implicit val messageSubtypeHandledSubtypeFmt: Codec.AsObject[UnhandledSubtype]       = deriveCodec[UnhandledSubtype]
 
   implicit val messageWithSubtypeWrites: Encoder[MessageWithSubtype] = Encoder.forProduct6(
     "ts",
@@ -462,13 +475,13 @@ object SlackEvent {
 
     override def apply(c: HCursor): Result[MessageWithSubtype] =
       for {
-        subtype <- c.downField("subtype").as[String]
-        result <- subtype match {
-                   case "me_message"   => c.as[MeMessage]
-                   case "channel_name" => c.as[ChannelNameMessage]
-                   case "file_share"   => c.as[FileShareMessage]
-                   case _              => c.as[UnhandledSubtype]
-                 }
+        subtype   <- c.downField("subtype").as[String]
+        result    <- subtype match {
+                       case "me_message"   => c.as[MeMessage]
+                       case "channel_name" => c.as[ChannelNameMessage]
+                       case "file_share"   => c.as[FileShareMessage]
+                       case _              => c.as[UnhandledSubtype]
+                     }
         ts        <- c.downField("ts").as[String]
         channel   <- c.downField("channel").as[String]
         user      <- c.downField("user").as[String]
@@ -483,84 +496,84 @@ object SlackEvent {
       val event: Either[DecodingFailure, SlackEvent] = for {
         etype   <- c.downField("type").as[String]
         subtype <- c.downField("subtype").as[Option[String]]
-        result <- etype match {
-                   case "hello"                                          => c.as[Hello]
-                   case "message" if subtype.contains("message_changed") => c.as[MessageChanged]
-                   case "message" if subtype.contains("message_deleted") => c.as[MessageDeleted]
-                   case "message" if subtype.contains("message_replied") => c.as[MessageReplied]
-                   case "message" if subtype.contains("bot_message")     => c.as[BotMessage]
-                   case "message" if subtype.isDefined                   => c.as[MessageWithSubtype]
-                   case "message"                                        => c.as[Message]
-                   case "user_typing"                                    => c.as[UserTyping]
-                   case "reaction_added"                                 => c.as[ReactionAdded]
-                   case "reaction_removed"                               => c.as[ReactionRemoved]
-                   case "channel_marked"                                 => c.as[ChannelMarked]
-                   case "channel_created"                                => c.as[ChannelCreated]
-                   case "channel_joined"                                 => c.as[ChannelJoined]
-                   case "channel_left"                                   => c.as[ChannelLeft]
-                   case "channel_deleted"                                => c.as[ChannelDeleted]
-                   case "channel_rename"                                 => c.as[ChannelRename]
-                   case "channel_archive"                                => c.as[ChannelArchive]
-                   case "channel_unarchive"                              => c.as[ChannelUnarchive]
-                   case "channel_history_changed"                        => c.as[ChannelHistoryChanged]
-                   case "im_created"                                     => c.as[ImCreated]
-                   case "im_open"                                        => c.as[ImOpened]
-                   case "im_close"                                       => c.as[ImClose]
-                   case "im_marked"                                      => c.as[ImMarked]
-                   case "im_history_changed"                             => c.as[ImHistoryChanged]
-                   case "mpim_open"                                      => c.as[MpImOpen]
-                   case "mpim_close"                                     => c.as[MpImClose]
-                   case "mpim_joined"                                    => c.as[MpImJoined]
-                   case "group_joined"                                   => c.as[GroupJoined]
-                   case "group_left"                                     => c.as[GroupLeft]
-                   case "group_open"                                     => c.as[GroupOpen]
-                   case "group_close"                                    => c.as[GroupClose]
-                   case "group_archive"                                  => c.as[GroupArchive]
-                   case "group_unarchive"                                => c.as[GroupUnarchive]
-                   case "group_rename"                                   => c.as[GroupRename]
-                   case "group_marked"                                   => c.as[GroupMarked]
-                   case "group_history_changed"                          => c.as[GroupHistoryChanged]
-                   case "file_created"                                   => c.as[FileCreated]
-                   case "file_shared"                                    => c.as[FileShared]
-                   case "file_unshared"                                  => c.as[FileUnshared]
-                   case "file_public"                                    => c.as[FilePublic]
-                   case "file_private"                                   => c.as[FilePrivate]
-                   case "file_change"                                    => c.as[FileChange]
-                   case "file_deleted"                                   => c.as[FileDeleted]
-                   case "file_comment_added"                             => c.as[FileCommentAdded]
-                   case "file_comment_edited"                            => c.as[FileCommentEdited]
-                   case "file_comment_deleted"                           => c.as[FileCommentDeleted]
-                   case "pin_added"                                      => c.as[PinAdded]
-                   case "pin_removed"                                    => c.as[PinRemoved]
-                   case "presence_change"                                => c.as[PresenceChange]
-                   case "manual_presence_change"                         => c.as[ManualPresenceChange]
-                   case "pref_change"                                    => c.as[PrefChange]
-                   case "user_change"                                    => c.as[UserChange]
-                   case "team_join"                                      => c.as[TeamJoin]
-                   case "star_added"                                     => c.as[StarAdded]
-                   case "star_removed"                                   => c.as[StarRemoved]
-                   case "emoji_changed"                                  => c.as[EmojiChanged]
-                   case "commands_changed"                               => c.as[CommandsChanged]
-                   case "team_plan_changed"                              => c.as[TeamPlanChanged]
-                   case "team_pref_changed"                              => c.as[TeamPrefChanged]
-                   case "team_rename"                                    => c.as[TeamRename]
-                   case "team_domain_change"                             => c.as[TeamDomainChange]
-                   case "bot_added"                                      => c.as[BotAdded]
-                   case "bot_changed"                                    => c.as[BotChanged]
-                   case "accounts_changed"                               => c.as[AccountsChanged]
-                   case "team_migration_started"                         => c.as[TeamMigrationStarted]
-                   case "reconnect_url"                                  => c.as[ReconnectUrl]
-                   case "apps_changed"                                   => c.as[AppsChanged]
-                   case "apps_uninstalled"                               => c.as[AppsUninstalled]
-                   case "apps_installed"                                 => c.as[AppsInstalled]
-                   case "desktop_notification"                           => c.as[DesktopNotification]
-                   case "dnd_updated_user"                               => c.as[DndUpdatedUser]
-                   case "member_joined_channel"                          => c.as[MemberJoined]
-                   case "member_left_channel"                            => c.as[MemberLeft]
-                   case "pong"                                           => c.as[Pong]
-                   case "mobile_in_app_notification"                     => c.as[MobileInAppNotification]
-                   case t: String                                        => Left(DecodingFailure(s"Invalid type property: $t", List.empty))
-                 }
+        result  <- etype match {
+                     case "hello"                                          => c.as[Hello]
+                     case "message" if subtype.contains("message_changed") => c.as[MessageChanged]
+                     case "message" if subtype.contains("message_deleted") => c.as[MessageDeleted]
+                     case "message" if subtype.contains("message_replied") => c.as[MessageReplied]
+                     case "message" if subtype.contains("bot_message")     => c.as[BotMessage]
+                     case "message" if subtype.isDefined                   => c.as[MessageWithSubtype]
+                     case "message"                                        => c.as[Message]
+                     case "user_typing"                                    => c.as[UserTyping]
+                     case "reaction_added"                                 => c.as[ReactionAdded]
+                     case "reaction_removed"                               => c.as[ReactionRemoved]
+                     case "channel_marked"                                 => c.as[ChannelMarked]
+                     case "channel_created"                                => c.as[ChannelCreated]
+                     case "channel_joined"                                 => c.as[ChannelJoined]
+                     case "channel_left"                                   => c.as[ChannelLeft]
+                     case "channel_deleted"                                => c.as[ChannelDeleted]
+                     case "channel_rename"                                 => c.as[ChannelRename]
+                     case "channel_archive"                                => c.as[ChannelArchive]
+                     case "channel_unarchive"                              => c.as[ChannelUnarchive]
+                     case "channel_history_changed"                        => c.as[ChannelHistoryChanged]
+                     case "im_created"                                     => c.as[ImCreated]
+                     case "im_open"                                        => c.as[ImOpened]
+                     case "im_close"                                       => c.as[ImClose]
+                     case "im_marked"                                      => c.as[ImMarked]
+                     case "im_history_changed"                             => c.as[ImHistoryChanged]
+                     case "mpim_open"                                      => c.as[MpImOpen]
+                     case "mpim_close"                                     => c.as[MpImClose]
+                     case "mpim_joined"                                    => c.as[MpImJoined]
+                     case "group_joined"                                   => c.as[GroupJoined]
+                     case "group_left"                                     => c.as[GroupLeft]
+                     case "group_open"                                     => c.as[GroupOpen]
+                     case "group_close"                                    => c.as[GroupClose]
+                     case "group_archive"                                  => c.as[GroupArchive]
+                     case "group_unarchive"                                => c.as[GroupUnarchive]
+                     case "group_rename"                                   => c.as[GroupRename]
+                     case "group_marked"                                   => c.as[GroupMarked]
+                     case "group_history_changed"                          => c.as[GroupHistoryChanged]
+                     case "file_created"                                   => c.as[FileCreated]
+                     case "file_shared"                                    => c.as[FileShared]
+                     case "file_unshared"                                  => c.as[FileUnshared]
+                     case "file_public"                                    => c.as[FilePublic]
+                     case "file_private"                                   => c.as[FilePrivate]
+                     case "file_change"                                    => c.as[FileChange]
+                     case "file_deleted"                                   => c.as[FileDeleted]
+                     case "file_comment_added"                             => c.as[FileCommentAdded]
+                     case "file_comment_edited"                            => c.as[FileCommentEdited]
+                     case "file_comment_deleted"                           => c.as[FileCommentDeleted]
+                     case "pin_added"                                      => c.as[PinAdded]
+                     case "pin_removed"                                    => c.as[PinRemoved]
+                     case "presence_change"                                => c.as[PresenceChange]
+                     case "manual_presence_change"                         => c.as[ManualPresenceChange]
+                     case "pref_change"                                    => c.as[PrefChange]
+                     case "user_change"                                    => c.as[UserChange]
+                     case "team_join"                                      => c.as[TeamJoin]
+                     case "star_added"                                     => c.as[StarAdded]
+                     case "star_removed"                                   => c.as[StarRemoved]
+                     case "emoji_changed"                                  => c.as[EmojiChanged]
+                     case "commands_changed"                               => c.as[CommandsChanged]
+                     case "team_plan_changed"                              => c.as[TeamPlanChanged]
+                     case "team_pref_changed"                              => c.as[TeamPrefChanged]
+                     case "team_rename"                                    => c.as[TeamRename]
+                     case "team_domain_change"                             => c.as[TeamDomainChange]
+                     case "bot_added"                                      => c.as[BotAdded]
+                     case "bot_changed"                                    => c.as[BotChanged]
+                     case "accounts_changed"                               => c.as[AccountsChanged]
+                     case "team_migration_started"                         => c.as[TeamMigrationStarted]
+                     case "reconnect_url"                                  => c.as[ReconnectUrl]
+                     case "apps_changed"                                   => c.as[AppsChanged]
+                     case "apps_uninstalled"                               => c.as[AppsUninstalled]
+                     case "apps_installed"                                 => c.as[AppsInstalled]
+                     case "desktop_notification"                           => c.as[DesktopNotification]
+                     case "dnd_updated_user"                               => c.as[DndUpdatedUser]
+                     case "member_joined_channel"                          => c.as[MemberJoined]
+                     case "member_left_channel"                            => c.as[MemberLeft]
+                     case "pong"                                           => c.as[Pong]
+                     case "mobile_in_app_notification"                     => c.as[MobileInAppNotification]
+                     case t: String                                        => Left(DecodingFailure(s"Invalid type property: $t", List.empty))
+                   }
       } yield result
 
       event.left.flatMap { failure =>

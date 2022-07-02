@@ -1,9 +1,9 @@
 package com.github.dapperware.slack.models
 
-import java.time.Instant
-
 import io.circe.Codec
 import io.circe.generic.semiauto._
+
+import java.time.Instant
 
 /**
  * @example

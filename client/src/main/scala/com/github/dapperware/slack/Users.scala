@@ -5,6 +5,7 @@ import com.github.dapperware.slack.client.RequestEntity
 import com.github.dapperware.slack.generated.GeneratedUsers
 import com.github.dapperware.slack.generated.requests.{
   GetPresenceUsersRequest,
+  InfoUsersRequest,
   ListUsersRequest,
   LookupByEmailUsersRequest,
   SetPresenceUsersRequest
@@ -22,8 +23,11 @@ trait Users {
   def getUserPresence(userId: String): URIO[Has[Slack] with Has[AccessToken], SlackResponse[GetPresenceUsersResponse]] =
     Users.getPresenceUsers(GetPresenceUsersRequest(Some(userId))).toCall
 
-  def getUserInfo(userId: String): URIO[Has[Slack] with Has[AccessToken], SlackResponse[User]] =
-    Users.infoUsers(InfoUsersResponse(user = userId)).toCall
+  def getUserInfo(
+    userId: String,
+    includeLocale: Option[Boolean] = None
+  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[InfoUsersResponse]] =
+    Users.infoUsers(InfoUsersRequest(user = Some(userId), include_locale = includeLocale)).toCall
 
   def listUsers(
     cursor: Option[String] = None,

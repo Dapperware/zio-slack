@@ -7,7 +7,7 @@ package com.github.dapperware.slack.generated.requests
  * @param redirect_uri This must match the originally submitted URI (if one was sent).
  * @param single_channel Request the user to add your app only to a single channel. Only valid with a [legacy workspace app](https://api.slack.com/legacy-workspace-apps).
  */
-case class AccessOauthRequest(code: Option[String], redirect_uri: Option[String], single_channel: Option[Boolean])
+case class AccessOauthRequest(code: String, redirect_uri: Option[String], single_channel: Option[Boolean])
 
 object AccessOauthRequest {
   import com.github.dapperware.slack.FormEncoder

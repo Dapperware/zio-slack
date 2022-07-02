@@ -1,20 +1,19 @@
 package search
 
-import com.github.dapperware.slack.api.web.searchMessages
 import com.github.dapperware.slack.realtime.SlackRealtimeClient
+import com.github.dapperware.slack.{ AccessToken, HttpSlack, Slack }
 import common.{ accessToken, default, BasicConfig }
 import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio.console._
 import zio.stream.{ ZSink, ZStream }
 import zio.{ App, ExitCode, Has, Layer, ZIO }
-import com.github.dapperware.slack.{ AccessToken, SlackClient }
 
 object SearchApp extends App {
 
   val accessTokenAndBasic: Layer[Throwable, Has[AccessToken] with Has[BasicConfig]] = default >+> accessToken.toLayer
 
-  val slackClients: Layer[Throwable, Has[SlackClient] with Has[SlackRealtimeClient]] =
-    AsyncHttpClientZioBackend.layer() >>> (SlackClient.live ++ SlackRealtimeClient.live)
+  val slackClients: Layer[Throwable, Has[Slack] with Has[SlackRealtimeClient]] =
+    AsyncHttpClientZioBackend.layer() >>> (HttpSlack.layer ++ SlackRealtimeClient.live)
 
   val layers = slackClients ++ accessTokenAndBasic
 
@@ -26,7 +25,7 @@ object SearchApp extends App {
       .exitCode
 
   val interactionLoop = for {
-    input  <- getStrLn
-    result <- searchMessages(input, count = Some(10))
+    input  <- getStrLn.orDie
+    result <- Slack.searchMessages(input, count = Some(10)).map(_.toEither).absolve
   } yield result
 }

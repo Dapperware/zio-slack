@@ -7,7 +7,7 @@ package com.github.dapperware.slack.generated.requests
  * @param count undefined
  * @param page undefined
  */
-case class AccessLogsTeamRequest(before: Option[String], count: Option[String], page: Option[String])
+case class AccessLogsTeamRequest(before: Option[String], count: Option[Int], page: Option[Int])
 
 object AccessLogsTeamRequest {
   import com.github.dapperware.slack.FormEncoder

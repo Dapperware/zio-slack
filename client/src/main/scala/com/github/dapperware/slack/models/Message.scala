@@ -23,7 +23,7 @@ case class Message(
   old_name: Option[String] = None,
   members: Option[String] = None,
   parent_user_id: Option[String] = None,
-  files: Option[List[SlackFile]] = None,
+  files: Option[List[File]] = None,
   upload: Option[Boolean] = None,
   comment: Option[SlackComment] = None,
   item_type: Option[String] = None,

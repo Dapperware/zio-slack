@@ -1,17 +1,17 @@
 package com.github.dapperware.slack
 
-import com.github.dapperware.slack
 import com.github.dapperware.slack.Slack.request
-import com.github.dapperware.slack.api.FullAccessTokenV2
 import com.github.dapperware.slack.generated.GeneratedOauth
-import com.github.dapperware.slack.generated.requests.AccessV2OauthRequest
+import com.github.dapperware.slack.generated.requests.{ AccessOauthRequest, AccessV2OauthRequest }
+import com.github.dapperware.slack.generated.responses.AccessV2OauthResponse
+import zio.{ Has, URIO }
 
 trait OAuth {
 
   def accessOAuthV2(
     code: String,
     redirectUri: Option[String] = None
-  ) =
+  ): URIO[Has[Slack] with Has[ClientSecret], SlackResponse[AccessV2OauthResponse]] =
     OAuth.accessV2Oauth(AccessV2OauthRequest(code, redirectUri)).toCall
 
   def accessOAuth(
@@ -19,14 +19,9 @@ trait OAuth {
     redirectUri: Option[String] = None,
     singleChannel: Option[Boolean] = None
   ) =
-    request("oauth.access")
-      .auth[ClientSecret]
-      .as[FullAccessTokenV2]
-      .formBody(
-        "code"           -> code,
-        "redirect_uri"   -> redirectUri,
-        "single_channel" -> singleChannel
-      )
+    OAuth
+      .accessOauth(AccessOauthRequest(code = code, redirect_uri = redirectUri, single_channel = singleChannel))
+      .toCall
 
   def exchangeV2(
     clientId: String,
@@ -34,8 +29,9 @@ trait OAuth {
   ) =
     request("oauth.v2.exchange")
       .formBody("client_id" -> clientId, "client_secret" -> clientSecret)
-      .auth[ClientSecret]
-      .as[FullAccessTokenV2]
+      .auth
+      .clientSecret
+      .as[AccessV2OauthResponse]
 
 }
 

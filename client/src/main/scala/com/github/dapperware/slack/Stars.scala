@@ -1,6 +1,5 @@
 package com.github.dapperware.slack
 
-import com.github.dapperware.slack.Slack.EnrichedAuthRequest
 import com.github.dapperware.slack.generated.GeneratedStars
 import com.github.dapperware.slack.generated.requests.{ AddStarsRequest, ListStarsRequest, RemoveStarsRequest }
 import com.github.dapperware.slack.generated.responses.ListStarsResponse

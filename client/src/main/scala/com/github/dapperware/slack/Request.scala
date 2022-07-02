@@ -30,13 +30,13 @@ case class MethodName(name: String) extends AnyVal
 case class Request[+T, Auth](
   method: MethodName,
   body: SlackBody,
-  responseAs: Json => Either[io.circe.Error, T]
+  responseAs: Json => Either[io.circe.DecodingFailure, T]
 ) { self =>
 
   def map[B](f: T => B): Request[B, Auth] =
     copy(responseAs = responseAs.andThen(_.map(f)))
 
-  def transform[B](f: T => Either[io.circe.Error, B]): Request[B, Auth] =
+  def transform[B](f: T => Either[io.circe.DecodingFailure, B]): Request[B, Auth] =
     copy(responseAs = responseAs.andThen(_.flatMap(f)))
 
   def as[B: Decoder: IsOption]: Request[B, Auth] =
@@ -67,7 +67,9 @@ case class Request[+T, Auth](
     baseUri: String
   ): RequestT[Identity, SlackResponse[T1], Any] = {
     val respond: ResponseAs[SlackResponse[T], Any] =
-      respondWith(deserializeJson(SlackResponse.decodeWith(responseAs), implicitly)).mapWithMetadata {
+      respondWith(
+        deserializeJson(SlackResponse.decodeWith(responseAs), implicitly[IsOption[SlackResponse[T]]])
+      ).mapWithMetadata {
         // Special case of a rate limit
         case (_, meta) if meta.code == StatusCode.TooManyRequests =>
           SlackError.RatelimitError(
@@ -87,7 +89,7 @@ case class Request[+T, Auth](
         basicRequest.post(uri"$baseUri/${method.name}").body(form)
       case SlackBody.PartBody(parts)               =>
         basicRequest.post(uri"$baseUri/${method.name}").multipartBody(parts)
-    }).response(respond)
+    }).tag("Slack-MethodName", method.name).response(respond)
   }
 }
 
@@ -124,11 +126,8 @@ object Request {
   ): ResponseAs[Either[ResponseException[String, circe.Error], A], Any] =
     asString.mapWithMetadata(ResponseAs.deserializeRightWithError(f)).showAsJson
 
-  def make(method: MethodName, body: SlackBody): Request[Unit, AccessToken] =
+  def make(method: MethodName, body: SlackBody = SlackBody.empty): Request[Unit, AccessToken] =
     Request(method, body, _ => Right(()))
-
-  def make(method: String, body: SlackBody = SlackBody.empty): Request[Unit, AccessToken] =
-    make(MethodName(method), body)
 
 }
 

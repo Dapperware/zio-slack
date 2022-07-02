@@ -46,8 +46,8 @@ object CreateConversationsRequest {
  */
 case class HistoryConversationsRequest(
   channel: Option[String],
-  latest: Option[Int],
-  oldest: Option[Int],
+  latest: Option[String],
+  oldest: Option[String],
   inclusive: Option[Boolean],
   limit: Option[Int],
   cursor: Option[String]

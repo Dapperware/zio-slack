@@ -3,7 +3,7 @@
 package com.github.dapperware.slack.generated.responses
 
 case class ListAuthorizationsEventAppsResponse(
-  authorization: zio.Chunk[com.github.dapperware.slack.models.Authorization]
+  authorizations: zio.Chunk[com.github.dapperware.slack.models.Authorization]
 )
 
 object ListAuthorizationsEventAppsResponse {

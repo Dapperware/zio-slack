@@ -1,25 +1,22 @@
 package basic
 
-import com.github.dapperware.slack.api.web
-import com.github.dapperware.slack.SlackClient
+import com.github.dapperware.slack.realtime.SlackRealtimeClient
 import com.github.dapperware.slack.realtime.models.{ SendMessage, UserTyping }
-import com.github.dapperware.slack.realtime.{ SlackRealtimeClient, SlackRealtimeEnv }
-import com.github.dapperware.slack.{ SlackEnv, SlackError }
+import com.github.dapperware.slack.{ AccessToken, HttpSlack, Slack, SlackClient, SlackError }
 import common.{ accessToken, default, BasicConfig }
 import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio.console.{ putStrLn, Console }
 import zio.stream.ZStream
 import zio.{ App, ExitCode, Has, Layer, ZIO, ZManaged }
-import com.github.dapperware.slack.AccessToken
 
 object BasicApp extends App {
 
   val accessTokenAndBasic: Layer[Throwable, Has[AccessToken] with Has[BasicConfig]] = default >+> accessToken.toLayer
 
-  val slackClients: Layer[Throwable, Has[SlackClient] with Has[SlackRealtimeClient]] =
-    AsyncHttpClientZioBackend.layer() >>> (SlackClient.live ++ SlackRealtimeClient.live)
+  val slackClients: Layer[Throwable, Has[Slack] with Has[SlackRealtimeClient]] =
+    AsyncHttpClientZioBackend.layer() >>> (HttpSlack.layer ++ SlackRealtimeClient.live)
 
-  val layers: Layer[Throwable, SlackEnv with SlackRealtimeEnv with Has[BasicConfig]] =
+  val layers: Layer[Throwable, Has[Slack] with Has[AccessToken] with Has[SlackRealtimeClient] with Has[BasicConfig]] =
     slackClients ++ accessTokenAndBasic
 
   override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, ExitCode] =
@@ -27,7 +24,9 @@ object BasicApp extends App {
       resp <- (testApi.toManaged_ <&> testRealtime).provideCustomLayer(layers)
     } yield resp).use_(ZIO.unit).exitCode
 
-  val testRealtime: ZManaged[SlackRealtimeEnv with Has[BasicConfig] with Console, SlackError, Unit] =
+  val testRealtime: ZManaged[Has[Slack] with Has[AccessToken] with Has[SlackRealtimeClient] with Has[
+    BasicConfig
+  ] with Console, SlackError, Unit] =
     for {
       config   <- ZManaged.service[BasicConfig]
       // Test that we can receive messages
@@ -38,11 +37,11 @@ object BasicApp extends App {
                   }.runDrain.toManaged_
     } yield ()
 
-  val testApi: ZIO[SlackEnv with Has[BasicConfig], SlackError, String] =
+  val testApi: ZIO[Has[Slack] with Has[AccessToken] with Has[BasicConfig], SlackError, String] =
     for {
       config <- ZIO.service[BasicConfig]
-      resp   <- web.postChatMessage(config.channel, text = "Hello Slack client!")
-      _      <- web.addReactionToMessage("+1", config.channel, resp)
-    } yield resp
+      resp   <- Slack.postChatMessage(config.channel, text = Some("Hello Slack client!")).map(_.toEither).absolve
+      _      <- Slack.addReactionToMessage("+1", config.channel, resp.ts)
+    } yield resp.ts
 
 }

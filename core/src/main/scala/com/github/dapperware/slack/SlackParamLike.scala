@@ -1,7 +1,6 @@
 package com.github.dapperware.slack
 
-import io.circe.Encoder
-import SlackParamMagnet.StringParamMagnet
+import com.github.dapperware.slack.SlackParamMagnet.StringParamMagnet
 
 trait SlackParamLike[T] {
   def produce(t: T): SlackParamMagnet

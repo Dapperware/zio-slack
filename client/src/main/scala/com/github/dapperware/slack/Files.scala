@@ -2,7 +2,7 @@ package com.github.dapperware.slack
 
 import com.github.dapperware.slack.Slack.request
 import com.github.dapperware.slack.client.RequestEntity
-import com.github.dapperware.slack.models.{ FileInfo, FilesResponse, SlackFile }
+import com.github.dapperware.slack.models.{ FileInfo, FilesResponse }
 
 import java.io.File
 
@@ -73,6 +73,6 @@ trait Files {
         "channels"        -> channels.map(_.mkString(",")),
         "thread_ts"       -> thread_ts
       )
-      .at[SlackFile]("file")
+      .at[models.File]("file")
 
 }

@@ -7,7 +7,7 @@ import zio.{ Has, Layer, ZIO }
 package object common {
 
   val default: Layer[ReadError[String], Has[BasicConfig]] =
-    TypesafeConfig.fromDefaultLoader(nested("basic")(BasicConfig.descriptor))
+    TypesafeConfig.fromResourcePath(nested("basic")(BasicConfig.descriptor))
 
   val accessToken: ZIO[Has[BasicConfig], Nothing, AccessToken] =
     ZIO.service[BasicConfig].map(c => AccessToken(c.token))

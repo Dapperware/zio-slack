@@ -1,7 +1,6 @@
 package slack.api
 
 import com.github.dapperware.slack.SlackClient
-import com.github.dapperware.slack.api.web
 import zio.test._
 import zio.test.Assertion
 import sttp.model.Method

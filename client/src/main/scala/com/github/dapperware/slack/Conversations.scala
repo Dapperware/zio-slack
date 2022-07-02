@@ -1,11 +1,22 @@
 package com.github.dapperware.slack
 
 import com.github.dapperware.slack.Slack.request
-import com.github.dapperware.slack.api.{ ChannelLike, ChannelLikeId }
 import com.github.dapperware.slack.generated.GeneratedConversations
 import com.github.dapperware.slack.generated.requests._
-import com.github.dapperware.slack.generated.responses.{ CloseConversationsResponse, CreateConversationsResponse }
-import com.github.dapperware.slack.models.{ Channel, HistoryChunk, Message, Plural, ResponseChunk }
+import com.github.dapperware.slack.generated.responses.{
+  CloseConversationsResponse,
+  CreateConversationsResponse,
+  ListConversationsResponse
+}
+import com.github.dapperware.slack.models.{
+  Channel,
+  ChannelLike,
+  ChannelLikeId,
+  HistoryChunk,
+  Message,
+  Plural,
+  ResponseChunk
+}
 import io.circe.Json
 import io.circe.syntax._
 import sttp.client3.IsOption
@@ -93,6 +104,7 @@ trait Conversations {
         "include_num_mem" -> includeNumMembers
       )
       .at[Channel]("channel")
+      .toCall
 
   /**
    * https://api.slack.com/methods/conversations.invite
@@ -136,7 +148,7 @@ trait Conversations {
     excludeArchived: Option[Boolean] = None,
     limit: Option[Int] = None,
     types: Option[List[String]] = None
-  ): Request[ResponseChunk[Channel], AccessToken] =
+  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[ListConversationsResponse]] =
     Conversations
       .listConversations(
         ListConversationsRequest(

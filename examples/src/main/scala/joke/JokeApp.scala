@@ -1,9 +1,7 @@
 package joke
 
-import com.github.dapperware.slack
-import com.github.dapperware.slack.api.web.{ listConversations, postChatMessage }
 import com.github.dapperware.slack.models.Channel
-import com.github.dapperware.slack.{ AccessToken, SlackClient, SlackEnv }
+import com.github.dapperware.slack.{ AccessToken, HttpSlack, Slack, SlackError }
 import common.{ accessToken, BasicConfig }
 import io.circe
 import io.circe.{ DecodingFailure, Json }
@@ -28,14 +26,14 @@ object JokeApp extends App {
       .mapResponseRight(_.hcursor.downField("value").as[String])
 
   // Shuffle the conversations that we are a part of
-  val shuffledConversations: ZIO[Random with slack.SlackEnv, Throwable, List[Channel]] =
+  val shuffledConversations: ZIO[Random with Has[Slack] with Has[AccessToken], SlackError, List[Channel]] =
     ZStream
       .paginateM(Option.empty[String]) { cursor =>
         for {
-          convos <- listConversations(cursor)
+          convos <- Slack.listConversations(cursor = cursor).map(_.toEither).absolve
         } yield (
-          Chunk.fromIterable(convos.items).filter(_.is_member.contains(true)),
-          convos.response_metadata.flatMap(_.next_cursor).filter(_.nonEmpty).map(Some(_))
+          Chunk.fromIterable(convos.channels).filter(_.is_member.contains(true)),
+          convos.response_metadata.next_cursor.filter(_.nonEmpty).map(Some(_))
         )
       }
       .flattenChunks
@@ -45,18 +43,18 @@ object JokeApp extends App {
   val accessTokenLayer: Layer[Throwable, Has[AccessToken] with Has[BasicConfig]] =
     (common.default >+> accessToken.toLayer)
 
-  val layers: ZLayer[Any, Throwable, SttpClient with Has[SlackClient] with Has[AccessToken] with Has[BasicConfig]] =
-    (AsyncHttpClientZioBackend.layer() >+> (SlackClient.live ++ accessTokenLayer))
+  val layers: ZLayer[Any, Throwable, SttpClient with Has[Slack] with Has[AccessToken] with Has[BasicConfig]] =
+    (AsyncHttpClientZioBackend.layer() >+> (HttpSlack.layer ++ accessTokenLayer))
 
-  val result: ZIO[SttpClient with SlackEnv with Random with Clock with Has[BasicConfig], Throwable, Unit] =
+  val result: ZIO[Clock with Has[Slack] with Has[AccessToken] with SttpClient with Random, SlackError, Unit] =
     for {
       shuffled <- shuffledConversations
       _        <- ZIO.foreach_(shuffled) { channel =>
                     (for {
-                      resp <- send(getJoke)
-                      body <- IO.fromEither(resp.body)
-                      joke <- IO.fromEither(body)
-                      _    <- postChatMessage(channel.id, joke)
+                      resp <- send(getJoke).mapError(SlackError.fromThrowable)
+                      body <- IO.fromEither(resp.body).mapError(SlackError.fromThrowable)
+                      joke <- IO.fromEither(body).mapError(SlackError.fromThrowable)
+                      _    <- Slack.postChatMessage(channel.id, text = Some(joke)).map(_.toEither).absolve
                     } yield ()) *> ZIO.sleep(3.hours)
                   }
     } yield ()
