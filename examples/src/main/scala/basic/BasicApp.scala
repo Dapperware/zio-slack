@@ -1,8 +1,8 @@
 package basic
 
-import com.github.dapperware.slack.models.{ SendMessage, UserTyping }
-import com.github.dapperware.slack.{ AccessToken, Slack, SlackError, SlackSocket, SlackSocketLive }
-import common.{ botToken, default, BasicConfig }
+import com.github.dapperware.slack.models.events.{ SendMessage, UserTyping }
+import com.github.dapperware.slack.{ AccessToken, AppToken, Slack, SlackError, SlackSocket, SlackSocketLive }
+import common.{ appToken, botToken, default, BasicConfig }
 import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio.console.{ putStrLn, Console }
 import zio.magic._
@@ -11,12 +11,13 @@ import zio.{ App, ExitCode, Has, ZIO, ZLayer, ZManaged }
 
 object BasicApp extends App {
 
-  val layers: ZLayer[Any, Throwable, Has[Slack] with Has[SlackSocket] with Has[AccessToken] with Has[BasicConfig]] =
-    ZLayer.fromMagic[Has[Slack] with Has[SlackSocket] with Has[AccessToken] with Has[BasicConfig]](
+  val layers =
+    ZLayer.fromMagic[Has[Slack] with Has[SlackSocket] with Has[AccessToken] with Has[BasicConfig] with Has[AppToken]](
       AsyncHttpClientZioBackend.layer(),
       Slack.http,
       SlackSocketLive.layer,
       botToken.toLayer,
+      appToken.toLayer,
       default
     )
 
@@ -25,7 +26,7 @@ object BasicApp extends App {
       resp <- (testApi.toManaged_ <&> testRealtime).provideCustomLayer(layers)
     } yield resp).use_(ZIO.unit).exitCode
 
-  val testRealtime: ZManaged[Has[Slack] with Has[AccessToken] with Has[SlackSocket] with Has[
+  val testRealtime: ZManaged[Has[Slack] with Has[AppToken] with Has[AccessToken] with Has[SlackSocket] with Has[
     BasicConfig
   ] with Console, SlackError, Unit] =
     for {

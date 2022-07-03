@@ -1,7 +1,6 @@
 package search
 
-import com.github.dapperware.slack.realtime.SlackRealtimeClient
-import com.github.dapperware.slack.{ AccessToken, HttpSlack, Slack }
+import com.github.dapperware.slack.{ AccessToken, HttpSlack, Slack, SlackSocket, SlackSocketLive }
 import common.{ botToken, userToken, BasicConfig }
 import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio.console._
@@ -11,11 +10,11 @@ import zio.{ App, ExitCode, Has, Layer, ZIO, ZLayer }
 
 object SearchApp extends App {
 
-  val layers: Layer[Throwable, Has[Slack] with Has[SlackRealtimeClient] with Has[AccessToken] with Has[BasicConfig]] =
-    ZLayer.fromMagic[Has[Slack] with Has[SlackRealtimeClient] with Has[AccessToken] with Has[BasicConfig]](
+  val layers: Layer[Throwable, Has[Slack] with Has[SlackSocket] with Has[AccessToken] with Has[BasicConfig]] =
+    ZLayer.fromMagic[Has[Slack] with Has[SlackSocket] with Has[AccessToken] with Has[BasicConfig]](
       AsyncHttpClientZioBackend.layer(),
       Slack.http,
-      SlackRealtimeClient.live,
+      SlackSocketLive.layer,
       common.default,
       userToken.toLayer
     )

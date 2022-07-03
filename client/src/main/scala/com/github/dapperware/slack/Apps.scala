@@ -17,12 +17,12 @@ trait Apps { self: Slack =>
         )
       )
 
-  def openSocketModeConnection: ZIO[Has[AccessToken], Nothing, SlackResponse[String]] =
+  def openSocketModeConnection: ZIO[Has[AppToken], Nothing, SlackResponse[String]] =
     apiCall(
       request("apps.connections.open")
         .at[String]("url")
         .auth
-        .accessToken
+        .appToken
     )
 }
 
@@ -30,7 +30,7 @@ private[slack] trait AppsAccessors { self: Slack.type =>
   def uninstall: ZIO[Has[Slack] with Has[AccessToken] with Has[ClientSecret], Nothing, SlackResponse[Unit]] =
     ZIO.accessM(_.get.uninstall)
 
-  def openSocketModeConnection: ZIO[Has[Slack] with Has[AccessToken], Nothing, SlackResponse[String]] =
+  def openSocketModeConnection: ZIO[Has[Slack] with Has[AppToken], Nothing, SlackResponse[String]] =
     ZIO.accessM(_.get.openSocketModeConnection)
 }
 

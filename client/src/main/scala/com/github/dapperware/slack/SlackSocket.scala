@@ -1,6 +1,6 @@
 package com.github.dapperware.slack
 
-import com.github.dapperware.slack.models.{ Hello, OutboundMessage, SlackEvent }
+import com.github.dapperware.slack.models.events.{ Hello, OutboundMessage, SlackEvent }
 import io.circe.Json
 import io.circe.syntax._
 import io.circe.parser.parse
@@ -13,21 +13,21 @@ import zio.stream.{ ZSink, ZStream }
 trait SlackSocket {
   def connect[R, E1 >: SlackError](
     outbound: ZStream[R, E1, OutboundMessage]
-  ): ZStream[R with Has[AccessToken], E1, SlackEvent]
+  ): ZStream[R with Has[AppToken], E1, SlackEvent]
 }
 
 object SlackSocket {
   def connect[R, E1 >: SlackError](
     outbound: ZStream[R, E1, OutboundMessage]
-  ): ZStream[R with Has[AccessToken] with Has[SlackSocket], E1, SlackEvent] =
-    ZStream.accessStream[R with Has[AccessToken] with Has[SlackSocket]](
+  ): ZStream[R with Has[AppToken] with Has[SlackSocket], E1, SlackEvent] =
+    ZStream.accessStream[R with Has[AppToken] with Has[SlackSocket]](
       _.get[SlackSocket].connect(outbound)
     )
 }
 
 class SlackSocketLive(slack: Slack, client: SttpClient.Service) extends SlackSocket {
-  private def openWebsocket: ZManaged[Has[AccessToken], SlackError, WebSocket[Task]] = for {
-    url  <- slack.connectRtm().map(_.toEither).absolve.map(_.url).toManaged_
+  private def openWebsocket: ZManaged[Has[AppToken], SlackError, WebSocket[Task]] = for {
+    url  <- slack.openSocketModeConnection.map(_.toEither).absolve.toManaged_
     done <- Promise.makeManaged[Nothing, Boolean]
     p    <- Promise.makeManaged[Nothing, WebSocket[Task]]
     _    <-
@@ -39,7 +39,7 @@ class SlackSocketLive(slack: Slack, client: SttpClient.Service) extends SlackSoc
 
   def connect[R, E1 >: SlackError](
     outbound: ZStream[R, E1, OutboundMessage]
-  ): ZStream[R with Has[AccessToken], E1, SlackEvent] =
+  ): ZStream[R with Has[AppToken], E1, SlackEvent] =
     ZStream.unwrapManaged(for {
       w                <- openWebsocket
       // After the socket has been opened the first message we expect is the "hello" message
@@ -66,7 +66,7 @@ class SlackSocketLive(slack: Slack, client: SttpClient.Service) extends SlackSoc
 
   private def readAllMessages(ws: WebSocket[Task]): ZStream[Any, SlackError, SlackEvent] =
     ZStream
-      .fromEffectOption(readMessage(ws))
+      .repeatEffectOption(readMessage(ws))
       .mapError(SlackError.fromThrowable)
 
   private def readMessage(ws: WebSocket[Task]): IO[Option[Throwable], SlackEvent] =

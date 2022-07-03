@@ -1,4 +1,4 @@
-package com.github.dapperware.slack.models
+package com.github.dapperware.slack.models.events
 
 import io.circe.syntax._
 import io.circe.{ Encoder, Json }
