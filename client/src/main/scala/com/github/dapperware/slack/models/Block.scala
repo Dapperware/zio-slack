@@ -16,19 +16,21 @@ case class Divider(block_id: Option[String] = None) extends Block {
   override val `type`: String = "divider"
 }
 
-case class Section(text: TextObject,
-                   fields: Option[Seq[TextObject]] = None,
-                   accessory: Option[BlockElement] = None,
-                   block_id: Option[String] = None)
-    extends Block {
+case class Section(
+  text: TextObject,
+  fields: Option[Seq[TextObject]] = None,
+  accessory: Option[BlockElement] = None,
+  block_id: Option[String] = None
+) extends Block {
   override val `type`: String = "section"
 }
 
-case class ImageBlock(image_url: String,
-                      alt_text: String,
-                      title: Option[PlainTextObject],
-                      block_id: Option[String] = None)
-    extends Block {
+case class ImageBlock(
+  image_url: String,
+  alt_text: String,
+  title: Option[PlainTextObject],
+  block_id: Option[String] = None
+) extends Block {
   override val `type`: String = "image"
   require(title.forall(_.`type` == "plain_text"))
 }
@@ -47,13 +49,18 @@ case class ContextBlock(elements: Seq[Either[ImageElement, TextObject]], block_i
   override val `type`: String = "context"
 }
 
-case class InputBlock(label: PlainTextObject,
-                      element: InputBlockElement,
-                      dispatch_action: Option[Boolean] = None,
-                      block_id: Option[String] = None,
-                      hint: Option[PlainTextObject] = None,
-                      optional: Option[Boolean] = None)
-    extends Block {
+case class RichTextBlock(elements: Seq[BlockElement], block_id: Option[String] = None) extends Block {
+  override val `type`: String = "rich_text"
+}
+
+case class InputBlock(
+  label: PlainTextObject,
+  element: InputBlockElement,
+  dispatch_action: Option[Boolean] = None,
+  block_id: Option[String] = None,
+  hint: Option[PlainTextObject] = None,
+  optional: Option[Boolean] = None
+) extends Block {
   override val `type` = "input"
 }
 
@@ -125,12 +132,12 @@ object TextObject {
 
   private val textDecoder: Decoder[TextObject] = Decoder.instance[TextObject] { c =>
     for {
-      value <- c.downField("type").as[String]
+      value  <- c.downField("type").as[String]
       result <- value match {
-                 case "plain_text" => c.as[PlainTextObject]
-                 case "mrkdwn"     => c.as[MarkdownTextObject]
-                 case other        => Left(DecodingFailure(s"Invalid text object type: $other", List.empty))
-               }
+                  case "plain_text" => c.as[PlainTextObject]
+                  case "mrkdwn"     => c.as[MarkdownTextObject]
+                  case other        => Left(DecodingFailure(s"Invalid text object type: $other", List.empty))
+                }
     } yield result
   }
 
@@ -149,40 +156,44 @@ trait BlockElement {
 
 case class ImageElement(image_url: String, alt_text: String, `type`: String = "image") extends BlockElement {}
 
-case class ButtonElement(text: PlainTextObject,
-                         action_id: String,
-                         url: Option[String] = None,
-                         value: Option[String] = None,
-                         confirm: Option[ConfirmationObject] = None)
-    extends BlockElement {
+case class ButtonElement(
+  text: PlainTextObject,
+  action_id: String,
+  url: Option[String] = None,
+  value: Option[String] = None,
+  confirm: Option[ConfirmationObject] = None
+) extends BlockElement {
   override val `type`: String = "button"
 }
 
-case class StaticSelectElement(placeholder: PlainTextObject,
-                               action_id: String,
-                               options: Seq[OptionObject],
-                               option_groups: Option[Seq[OptionGroupObject]] = None,
-                               initial_option: Option[Either[OptionObject, OptionGroupObject]] = None,
-                               confirm: Option[ConfirmationObject] = None)
-    extends BlockElement
+case class StaticSelectElement(
+  placeholder: PlainTextObject,
+  action_id: String,
+  options: Seq[OptionObject],
+  option_groups: Option[Seq[OptionGroupObject]] = None,
+  initial_option: Option[Either[OptionObject, OptionGroupObject]] = None,
+  confirm: Option[ConfirmationObject] = None
+) extends BlockElement
     with InputBlockElement {
   override val `type`: String = "static_select"
 }
 
-case class ExternalSelectElement(placeholder: PlainTextObject,
-                                 action_id: String,
-                                 min_query_length: Option[Int] = None,
-                                 initial_option: Option[Either[OptionObject, OptionGroupObject]] = None,
-                                 confirm: Option[ConfirmationObject] = None)
-    extends BlockElement {
+case class ExternalSelectElement(
+  placeholder: PlainTextObject,
+  action_id: String,
+  min_query_length: Option[Int] = None,
+  initial_option: Option[Either[OptionObject, OptionGroupObject]] = None,
+  confirm: Option[ConfirmationObject] = None
+) extends BlockElement {
   override val `type`: String = "external_select"
 }
 
-case class UserSelectElement(placeholder: PlainTextObject,
-                             action_id: String,
-                             initial_user: Option[String] = None,
-                             confirm: Option[ConfirmationObject] = None)
-    extends BlockElement
+case class UserSelectElement(
+  placeholder: PlainTextObject,
+  action_id: String,
+  initial_user: Option[String] = None,
+  confirm: Option[ConfirmationObject] = None
+) extends BlockElement
     with InputBlockElement {
   override val `type`: String = "users_select"
 }
@@ -195,32 +206,35 @@ case class MultiUsersSelectElement(
   override val `type`: String = "multi_users_select"
 }
 
-case class ChannelSelectElement(placeholder: PlainTextObject,
-                                action_id: String,
-                                initial_channel: Option[String] = None,
-                                confirm: Option[ConfirmationObject] = None)
-    extends BlockElement {
+case class ChannelSelectElement(
+  placeholder: PlainTextObject,
+  action_id: String,
+  initial_channel: Option[String] = None,
+  confirm: Option[ConfirmationObject] = None
+) extends BlockElement {
   override val `type`: String = "channels_select"
 }
 
-case class ConversationSelectElement(placeholder: PlainTextObject,
-                                     action_id: String,
-                                     initial_conversation: Option[String] = None,
-                                     confirm: Option[ConfirmationObject] = None,
-                                     response_url_enabled: Option[Boolean] = None)
-    extends BlockElement
+case class ConversationSelectElement(
+  placeholder: PlainTextObject,
+  action_id: String,
+  initial_conversation: Option[String] = None,
+  confirm: Option[ConfirmationObject] = None,
+  response_url_enabled: Option[Boolean] = None
+) extends BlockElement
     with InputBlockElement {
   override val `type`: String = "conversations_select"
 }
 
-case class MultiConversationsSelectElement(placeholder: PlainTextObject,
-                                           action_id: String,
-                                           initial_conversations: Option[List[String]] = None,
-                                           default_to_current_conversation: Option[Boolean] = None,
-                                           confirm: Option[ConfirmationObject] = None,
-                                           max_selected_items: Option[Int] = None,
-                                           response_url_enabled: Option[Boolean] = None)
-    extends BlockElement
+case class MultiConversationsSelectElement(
+  placeholder: PlainTextObject,
+  action_id: String,
+  initial_conversations: Option[List[String]] = None,
+  default_to_current_conversation: Option[Boolean] = None,
+  confirm: Option[ConfirmationObject] = None,
+  max_selected_items: Option[Int] = None,
+  response_url_enabled: Option[Boolean] = None
+) extends BlockElement
     with InputBlockElement {
   override val `type`: String = "multi_conversations_select"
 }
@@ -230,34 +244,213 @@ case class OverflowElement(action_id: String, options: Seq[OptionObject], confir
   override val `type`: String = "overflow"
 }
 
-case class DatePickerElement(action_id: String,
-                             placeholder: PlainTextObject,
-                             initial_date: Option[LocalDate] = None,
-                             confirm: Option[ConfirmationObject] = None)
-    extends BlockElement
+case class DatePickerElement(
+  action_id: String,
+  placeholder: PlainTextObject,
+  initial_date: Option[LocalDate] = None,
+  confirm: Option[ConfirmationObject] = None
+) extends BlockElement
     with InputBlockElement {
   override val `type`: String = "datepicker"
+}
+
+sealed trait RichTextElement
+
+object RichTextElement {
+  case class TextStyle(
+    bold: Option[Boolean] = None,
+    italic: Option[Boolean] = None,
+    strike: Option[Boolean] = None,
+    code: Option[Boolean] = None
+  )
+
+  object TextStyle {
+    implicit val textStyleCodec: Codec.AsObject[TextStyle] = deriveCodec[TextStyle]
+  }
+
+  sealed trait Element extends RichTextElement
+
+  case class Text(text: String, style: Option[TextStyle]) extends Element
+
+  object Text {
+    implicit val codec: Codec.AsObject[Text] = deriveCodec[Text]
+  }
+
+  case class Emoji(text: String) extends Element
+
+  object Emoji {
+    implicit val codec: Codec.AsObject[Emoji] = deriveCodec[Emoji]
+  }
+
+  case class Channel(channel_id: String, style: Option[TextStyle]) extends Element
+
+  object Channel {
+    implicit val codec: Codec.AsObject[Channel] = deriveCodec[Channel]
+  }
+
+  case class User(user_id: String, style: Option[TextStyle]) extends Element
+
+  object User {
+    implicit val codec: Codec.AsObject[User] = deriveCodec[User]
+  }
+
+  case class Link(url: String, text: Option[String], style: Option[TextStyle]) extends Element
+
+  object Link {
+    implicit val codec: Codec.AsObject[Link] = deriveCodec[Link]
+  }
+
+  case class Team(team_id: String, style: Option[TextStyle]) extends Element
+
+  object Team {
+    implicit val codec: Codec.AsObject[Team] = deriveCodec[Team]
+  }
+
+  case class UserGroup(user_group_id: String, style: Option[TextStyle]) extends Element
+
+  object UserGroup {
+    implicit val codec: Codec.AsObject[UserGroup] = deriveCodec[UserGroup]
+  }
+
+  case class Date(ts: String) extends Element
+
+  object Date {
+    implicit val codec: Codec.AsObject[Date] = deriveCodec[Date]
+  }
+
+  case class Broadcast(range: String, style: Option[TextStyle]) extends Element
+
+  object Broadcast {
+    implicit val codec: Codec.AsObject[Broadcast] = deriveCodec[Broadcast]
+  }
+
+  case class Color(value: String) extends Element
+
+  object Color {
+    implicit val codec: Codec.AsObject[Color] = deriveCodec[Color]
+  }
+
+  case class UnknownElement(`type`: String) extends Element with BlockElement
+
+  object Element {
+    implicit val elementDecoder: Decoder[Element] = Decoder.instance[Element] { c =>
+      for {
+        value  <- c.downField("type").as[String]
+        result <- value match {
+                    case "text"       => c.as[Text]
+                    case "emoji"      => c.as[Emoji]
+                    case "channel"    => c.as[Channel]
+                    case "user"       => c.as[User]
+                    case "link"       => c.as[Link]
+                    case "team"       => c.as[Team]
+                    case "user_group" => c.as[UserGroup]
+                    case "date"       => c.as[Date]
+                    case "broadcast"  => c.as[Broadcast]
+                    case "color"      => c.as[Color]
+                    case _            => Right(UnknownElement(value))
+                  }
+      } yield result
+    }
+
+    implicit val elementEncoder: Encoder.AsObject[Element] = Encoder.AsObject.instance[Element] {
+      case t: Text           => t.asJsonObject
+      case e: Emoji          => e.asJsonObject
+      case c: Channel        => c.asJsonObject
+      case u: User           => u.asJsonObject
+      case l: Link           => l.asJsonObject
+      case t: Team           => t.asJsonObject
+      case ug: UserGroup     => ug.asJsonObject
+      case d: Date           => d.asJsonObject
+      case b: Broadcast      => b.asJsonObject
+      case c: Color          => c.asJsonObject
+      case u: UnknownElement => JsonObject("type" -> Json.fromString(u.`type`))
+    }
+  }
+
+  implicit val decoder: Decoder[RichTextElement] = Decoder.instance[RichTextElement] { c =>
+    for {
+      value  <- c.downField("type").as[String]
+      result <- value match {
+                  case "rich_text_section"      => c.as[RichTextSectionElement]
+                  case "rich_text_quote"        => c.as[RichTextQuoteElement]
+                  case "rich_text_list"         => c.as[RichTextListElement]
+                  case "rich_text_preformatted" => c.as[RichTextPreformattedElement]
+                  case _                        => c.as[Element]
+                }
+    } yield result
+  }
+
+}
+
+case class RichTextSectionElement(elements: Seq[RichTextElement]) extends BlockElement with RichTextElement {
+  override val `type`: String = "rich_text_section"
+}
+
+object RichTextSectionElement {
+
+  implicit val decoder: Decoder[RichTextSectionElement] = deriveDecoder[RichTextSectionElement]
+
+}
+
+case class RichTextQuoteElement(elements: Seq[RichTextElement]) extends BlockElement with RichTextElement {
+  override val `type`: String = "rich_text_quote"
+}
+
+object RichTextQuoteElement {
+
+  implicit val decoder: Decoder[RichTextQuoteElement] = deriveDecoder[RichTextQuoteElement]
+
+}
+
+case class RichTextListElement(elements: Seq[RichTextElement], style: RichTextListElement.Style, indent: Option[Int])
+    extends BlockElement
+    with RichTextElement {
+  override val `type`: String = "rich_text_list"
+}
+
+object RichTextListElement {
+
+  sealed trait Style
+  object Style {
+    case object Bulleted extends Style
+    case object Numbered extends Style
+  }
+  implicit val styleDecoder: Decoder[Style] = deriveDecoder[Style]
+
+  implicit val decoder: Decoder[RichTextListElement] = deriveDecoder[RichTextListElement]
+}
+
+case class RichTextPreformattedElement(elements: Seq[RichTextElement]) extends BlockElement with RichTextElement {
+  override val `type`: String = "rich_text_preformatted"
+}
+
+object RichTextPreformattedElement {
+  implicit val decoder: Decoder[RichTextPreformattedElement] = deriveDecoder[RichTextPreformattedElement]
 }
 
 object BlockElement {
   implicit val plainTextFmt: Codec.AsObject[PlainTextObject] = deriveCodec[PlainTextObject]
 
-  implicit val optionObjFmt: Codec.AsObject[OptionObject]    = deriveCodec[OptionObject]
+  implicit val optionObjFmt: Codec.AsObject[OptionObject]         = deriveCodec[OptionObject]
   implicit val optionGrpObjFmt: Codec.AsObject[OptionGroupObject] = deriveCodec[OptionGroupObject]
-  implicit val confirmObjFmt: Codec.AsObject[ConfirmationObject]   = deriveCodec[ConfirmationObject]
+  implicit val confirmObjFmt: Codec.AsObject[ConfirmationObject]  = deriveCodec[ConfirmationObject]
 
-  implicit val eitherOptFmt: Codec[Either[OptionObject,OptionGroupObject]]                    = eitherObjectFormat[OptionObject, OptionGroupObject]("text", "label")
-  implicit val buttonElementFmt: Codec.AsObject[ButtonElement]                = deriveCodec[ButtonElement]
-  implicit val imageElementFmt: Codec.AsObject[ImageElement]                 = deriveCodec[ImageElement]
-  implicit val staticMenuElementFmt: Codec.AsObject[StaticSelectElement]            = deriveCodec[StaticSelectElement]
-  implicit val extMenuElementFmt: Codec.AsObject[ExternalSelectElement]               = deriveCodec[ExternalSelectElement]
-  implicit val userMenuElementFmt: Codec.AsObject[UserSelectElement]              = deriveCodec[UserSelectElement]
-  implicit val multiUsersSelectElementFmt: Codec.AsObject[MultiUsersSelectElement]      = deriveCodec[MultiUsersSelectElement]
-  implicit val channelMenuElementFmt: Codec.AsObject[ChannelSelectElement]           = deriveCodec[ChannelSelectElement]
-  implicit val conversationMenuElementFmt: Codec.AsObject[ConversationSelectElement]      = deriveCodec[ConversationSelectElement]
-  implicit val multiConversationMenuElementFmt: Codec.AsObject[MultiConversationsSelectElement] = deriveCodec[MultiConversationsSelectElement]
-  implicit val overflowElementFmt: Codec.AsObject[OverflowElement]              = deriveCodec[OverflowElement]
-  implicit val datePickerElementFmt: Codec.AsObject[DatePickerElement]            = deriveCodec[DatePickerElement]
+  implicit val eitherOptFmt: Codec[Either[OptionObject, OptionGroupObject]]                     =
+    eitherObjectFormat[OptionObject, OptionGroupObject]("text", "label")
+  implicit val buttonElementFmt: Codec.AsObject[ButtonElement]                                  = deriveCodec[ButtonElement]
+  implicit val imageElementFmt: Codec.AsObject[ImageElement]                                    = deriveCodec[ImageElement]
+  implicit val staticMenuElementFmt: Codec.AsObject[StaticSelectElement]                        = deriveCodec[StaticSelectElement]
+  implicit val extMenuElementFmt: Codec.AsObject[ExternalSelectElement]                         = deriveCodec[ExternalSelectElement]
+  implicit val userMenuElementFmt: Codec.AsObject[UserSelectElement]                            = deriveCodec[UserSelectElement]
+  implicit val multiUsersSelectElementFmt: Codec.AsObject[MultiUsersSelectElement]              =
+    deriveCodec[MultiUsersSelectElement]
+  implicit val channelMenuElementFmt: Codec.AsObject[ChannelSelectElement]                      = deriveCodec[ChannelSelectElement]
+  implicit val conversationMenuElementFmt: Codec.AsObject[ConversationSelectElement]            =
+    deriveCodec[ConversationSelectElement]
+  implicit val multiConversationMenuElementFmt: Codec.AsObject[MultiConversationsSelectElement] =
+    deriveCodec[MultiConversationsSelectElement]
+  implicit val overflowElementFmt: Codec.AsObject[OverflowElement]                              = deriveCodec[OverflowElement]
+  implicit val datePickerElementFmt: Codec.AsObject[DatePickerElement]                          = deriveCodec[DatePickerElement]
 
   private val elemWrites: Encoder[BlockElement] = new Encoder[BlockElement] {
     def apply(element: BlockElement): Json = {
@@ -277,25 +470,26 @@ object BlockElement {
       Json.obj("type" -> element.`type`.asJson).deepMerge(json)
     }
   }
-  private val elemReads: Decoder[BlockElement] = new Decoder[BlockElement] {
+  private val elemReads: Decoder[BlockElement]  = new Decoder[BlockElement] {
 
     override def apply(c: HCursor): Result[BlockElement] =
       for {
-        value <- c.downField("type").as[String]
+        value  <- c.downField("type").as[String]
         result <- value match {
-                   case "button"                     => c.as[ButtonElement]
-                   case "image"                      => c.as[ImageElement]
-                   case "static_select"              => c.as[StaticSelectElement]
-                   case "external_select"            => c.as[ExternalSelectElement]
-                   case "users_select"               => c.as[UserSelectElement]
-                   case "multi_users_select"         => c.as[MultiUsersSelectElement]
-                   case "conversations_select"       => c.as[ConversationSelectElement]
-                   case "multi_conversations_select" => c.as[MultiConversationsSelectElement]
-                   case "channels_select"            => c.as[ChannelSelectElement]
-                   case "overflow"                   => c.as[OverflowElement]
-                   case "datepicker"                 => c.as[DatePickerElement]
-                   case other                        => Left(DecodingFailure(s"Invalid element type: $other", List.empty))
-                 }
+                    case "button"                     => c.as[ButtonElement]
+                    case "image"                      => c.as[ImageElement]
+                    case "static_select"              => c.as[StaticSelectElement]
+                    case "external_select"            => c.as[ExternalSelectElement]
+                    case "users_select"               => c.as[UserSelectElement]
+                    case "multi_users_select"         => c.as[MultiUsersSelectElement]
+                    case "conversations_select"       => c.as[ConversationSelectElement]
+                    case "multi_conversations_select" => c.as[MultiConversationsSelectElement]
+                    case "channels_select"            => c.as[ChannelSelectElement]
+                    case "overflow"                   => c.as[OverflowElement]
+                    case "datepicker"                 => c.as[DatePickerElement]
+                    case "rich_text_section"          => c.as[RichTextSectionElement]
+                    case other                        => Left(DecodingFailure(s"Invalid element type: $other", List.empty))
+                  }
       } yield result
   }
 
@@ -337,44 +531,48 @@ object InputBlockElement {
 }
 
 object Block {
-  implicit val plainTextFmt: Codec.AsObject[PlainTextObject]    = deriveCodec[PlainTextObject]
+  implicit val plainTextFmt: Codec.AsObject[PlainTextObject] = deriveCodec[PlainTextObject]
   implicit val imageElementFmt: Codec.AsObject[ImageElement] = deriveCodec[ImageElement]
 
-  implicit val eitherContextFmt: Codec[Either[ImageElement,TextObject]] = eitherObjectFormat[ImageElement, TextObject]("image_url", "text")
-  implicit val dividerFmt: Codec.AsObject[Divider]     = deriveCodec[Divider]
-  implicit val imageBlockFmt: Codec.AsObject[ImageBlock]    = deriveCodec[ImageBlock]
-  implicit val actionBlockFmt: Codec.AsObject[ActionsBlock]   = deriveCodec[ActionsBlock]
-  implicit val contextBlockFmt: Codec.AsObject[ContextBlock]  = deriveCodec[ContextBlock]
-  implicit val sectionFmt: Codec.AsObject[Section]       = deriveCodec[Section]
-  implicit val headerBlockCodec: Codec.AsObject[HeaderBlock] = deriveCodec[HeaderBlock]
-  implicit val inputBlockCodec: Codec.AsObject[InputBlock]  = deriveCodec[InputBlock]
+  implicit val eitherContextFmt: Codec[Either[ImageElement, TextObject]] =
+    eitherObjectFormat[ImageElement, TextObject]("image_url", "text")
+  implicit val dividerFmt: Codec.AsObject[Divider]                       = deriveCodec[Divider]
+  implicit val imageBlockFmt: Codec.AsObject[ImageBlock]                 = deriveCodec[ImageBlock]
+  implicit val actionBlockFmt: Codec.AsObject[ActionsBlock]              = deriveCodec[ActionsBlock]
+  implicit val contextBlockFmt: Codec.AsObject[ContextBlock]             = deriveCodec[ContextBlock]
+  implicit val sectionFmt: Codec.AsObject[Section]                       = deriveCodec[Section]
+  implicit val headerBlockCodec: Codec.AsObject[HeaderBlock]             = deriveCodec[HeaderBlock]
+  implicit val inputBlockCodec: Codec.AsObject[InputBlock]               = deriveCodec[InputBlock]
+  implicit val richTextBlock: Codec.AsObject[RichTextBlock]              = deriveCodec[RichTextBlock]
 
   private val blockEncoder = Encoder.AsObject.instance[Block] { block =>
     val json = block match {
-      case b: Divider      => b.asJsonObject
-      case b: Section      => b.asJsonObject
-      case b: ImageBlock   => b.asJsonObject
-      case b: ActionsBlock => b.asJsonObject
-      case b: ContextBlock => b.asJsonObject
-      case b: HeaderBlock  => b.asJsonObject
-      case b: InputBlock   => b.asJsonObject
+      case b: Divider       => b.asJsonObject
+      case b: Section       => b.asJsonObject
+      case b: ImageBlock    => b.asJsonObject
+      case b: ActionsBlock  => b.asJsonObject
+      case b: ContextBlock  => b.asJsonObject
+      case b: HeaderBlock   => b.asJsonObject
+      case b: InputBlock    => b.asJsonObject
+      case b: RichTextBlock => b.asJsonObject
     }
     json.add("type", block.`type`.asJson)
   }
 
   private val blockDecoder = Decoder.instance[Block] { c =>
     for {
-      value <- c.downField("type").as[String]
+      value  <- c.downField("type").as[String]
       result <- value match {
-                 case "divider" => c.as[Divider]
-                 case "image"   => c.as[ImageBlock]
-                 case "actions" => c.as[ActionsBlock]
-                 case "context" => c.as[ContextBlock]
-                 case "header"  => c.as[HeaderBlock]
-                 case "input"   => c.as[InputBlock]
-                 case "section" => c.as[Section]
-                 case other     => Left(DecodingFailure(s"Invalid block type: $other", List.empty))
-               }
+                  case "divider"   => c.as[Divider]
+                  case "image"     => c.as[ImageBlock]
+                  case "actions"   => c.as[ActionsBlock]
+                  case "context"   => c.as[ContextBlock]
+                  case "header"    => c.as[HeaderBlock]
+                  case "input"     => c.as[InputBlock]
+                  case "section"   => c.as[Section]
+                  case "rich_text" => c.as[RichTextBlock]
+                  case other       => Left(DecodingFailure(s"Invalid block type: $other", List.empty))
+                }
     } yield result
   }
 

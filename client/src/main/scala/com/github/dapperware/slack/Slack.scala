@@ -2,8 +2,7 @@ package com.github.dapperware.slack
 
 import io.circe.Decoder
 import sttp.client3.asynchttpclient.zio.SttpClient
-import sttp.client3.{ Identity, RequestT }
-import zio.{ Has, Tag, UIO, URIO, ZIO }
+import zio.{ Has, Tag, UIO, URIO, ZIO, ZLayer }
 
 /**
  * The root trait for the Slack API.
@@ -33,9 +32,13 @@ trait Slack
     with Users
     with Views {
 
-  def apiCall[T](request: Request[T, Unit]): UIO[SlackResponse[T]]
+  def client: SlackClient
 
-  def apiCall[T, A](request: Request[T, A])(implicit ev: HasAuth[A], tag: Tag[A]): URIO[Has[A], SlackResponse[T]]
+  def apiCall[T](request: Request[T, Unit]): UIO[SlackResponse[T]] =
+    client.apiCall(request)
+
+  def apiCall[T, A](request: Request[T, A])(implicit ev: HasAuth[A], tag: Tag[A]): URIO[Has[A], SlackResponse[T]] =
+    client.apiCall(request)
 
 }
 
@@ -64,43 +67,21 @@ object Slack
     with UsersAccessors
     with ViewsAccessors {
 
-  def apiCall[T](request: Request[T, Unit]): URIO[Has[Slack], SlackResponse[T]] =
-    ZIO.serviceWith(_.apiCall(request))
-
-  def apiCall[T, A](
-    request: Request[T, A]
-  )(implicit ev: HasAuth[A], tag: Tag[A]): URIO[Has[Slack] with Has[A], SlackResponse[T]] =
-    ZIO.accessM(_.get[Slack].apiCall[T, A](request))
-
   def request(name: String): Request[Unit, AccessToken] = Request.make(MethodName(name))
 
   def request[A: Decoder](name: String, args: (String, SlackParamMagnet)*): Request[A, AccessToken] =
     Request.make(MethodName(name)).formBody(args: _*).as[A]
 
-}
+  def make: ZIO[Has[SlackClient], Nothing, Slack] =
+    ZIO
+      .service[SlackClient]
+      .map(c =>
+        new Slack {
+          val client: SlackClient = c
+        }
+      )
 
-class HttpSlack private (baseUrl: String, client: SttpClient.Service) extends Slack {
+  val http: ZLayer[Has[SttpClient.Service], Nothing, Has[SlackClient] with Has[Slack]] =
+    HttpSlack.layer >+> make.toLayer
 
-  private def makeCall[A](request: RequestT[Identity, SlackResponse[A], Any]): URIO[Any, SlackResponse[A]] =
-    client
-      .send(request)
-      .mapBoth(SlackError.fromThrowable, _.body)
-      .merge
-
-  def apiCall[T](request: Request[T, Unit]): UIO[SlackResponse[T]] =
-    makeCall(request.toRequest(baseUrl))
-
-  def apiCall[T, A](request: Request[T, A])(implicit ev: HasAuth[A], tag: Tag[A]): URIO[Has[A], SlackResponse[T]] =
-    ZIO.service[A].flatMap(auth => makeCall(ev(request.toRequest(baseUrl))(auth)))
-}
-
-object HttpSlack {
-  final val SlackBaseUrl = "https://slack.com/api/"
-
-  def make: ZIO[Has[SttpClient.Service], Nothing, Slack] = make(SlackBaseUrl)
-
-  def make(url: String): ZIO[Has[SttpClient.Service], Nothing, Slack] =
-    ZIO.service[SttpClient.Service].map(new HttpSlack(url, _))
-
-  def layer = make.toLayer
 }

@@ -1,9 +1,9 @@
 package chat
 
+import com.github.dapperware.slack.models.{ Message, SendMessage }
 import com.github.dapperware.slack.realtime.SlackRealtimeClient
-import com.github.dapperware.slack.realtime.models.{ Message, SendMessage }
-import com.github.dapperware.slack.{ AccessToken, HttpSlack, Slack }
-import common.{ accessToken, default, BasicConfig }
+import com.github.dapperware.slack.{ AccessToken, HttpSlack, Slack, SlackSocket, SlackSocketLive }
+import common.{ botToken, default, BasicConfig }
 import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio._
 import zio.console._
@@ -32,13 +32,13 @@ object ChatApp extends App {
       t.replaceAllLiterally(s"<@$ref>", s"@$replace")
     }
 
-  val layers: Layer[Throwable, Has[Slack] with Has[SlackRealtimeClient] with Has[BasicConfig] with Has[AccessToken]] =
-    ZLayer.fromMagic[Has[Slack] with Has[SlackRealtimeClient] with Has[BasicConfig] with Has[AccessToken]](
+  val layers: Layer[Throwable, Has[Slack] with Has[SlackSocket] with Has[BasicConfig] with Has[AccessToken]] =
+    ZLayer.fromMagic[Has[Slack] with Has[SlackSocket] with Has[BasicConfig] with Has[AccessToken]](
       AsyncHttpClientZioBackend.layer(),
-      HttpSlack.layer,
-      SlackRealtimeClient.live,
+      Slack.http,
+      SlackSocketLive.layer,
       default,
-      accessToken.toLayer
+      botToken.toLayer
     )
 
   override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, ExitCode] = {
@@ -53,8 +53,7 @@ object ChatApp extends App {
 
     val chatStack = for {
       outgoing <- messageSender
-      receiver <- SlackRealtimeClient.connect(ZStream.fromQueue(outgoing).forever.flattenTake)
-    } yield receiver
+    } yield SlackSocket.connect(ZStream.fromQueue(outgoing).forever.flattenTake)
 
     chatStack.use { receiver =>
       for {

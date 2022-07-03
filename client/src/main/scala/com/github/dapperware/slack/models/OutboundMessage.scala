@@ -1,4 +1,4 @@
-package com.github.dapperware.slack.realtime.models
+package com.github.dapperware.slack.models
 
 import io.circe.syntax._
 import io.circe.{ Encoder, Json }
@@ -9,8 +9,8 @@ object OutboundMessage {
 
   implicit val sendMessageEncoder: Encoder.AsObject[SendMessage] = io.circe.generic.semiauto.deriveEncoder[SendMessage]
 
-  implicit val encoder: Encoder[OutboundMessage] = Encoder.instance {
-    case i: SendMessage => i.asJson.deepMerge(Json.obj("type" -> "message".asJson))
+  implicit val encoder: Encoder[OutboundMessage] = Encoder.instance { case i: SendMessage =>
+    i.asJson.deepMerge(Json.obj("type" -> "message".asJson))
   }
 
 }

@@ -2,7 +2,7 @@ package joke
 
 import com.github.dapperware.slack.models.Channel
 import com.github.dapperware.slack.{ AccessToken, HttpSlack, Slack, SlackError }
-import common.{ accessToken, BasicConfig }
+import common.{ botToken, BasicConfig }
 import io.circe
 import io.circe.{ DecodingFailure, Json }
 import sttp.client3.asynchttpclient.zio.{ send, AsyncHttpClientZioBackend, SttpClient }
@@ -44,8 +44,8 @@ object JokeApp extends App {
   val layers: ZLayer[Any, Throwable, SttpClient with Has[Slack] with Has[AccessToken] with Has[BasicConfig]] =
     ZLayer.fromMagic[SttpClient with Has[Slack] with Has[AccessToken] with Has[BasicConfig]](
       common.default,
-      accessToken.toLayer,
-      HttpSlack.layer,
+      botToken.toLayer,
+      Slack.http,
       AsyncHttpClientZioBackend.layer()
     )
 

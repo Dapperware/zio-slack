@@ -1,8 +1,6 @@
-package com.github.dapperware.slack.realtime.models
+package com.github.dapperware.slack.models
 
-import com.github.dapperware.slack.models._
 import com.github.dapperware.slack.models
-import com.github.dapperware.slack.models.{ Attachment, Channel, File, Im, ReactionItem, User }
 import io.circe.Decoder.Result
 import io.circe._
 import io.circe.generic.semiauto._

@@ -44,7 +44,7 @@ val sttpV  = "3.6.2"
 ThisBuild / publishTo := sonatypePublishToBundle.value
 
 lazy val root = (project in file("."))
-  .aggregate(core, client, realtime, examples)
+  .aggregate(core, client, examples)
   .settings(publish / skip := true)
   .settings(historyPath := None)
 
@@ -85,29 +85,9 @@ lazy val client = project
   .configs(IntegrationTest)
   .settings(Defaults.itSettings)
 
-lazy val realtime = project
-  .in(file("realtime"))
-  .dependsOn(core, client)
-  .settings(name := "zio-slack-api-realtime")
-  .settings(commonSettings)
-  .settings(
-    testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
-    libraryDependencies ++= Seq(
-      "io.circe"                      %% "circe-generic"                  % circeV,
-      "dev.zio"                       %% "zio-streams"                    % zioV,
-      "dev.zio"                       %% "zio-test"                       % zioV % "it,test",
-      "dev.zio"                       %% "zio-test-sbt"                   % zioV % "it,test",
-      "com.softwaremill.sttp.client3" %% "core"                           % sttpV,
-      "com.softwaremill.sttp.client3" %% "circe"                          % sttpV,
-      "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio1" % sttpV
-    )
-  )
-  .configs(IntegrationTest)
-  .settings(Defaults.itSettings)
-
 lazy val examples = project
   .in(file("examples"))
-  .dependsOn(client, realtime)
+  .dependsOn(client)
   .settings(commonSettings)
   .settings(
     publish / skip := true,

@@ -1,24 +1,22 @@
 package basic
 
-import com.github.dapperware.slack.realtime.SlackRealtimeClient
-import com.github.dapperware.slack.realtime.models.{ SendMessage, UserTyping }
-import com.github.dapperware.slack.{ AccessToken, HttpSlack, Slack, SlackError }
-import common.{ accessToken, default, BasicConfig }
+import com.github.dapperware.slack.models.{ SendMessage, UserTyping }
+import com.github.dapperware.slack.{ AccessToken, Slack, SlackError, SlackSocket, SlackSocketLive }
+import common.{ botToken, default, BasicConfig }
 import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio.console.{ putStrLn, Console }
+import zio.magic._
 import zio.stream.ZStream
 import zio.{ App, ExitCode, Has, ZIO, ZLayer, ZManaged }
-import zio.magic._
 
 object BasicApp extends App {
 
-  val layers
-    : ZLayer[Any, Throwable, Has[Slack] with Has[SlackRealtimeClient] with Has[AccessToken] with Has[BasicConfig]] =
-    ZLayer.fromMagic[Has[Slack] with Has[SlackRealtimeClient] with Has[AccessToken] with Has[BasicConfig]](
+  val layers: ZLayer[Any, Throwable, Has[Slack] with Has[SlackSocket] with Has[AccessToken] with Has[BasicConfig]] =
+    ZLayer.fromMagic[Has[Slack] with Has[SlackSocket] with Has[AccessToken] with Has[BasicConfig]](
       AsyncHttpClientZioBackend.layer(),
-      HttpSlack.layer,
-      SlackRealtimeClient.live,
-      accessToken.toLayer,
+      Slack.http,
+      SlackSocketLive.layer,
+      botToken.toLayer,
       default
     )
 
@@ -27,17 +25,20 @@ object BasicApp extends App {
       resp <- (testApi.toManaged_ <&> testRealtime).provideCustomLayer(layers)
     } yield resp).use_(ZIO.unit).exitCode
 
-  val testRealtime: ZManaged[Has[Slack] with Has[AccessToken] with Has[SlackRealtimeClient] with Has[
+  val testRealtime: ZManaged[Has[Slack] with Has[AccessToken] with Has[SlackSocket] with Has[
     BasicConfig
   ] with Console, SlackError, Unit] =
     for {
-      config   <- ZManaged.service[BasicConfig]
+      config <- ZManaged.service[BasicConfig]
       // Test that we can receive messages
-      receiver <- SlackRealtimeClient.connect(ZStream(SendMessage(config.channel, "Hi realtime!")))
-      _        <- receiver.collectM {
+      _      <- SlackSocket
+                  .connect(ZStream(SendMessage(config.channel, "Hi realtime!")))
+                  .collectM {
                     case UserTyping(channel, user) => putStrLn(s"User $user is typing in $channel").orDie
                     case _                         => ZIO.unit
-                  }.runDrain.toManaged_
+                  }
+                  .runDrain
+                  .toManaged_
     } yield ()
 
   val testApi: ZIO[Has[Slack] with Has[AccessToken] with Has[BasicConfig], SlackError, String] =

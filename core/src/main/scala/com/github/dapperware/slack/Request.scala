@@ -78,7 +78,7 @@ case class Request[+T, Auth](
 
     (body match {
       case SlackBody.JsonBody(json)                =>
-        basicRequest.post(uri"$baseUri/${method.name}").body(json)
+        basicRequest.post(uri"$baseUri/${method.name}").body(json.deepDropNullValues)
       case SlackBody.MixedBody(form, Some(entity)) =>
         entity(basicRequest.post(uri"$baseUri/${method.name}?$form"))
       case SlackBody.MixedBody(form, _)            =>
