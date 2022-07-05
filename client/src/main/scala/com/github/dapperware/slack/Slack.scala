@@ -67,9 +67,9 @@ object Slack
     with UsersAccessors
     with ViewsAccessors {
 
-  def request(name: String): Request[Unit, AccessToken] = Request.make(MethodName(name))
+  def request(name: String): Request[Unit, Unit] = Request.make(MethodName(name))
 
-  def request[A: Decoder](name: String, args: (String, SlackParamMagnet)*): Request[A, AccessToken] =
+  def request[A: Decoder](name: String, args: (String, SlackParamMagnet)*): Request[A, Unit] =
     Request.make(MethodName(name)).formBody(args: _*).as[A]
 
   def make: ZIO[Has[SlackClient], Nothing, Slack] =

@@ -9,8 +9,8 @@ package com.github.dapperware.slack.generated.requests
 case class OpenViewsRequest(trigger_id: String, view: String)
 
 object OpenViewsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[OpenViewsRequest] = deriveEncoder[OpenViewsRequest]
 }
 
@@ -22,8 +22,8 @@ object OpenViewsRequest {
 case class PublishViewsRequest(user_id: String, view: String, hash: Option[String])
 
 object PublishViewsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[PublishViewsRequest] = deriveEncoder[PublishViewsRequest]
 }
 
@@ -34,8 +34,8 @@ object PublishViewsRequest {
 case class PushViewsRequest(trigger_id: String, view: String)
 
 object PushViewsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[PushViewsRequest] = deriveEncoder[PushViewsRequest]
 }
 
@@ -53,7 +53,7 @@ case class UpdateViewsRequest(
 )
 
 object UpdateViewsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[UpdateViewsRequest] = deriveEncoder[UpdateViewsRequest]
 }

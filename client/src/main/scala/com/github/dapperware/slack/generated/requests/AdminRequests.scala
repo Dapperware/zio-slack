@@ -10,8 +10,8 @@ package com.github.dapperware.slack.generated.requests
 case class ApproveAppsAdminRequest(app_id: Option[String], request_id: Option[String], team_id: Option[String])
 
 object ApproveAppsAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[ApproveAppsAdminRequest] = deriveEncoder[ApproveAppsAdminRequest]
 }
 
@@ -59,8 +59,8 @@ object ListRequestsAppsAdminRequest {
 case class RestrictAppsAdminRequest(app_id: Option[String], request_id: Option[String], team_id: Option[String])
 
 object RestrictAppsAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[RestrictAppsAdminRequest] = deriveEncoder[RestrictAppsAdminRequest]
 }
 
@@ -91,8 +91,8 @@ object ListRestrictedAppsAdminRequest {
 case class ArchiveConversationsAdminRequest(channel_id: String)
 
 object ArchiveConversationsAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[ArchiveConversationsAdminRequest] = deriveEncoder[ArchiveConversationsAdminRequest]
 }
 
@@ -102,8 +102,8 @@ object ArchiveConversationsAdminRequest {
 case class ConvertToPrivateConversationsAdminRequest(channel_id: String)
 
 object ConvertToPrivateConversationsAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[ConvertToPrivateConversationsAdminRequest] =
     deriveEncoder[ConvertToPrivateConversationsAdminRequest]
 }
@@ -124,8 +124,8 @@ case class CreateConversationsAdminRequest(
 )
 
 object CreateConversationsAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[CreateConversationsAdminRequest] = deriveEncoder[CreateConversationsAdminRequest]
 }
 
@@ -135,8 +135,8 @@ object CreateConversationsAdminRequest {
 case class DeleteConversationsAdminRequest(channel_id: String)
 
 object DeleteConversationsAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[DeleteConversationsAdminRequest] = deriveEncoder[DeleteConversationsAdminRequest]
 }
 
@@ -147,8 +147,8 @@ object DeleteConversationsAdminRequest {
 case class DisconnectSharedConversationsAdminRequest(channel_id: String, leaving_team_ids: Option[String])
 
 object DisconnectSharedConversationsAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[DisconnectSharedConversationsAdminRequest] =
     deriveEncoder[DisconnectSharedConversationsAdminRequest]
 }
@@ -182,8 +182,8 @@ object ListOriginalConnectedChannelInfoEkmConversationsAdminRequest {
 case class GetTeamsConversationsAdminRequest(channel_id: String, cursor: Option[String], limit: Option[Int])
 
 object GetTeamsConversationsAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[GetTeamsConversationsAdminRequest] = deriveEncoder[GetTeamsConversationsAdminRequest]
 }
 
@@ -194,8 +194,8 @@ object GetTeamsConversationsAdminRequest {
 case class InviteConversationsAdminRequest(user_ids: String, channel_id: String)
 
 object InviteConversationsAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[InviteConversationsAdminRequest] = deriveEncoder[InviteConversationsAdminRequest]
 }
 
@@ -206,8 +206,8 @@ object InviteConversationsAdminRequest {
 case class RenameConversationsAdminRequest(channel_id: String, name: String)
 
 object RenameConversationsAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[RenameConversationsAdminRequest] = deriveEncoder[RenameConversationsAdminRequest]
 }
 
@@ -279,8 +279,8 @@ case class SearchConversationsAdminRequest(
 )
 
 object SearchConversationsAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[SearchConversationsAdminRequest] = deriveEncoder[SearchConversationsAdminRequest]
 }
 
@@ -291,8 +291,8 @@ object SearchConversationsAdminRequest {
 case class SetConversationPrefsConversationsAdminRequest(channel_id: String, prefs: String)
 
 object SetConversationPrefsConversationsAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[SetConversationPrefsConversationsAdminRequest] =
     deriveEncoder[SetConversationPrefsConversationsAdminRequest]
 }
@@ -311,8 +311,8 @@ case class SetTeamsConversationsAdminRequest(
 )
 
 object SetTeamsConversationsAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[SetTeamsConversationsAdminRequest] = deriveEncoder[SetTeamsConversationsAdminRequest]
 }
 
@@ -322,8 +322,8 @@ object SetTeamsConversationsAdminRequest {
 case class UnarchiveConversationsAdminRequest(channel_id: String)
 
 object UnarchiveConversationsAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[UnarchiveConversationsAdminRequest] = deriveEncoder[UnarchiveConversationsAdminRequest]
 }
 
@@ -403,8 +403,8 @@ object RenameEmojiAdminRequest {
 case class ApproveInviteRequestsAdminRequest(invite_request_id: String, team_id: Option[String])
 
 object ApproveInviteRequestsAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[ApproveInviteRequestsAdminRequest] = deriveEncoder[ApproveInviteRequestsAdminRequest]
 }
 
@@ -416,8 +416,8 @@ object ApproveInviteRequestsAdminRequest {
 case class ListApprovedInviteRequestsAdminRequest(team_id: Option[String], cursor: Option[String], limit: Option[Int])
 
 object ListApprovedInviteRequestsAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[ListApprovedInviteRequestsAdminRequest] =
     deriveEncoder[ListApprovedInviteRequestsAdminRequest]
 }
@@ -430,8 +430,8 @@ object ListApprovedInviteRequestsAdminRequest {
 case class ListDeniedInviteRequestsAdminRequest(team_id: Option[String], cursor: Option[String], limit: Option[Int])
 
 object ListDeniedInviteRequestsAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[ListDeniedInviteRequestsAdminRequest] =
     deriveEncoder[ListDeniedInviteRequestsAdminRequest]
 }
@@ -443,8 +443,8 @@ object ListDeniedInviteRequestsAdminRequest {
 case class DenyInviteRequestsAdminRequest(invite_request_id: String, team_id: Option[String])
 
 object DenyInviteRequestsAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[DenyInviteRequestsAdminRequest] = deriveEncoder[DenyInviteRequestsAdminRequest]
 }
 
@@ -456,8 +456,8 @@ object DenyInviteRequestsAdminRequest {
 case class ListInviteRequestsAdminRequest(team_id: Option[String], cursor: Option[String], limit: Option[Int])
 
 object ListInviteRequestsAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[ListInviteRequestsAdminRequest] = deriveEncoder[ListInviteRequestsAdminRequest]
 }
 
@@ -490,8 +490,8 @@ case class CreateTeamsAdminRequest(
 )
 
 object CreateTeamsAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[CreateTeamsAdminRequest] = deriveEncoder[CreateTeamsAdminRequest]
 }
 
@@ -502,8 +502,8 @@ object CreateTeamsAdminRequest {
 case class ListTeamsAdminRequest(limit: Option[Int], cursor: Option[String])
 
 object ListTeamsAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[ListTeamsAdminRequest] = deriveEncoder[ListTeamsAdminRequest]
 }
 
@@ -528,8 +528,8 @@ object ListOwnersTeamsAdminRequest {
 case class InfoSettingsTeamsAdminRequest(team_id: String)
 
 object InfoSettingsTeamsAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[InfoSettingsTeamsAdminRequest] = deriveEncoder[InfoSettingsTeamsAdminRequest]
 }
 
@@ -554,8 +554,8 @@ object SetDefaultChannelsSettingsTeamsAdminRequest {
 case class SetDescriptionSettingsTeamsAdminRequest(team_id: String, description: String)
 
 object SetDescriptionSettingsTeamsAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[SetDescriptionSettingsTeamsAdminRequest] =
     deriveEncoder[SetDescriptionSettingsTeamsAdminRequest]
 }
@@ -567,8 +567,8 @@ object SetDescriptionSettingsTeamsAdminRequest {
 case class SetDiscoverabilitySettingsTeamsAdminRequest(team_id: String, discoverability: String)
 
 object SetDiscoverabilitySettingsTeamsAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[SetDiscoverabilitySettingsTeamsAdminRequest] =
     deriveEncoder[SetDiscoverabilitySettingsTeamsAdminRequest]
 }
@@ -594,8 +594,8 @@ object SetIconSettingsTeamsAdminRequest {
 case class SetNameSettingsTeamsAdminRequest(team_id: String, name: String)
 
 object SetNameSettingsTeamsAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[SetNameSettingsTeamsAdminRequest] = deriveEncoder[SetNameSettingsTeamsAdminRequest]
 }
 
@@ -607,8 +607,8 @@ object SetNameSettingsTeamsAdminRequest {
 case class AddChannelsUsergroupsAdminRequest(usergroup_id: String, channel_ids: String, team_id: Option[String])
 
 object AddChannelsUsergroupsAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[AddChannelsUsergroupsAdminRequest] = deriveEncoder[AddChannelsUsergroupsAdminRequest]
 }
 
@@ -620,8 +620,8 @@ object AddChannelsUsergroupsAdminRequest {
 case class AddTeamsUsergroupsAdminRequest(usergroup_id: String, team_ids: String, auto_provision: Option[Boolean])
 
 object AddTeamsUsergroupsAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[AddTeamsUsergroupsAdminRequest] = deriveEncoder[AddTeamsUsergroupsAdminRequest]
 }
 
@@ -637,8 +637,8 @@ case class ListChannelsUsergroupsAdminRequest(
 )
 
 object ListChannelsUsergroupsAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[ListChannelsUsergroupsAdminRequest] = deriveEncoder[ListChannelsUsergroupsAdminRequest]
 }
 
@@ -649,8 +649,8 @@ object ListChannelsUsergroupsAdminRequest {
 case class RemoveChannelsUsergroupsAdminRequest(usergroup_id: String, channel_ids: String)
 
 object RemoveChannelsUsergroupsAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[RemoveChannelsUsergroupsAdminRequest] =
     deriveEncoder[RemoveChannelsUsergroupsAdminRequest]
 }
@@ -671,8 +671,8 @@ case class AssignUsersAdminRequest(
 )
 
 object AssignUsersAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[AssignUsersAdminRequest] = deriveEncoder[AssignUsersAdminRequest]
 }
 
@@ -700,8 +700,8 @@ case class InviteUsersAdminRequest(
 )
 
 object InviteUsersAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[InviteUsersAdminRequest] = deriveEncoder[InviteUsersAdminRequest]
 }
 
@@ -713,8 +713,8 @@ object InviteUsersAdminRequest {
 case class ListUsersAdminRequest(team_id: String, cursor: Option[String], limit: Option[Int])
 
 object ListUsersAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[ListUsersAdminRequest] = deriveEncoder[ListUsersAdminRequest]
 }
 
@@ -725,8 +725,8 @@ object ListUsersAdminRequest {
 case class RemoveUsersAdminRequest(team_id: String, user_id: String)
 
 object RemoveUsersAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[RemoveUsersAdminRequest] = deriveEncoder[RemoveUsersAdminRequest]
 }
 
@@ -737,8 +737,8 @@ object RemoveUsersAdminRequest {
 case class InvalidateSessionUsersAdminRequest(team_id: String, session_id: Int)
 
 object InvalidateSessionUsersAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[InvalidateSessionUsersAdminRequest] = deriveEncoder[InvalidateSessionUsersAdminRequest]
 }
 
@@ -750,8 +750,8 @@ object InvalidateSessionUsersAdminRequest {
 case class ResetSessionUsersAdminRequest(user_id: String, mobile_only: Option[Boolean], web_only: Option[Boolean])
 
 object ResetSessionUsersAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[ResetSessionUsersAdminRequest] = deriveEncoder[ResetSessionUsersAdminRequest]
 }
 
@@ -762,8 +762,8 @@ object ResetSessionUsersAdminRequest {
 case class SetAdminUsersAdminRequest(team_id: String, user_id: String)
 
 object SetAdminUsersAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[SetAdminUsersAdminRequest] = deriveEncoder[SetAdminUsersAdminRequest]
 }
 
@@ -775,8 +775,8 @@ object SetAdminUsersAdminRequest {
 case class SetExpirationUsersAdminRequest(team_id: String, user_id: String, expiration_ts: Int)
 
 object SetExpirationUsersAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[SetExpirationUsersAdminRequest] = deriveEncoder[SetExpirationUsersAdminRequest]
 }
 
@@ -787,8 +787,8 @@ object SetExpirationUsersAdminRequest {
 case class SetOwnerUsersAdminRequest(team_id: String, user_id: String)
 
 object SetOwnerUsersAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[SetOwnerUsersAdminRequest] = deriveEncoder[SetOwnerUsersAdminRequest]
 }
 
@@ -799,7 +799,7 @@ object SetOwnerUsersAdminRequest {
 case class SetRegularUsersAdminRequest(team_id: String, user_id: String)
 
 object SetRegularUsersAdminRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[SetRegularUsersAdminRequest] = deriveEncoder[SetRegularUsersAdminRequest]
 }

@@ -9,8 +9,8 @@ package com.github.dapperware.slack.generated.requests
 case class AddPinsRequest(channel: String, timestamp: Option[String])
 
 object AddPinsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[AddPinsRequest] = deriveEncoder[AddPinsRequest]
 }
 
@@ -33,7 +33,7 @@ object ListPinsRequest {
 case class RemovePinsRequest(channel: String, timestamp: Option[String])
 
 object RemovePinsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[RemovePinsRequest] = deriveEncoder[RemovePinsRequest]
 }

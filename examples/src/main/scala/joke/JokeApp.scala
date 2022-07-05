@@ -1,7 +1,7 @@
 package joke
 
 import com.github.dapperware.slack.models.Channel
-import com.github.dapperware.slack.{ AccessToken, HttpSlack, Slack, SlackError }
+import com.github.dapperware.slack.{ AccessToken, Slack, SlackError }
 import common.{ botToken, BasicConfig }
 import io.circe
 import io.circe.{ DecodingFailure, Json }
@@ -11,9 +11,9 @@ import sttp.client3.{ basicRequest, Request, ResponseException, UriContext }
 import zio._
 import zio.clock.Clock
 import zio.duration._
+import zio.magic._
 import zio.random.Random
 import zio.stream.ZStream
-import zio.magic._
 
 /**
  * Every 3 hours, randomly pick a channel that the bot is part of and send a chuck norris joke to it.

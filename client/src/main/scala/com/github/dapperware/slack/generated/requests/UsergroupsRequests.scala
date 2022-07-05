@@ -18,8 +18,8 @@ case class CreateUsergroupsRequest(
 )
 
 object CreateUsergroupsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[CreateUsergroupsRequest] = deriveEncoder[CreateUsergroupsRequest]
 }
 
@@ -30,8 +30,8 @@ object CreateUsergroupsRequest {
 case class DisableUsergroupsRequest(usergroup: String, include_count: Option[Boolean])
 
 object DisableUsergroupsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[DisableUsergroupsRequest] = deriveEncoder[DisableUsergroupsRequest]
 }
 
@@ -42,8 +42,8 @@ object DisableUsergroupsRequest {
 case class EnableUsergroupsRequest(usergroup: String, include_count: Option[Boolean])
 
 object EnableUsergroupsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[EnableUsergroupsRequest] = deriveEncoder[EnableUsergroupsRequest]
 }
 
@@ -88,8 +88,8 @@ case class UpdateUsergroupsRequest(
 )
 
 object UpdateUsergroupsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[UpdateUsergroupsRequest] = deriveEncoder[UpdateUsergroupsRequest]
 }
 
@@ -115,7 +115,7 @@ object ListUsersUsergroupsRequest {
 case class UpdateUsersUsergroupsRequest(usergroup: String, users: String, include_count: Option[Boolean])
 
 object UpdateUsersUsergroupsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[UpdateUsersUsergroupsRequest] = deriveEncoder[UpdateUsersUsergroupsRequest]
 }

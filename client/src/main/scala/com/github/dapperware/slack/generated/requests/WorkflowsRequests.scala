@@ -9,8 +9,8 @@ package com.github.dapperware.slack.generated.requests
 case class StepCompletedWorkflowsRequest(workflow_step_execute_id: String, outputs: Option[String])
 
 object StepCompletedWorkflowsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[StepCompletedWorkflowsRequest] = deriveEncoder[StepCompletedWorkflowsRequest]
 }
 
@@ -21,8 +21,8 @@ object StepCompletedWorkflowsRequest {
 case class StepFailedWorkflowsRequest(workflow_step_execute_id: String, error: String)
 
 object StepFailedWorkflowsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[StepFailedWorkflowsRequest] = deriveEncoder[StepFailedWorkflowsRequest]
 }
 
@@ -42,7 +42,7 @@ case class UpdateStepWorkflowsRequest(
 )
 
 object UpdateStepWorkflowsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[UpdateStepWorkflowsRequest] = deriveEncoder[UpdateStepWorkflowsRequest]
 }

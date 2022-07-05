@@ -90,7 +90,7 @@ object LookupByEmailUsersRequest {
 case class SetPresenceUsersRequest(presence: String)
 
 object SetPresenceUsersRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[SetPresenceUsersRequest] = deriveEncoder[SetPresenceUsersRequest]
 }

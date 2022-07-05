@@ -8,8 +8,8 @@ package com.github.dapperware.slack.generated.requests
 case class ArchiveConversationsRequest(channel: Option[String])
 
 object ArchiveConversationsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[ArchiveConversationsRequest] = deriveEncoder[ArchiveConversationsRequest]
 }
 
@@ -19,8 +19,8 @@ object ArchiveConversationsRequest {
 case class CloseConversationsRequest(channel: Option[String])
 
 object CloseConversationsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[CloseConversationsRequest] = deriveEncoder[CloseConversationsRequest]
 }
 
@@ -31,8 +31,8 @@ object CloseConversationsRequest {
 case class CreateConversationsRequest(name: Option[String], is_private: Option[Boolean])
 
 object CreateConversationsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[CreateConversationsRequest] = deriveEncoder[CreateConversationsRequest]
 }
 
@@ -98,8 +98,8 @@ object InfoConversationsRequest {
 case class InviteConversationsRequest(channel: Option[String], users: Option[String])
 
 object InviteConversationsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[InviteConversationsRequest] = deriveEncoder[InviteConversationsRequest]
 }
 
@@ -109,8 +109,8 @@ object InviteConversationsRequest {
 case class JoinConversationsRequest(channel: Option[String])
 
 object JoinConversationsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[JoinConversationsRequest] = deriveEncoder[JoinConversationsRequest]
 }
 
@@ -121,8 +121,8 @@ object JoinConversationsRequest {
 case class KickConversationsRequest(channel: Option[String], user: Option[String])
 
 object KickConversationsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[KickConversationsRequest] = deriveEncoder[KickConversationsRequest]
 }
 
@@ -132,8 +132,8 @@ object KickConversationsRequest {
 case class LeaveConversationsRequest(channel: Option[String])
 
 object LeaveConversationsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[LeaveConversationsRequest] = deriveEncoder[LeaveConversationsRequest]
 }
 
@@ -170,8 +170,8 @@ object ListConversationsRequest {
 case class MarkConversationsRequest(channel: Option[String], ts: Option[Int])
 
 object MarkConversationsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[MarkConversationsRequest] = deriveEncoder[MarkConversationsRequest]
 }
 
@@ -198,8 +198,8 @@ object MembersConversationsRequest {
 case class OpenConversationsRequest(channel: Option[String], users: Option[String], return_im: Option[Boolean])
 
 object OpenConversationsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[OpenConversationsRequest] = deriveEncoder[OpenConversationsRequest]
 }
 
@@ -210,8 +210,8 @@ object OpenConversationsRequest {
 case class RenameConversationsRequest(channel: Option[String], name: Option[String])
 
 object RenameConversationsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[RenameConversationsRequest] = deriveEncoder[RenameConversationsRequest]
 }
 
@@ -257,8 +257,8 @@ object RepliesConversationsRequest {
 case class SetPurposeConversationsRequest(channel: Option[String], purpose: Option[String])
 
 object SetPurposeConversationsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[SetPurposeConversationsRequest] = deriveEncoder[SetPurposeConversationsRequest]
 }
 
@@ -269,8 +269,8 @@ object SetPurposeConversationsRequest {
 case class SetTopicConversationsRequest(channel: Option[String], topic: Option[String])
 
 object SetTopicConversationsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[SetTopicConversationsRequest] = deriveEncoder[SetTopicConversationsRequest]
 }
 
@@ -280,7 +280,7 @@ object SetTopicConversationsRequest {
 case class UnarchiveConversationsRequest(channel: Option[String])
 
 object UnarchiveConversationsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[UnarchiveConversationsRequest] = deriveEncoder[UnarchiveConversationsRequest]
 }

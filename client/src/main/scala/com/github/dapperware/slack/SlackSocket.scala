@@ -67,13 +67,13 @@ class SlackSocketLive(slack: Slack, client: SttpClient.Service) extends SlackSoc
       // TODO Need to intercept and handle the "disconnect" message
       (handshake, rest) = r
       _                <- ZManaged.whenCase(handshake) {
-                            case Some(Right(h @ Hello(_, _, _))) => ZManaged.unit
-                            case _                               =>
+                            case Some(Right(Hello(_, _, _))) => ZManaged.unit
+                            case _                           =>
                               ZManaged.fail(
                                 SlackError.CommunicationError("Protocol error: Did not receive hello message from server.", None)
                               )
                           }
-      stream            = rest.tap(_.fold(onUnhandled, _ => ZIO.unit)).mapM {
+      stream            = rest.tap(_.fold(onUnhandled, _ => ZIO.unit)).collectM {
                             case Right(c: SlackControlEvent)                                             => ZIO.left[SlackControlEvent](c)
                             case Right(SlackSocketEventEnvelope(id, _, accepts_response, payload, _, _)) =>
                               // Handle the acknowledgement of the message
@@ -85,7 +85,6 @@ class SlackSocketLive(slack: Slack, client: SttpClient.Service) extends SlackSoc
                                 .map(SocketEventAck(id, _).asJson.deepDropNullValues.noSpaces)
                                 .flatMap(w.sendText)
                                 .mapBoth(SlackError.fromThrowable, _ => Right(payload))
-
                           }
     } yield stream)
 

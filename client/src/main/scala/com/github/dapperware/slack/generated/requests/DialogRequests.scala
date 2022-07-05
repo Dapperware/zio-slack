@@ -9,7 +9,7 @@ package com.github.dapperware.slack.generated.requests
 case class OpenDialogRequest(dialog: String, trigger_id: String)
 
 object OpenDialogRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[OpenDialogRequest] = deriveEncoder[OpenDialogRequest]
 }

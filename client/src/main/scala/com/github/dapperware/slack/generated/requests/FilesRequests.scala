@@ -9,8 +9,8 @@ package com.github.dapperware.slack.generated.requests
 case class DeleteCommentsFilesRequest(file: Option[String], id: Option[String])
 
 object DeleteCommentsFilesRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[DeleteCommentsFilesRequest] = deriveEncoder[DeleteCommentsFilesRequest]
 }
 
@@ -20,8 +20,8 @@ object DeleteCommentsFilesRequest {
 case class DeleteFilesRequest(file: Option[String])
 
 object DeleteFilesRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[DeleteFilesRequest] = deriveEncoder[DeleteFilesRequest]
 }
 

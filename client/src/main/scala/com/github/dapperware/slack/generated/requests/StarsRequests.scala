@@ -16,8 +16,8 @@ case class AddStarsRequest(
 )
 
 object AddStarsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[AddStarsRequest] = deriveEncoder[AddStarsRequest]
 }
 
@@ -50,7 +50,7 @@ case class RemoveStarsRequest(
 )
 
 object RemoveStarsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[RemoveStarsRequest] = deriveEncoder[RemoveStarsRequest]
 }

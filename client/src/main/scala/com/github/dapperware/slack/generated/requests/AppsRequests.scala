@@ -10,8 +10,8 @@ package com.github.dapperware.slack.generated.requests
 case class ListAuthorizationsEventAppsRequest(event_context: String, cursor: Option[String], limit: Option[Int])
 
 object ListAuthorizationsEventAppsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[ListAuthorizationsEventAppsRequest] = deriveEncoder[ListAuthorizationsEventAppsRequest]
 }
 

@@ -10,8 +10,8 @@ package com.github.dapperware.slack.generated.requests
 case class DeleteChatRequest(ts: String, channel: String, as_user: Option[Boolean])
 
 object DeleteChatRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[DeleteChatRequest] = deriveEncoder[DeleteChatRequest]
 }
 
@@ -23,8 +23,8 @@ object DeleteChatRequest {
 case class DeleteScheduledMessageChatRequest(channel: String, scheduled_message_id: String, as_user: Option[Boolean])
 
 object DeleteScheduledMessageChatRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[DeleteScheduledMessageChatRequest] = deriveEncoder[DeleteScheduledMessageChatRequest]
 }
 
@@ -49,8 +49,8 @@ object GetPermalinkChatRequest {
 case class MeMessageChatRequest(channel: Option[String], text: Option[String])
 
 object MeMessageChatRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[MeMessageChatRequest] = deriveEncoder[MeMessageChatRequest]
 }
 
@@ -84,8 +84,8 @@ case class PostEphemeralChatRequest(
 )
 
 object PostEphemeralChatRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[PostEphemeralChatRequest] = deriveEncoder[PostEphemeralChatRequest]
 }
 
@@ -125,8 +125,8 @@ case class PostMessageChatRequest(
 )
 
 object PostMessageChatRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[PostMessageChatRequest] = deriveEncoder[PostMessageChatRequest]
 }
 
@@ -160,8 +160,8 @@ case class ScheduleMessageChatRequest(
 )
 
 object ScheduleMessageChatRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[ScheduleMessageChatRequest] = deriveEncoder[ScheduleMessageChatRequest]
 }
 
@@ -183,8 +183,8 @@ case class ListScheduledMessagesChatRequest(
 )
 
 object ListScheduledMessagesChatRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[ListScheduledMessagesChatRequest] = deriveEncoder[ListScheduledMessagesChatRequest]
 }
 
@@ -206,8 +206,8 @@ case class UnfurlChatRequest(
 )
 
 object UnfurlChatRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[UnfurlChatRequest] = deriveEncoder[UnfurlChatRequest]
 }
 
@@ -233,7 +233,7 @@ case class UpdateChatRequest(
 )
 
 object UpdateChatRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[UpdateChatRequest] = deriveEncoder[UpdateChatRequest]
 }

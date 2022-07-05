@@ -6,12 +6,12 @@ version: 2
 jobs:
   test212_jdk8:
     docker:
-      - image: circleci/openjdk:8-jdk
+      - image: cimg/openjdk:8-jdk
     steps:
       - checkout
       - restore_cache:
           key: sbtcache
-      - run: sbt ++2.12.10! core/test client/test realtime/test examples/compile
+      - run: sbt ++2.12.10! core/test client/test examples/compile
       - save_cache:
           key: sbtcache
           paths:
@@ -20,12 +20,26 @@ jobs:
             - "~/.m2"
   test213_jdk11:
     docker:
-      - image: circleci/openjdk:8-jdk
+      - image: cimg/openjdk:11-jdk
     steps:
       - checkout
       - restore_cache:
           key: sbtcache
-      - run: sbt ++2.13.1! core/test client/test realtime/test examples/compile
+      - run: sbt ++2.13.1! core/test client/test examples/compile
+      - save_cache:
+          key: sbtcache
+          paths:
+            - "~/.ivy2/cache"
+            - "~/.sbt"
+            - "~/.m2"
+  test213_jdk17:
+    docker:
+      - image: cimg/openjdk:17-jdk
+    steps:
+      - checkout
+      - restore_cache:
+          key: sbtcache
+      - run: sbt ++2.13.1! core/test client/test examples/compile
       - save_cache:
           key: sbtcache
           paths:
@@ -34,7 +48,7 @@ jobs:
             - "~/.m2"
   release:
     docker:
-      - image: circleci/openjdk:8-jdk
+      - image: cimg/openjdk:11-jdk
     steps:
       - checkout
       - run: git fetch --tags

@@ -1,7 +1,7 @@
 package search
 
-import com.github.dapperware.slack.{ AccessToken, HttpSlack, Slack, SlackSocket, SlackSocketLive }
-import common.{ botToken, userToken, BasicConfig }
+import com.github.dapperware.slack.{ AccessToken, Slack }
+import common.{ userToken, BasicConfig }
 import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio.console._
 import zio.magic._

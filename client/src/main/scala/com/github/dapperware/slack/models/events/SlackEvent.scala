@@ -403,6 +403,7 @@ object SlackEvent {
 
   // Event Reads/Writes
   implicit val slackEventWrites: Encoder[SlackEvent] = Encoder.instance[SlackEvent] {
+    case e: AppMention              => e.asJson
     case e: Message                 => e.asJson
     case e: Reply                   => e.asJson
     case e: MessageChanged          => e.asJson

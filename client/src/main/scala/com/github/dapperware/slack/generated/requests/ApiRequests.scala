@@ -9,7 +9,7 @@ package com.github.dapperware.slack.generated.requests
 case class TestApiRequest(error: Option[String], foo: Option[String])
 
 object TestApiRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[TestApiRequest] = deriveEncoder[TestApiRequest]
 }

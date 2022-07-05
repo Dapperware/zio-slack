@@ -10,8 +10,8 @@ package com.github.dapperware.slack.generated.requests
 case class AddReactionsRequest(channel: String, name: String, timestamp: String)
 
 object AddReactionsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[AddReactionsRequest] = deriveEncoder[AddReactionsRequest]
 }
 
@@ -92,7 +92,7 @@ case class RemoveReactionsRequest(
 )
 
 object RemoveReactionsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[RemoveReactionsRequest] = deriveEncoder[RemoveReactionsRequest]
 }

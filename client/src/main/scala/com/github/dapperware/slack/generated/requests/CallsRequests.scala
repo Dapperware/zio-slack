@@ -24,8 +24,8 @@ case class AddCallsRequest(
 )
 
 object AddCallsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[AddCallsRequest] = deriveEncoder[AddCallsRequest]
 }
 
@@ -36,8 +36,8 @@ object AddCallsRequest {
 case class EndCallsRequest(id: String, duration: Option[Int])
 
 object EndCallsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[EndCallsRequest] = deriveEncoder[EndCallsRequest]
 }
 
@@ -47,8 +47,8 @@ object EndCallsRequest {
 case class InfoCallsRequest(id: String)
 
 object InfoCallsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[InfoCallsRequest] = deriveEncoder[InfoCallsRequest]
 }
 
@@ -59,8 +59,8 @@ object InfoCallsRequest {
 case class AddParticipantsCallsRequest(id: String, users: String)
 
 object AddParticipantsCallsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[AddParticipantsCallsRequest] = deriveEncoder[AddParticipantsCallsRequest]
 }
 
@@ -71,8 +71,8 @@ object AddParticipantsCallsRequest {
 case class RemoveParticipantsCallsRequest(id: String, users: String)
 
 object RemoveParticipantsCallsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[RemoveParticipantsCallsRequest] = deriveEncoder[RemoveParticipantsCallsRequest]
 }
 
@@ -90,7 +90,7 @@ case class UpdateCallsRequest(
 )
 
 object UpdateCallsRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[UpdateCallsRequest] = deriveEncoder[UpdateCallsRequest]
 }

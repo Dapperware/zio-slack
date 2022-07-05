@@ -8,8 +8,8 @@ package com.github.dapperware.slack.generated.requests
 case class CompleteRemindersRequest(reminder: Option[String])
 
 object CompleteRemindersRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[CompleteRemindersRequest] = deriveEncoder[CompleteRemindersRequest]
 }
 
@@ -19,8 +19,8 @@ object CompleteRemindersRequest {
 case class DeleteRemindersRequest(reminder: Option[String])
 
 object DeleteRemindersRequest {
-  import io.circe.generic.semiauto.deriveEncoder
   import io.circe.Encoder
+  import io.circe.generic.semiauto.deriveEncoder
   implicit val encoder: Encoder[DeleteRemindersRequest] = deriveEncoder[DeleteRemindersRequest]
 }
 
