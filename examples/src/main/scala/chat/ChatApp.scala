@@ -1,14 +1,13 @@
 package chat
 
+import com.github.dapperware.slack.models.events.Message
 import com.github.dapperware.slack.models.events.SocketEventPayload.Event
-import com.github.dapperware.slack.models.events.{ Message, SendMessage, SlackSocketEventEnvelope }
 import com.github.dapperware.slack.{ AccessToken, AppToken, Slack, SlackSocket, SlackSocketLive }
 import common.{ appToken, botToken, default, BasicConfig }
 import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio._
 import zio.console._
 import zio.magic._
-import zio.stream.ZStream
 
 /**
  * A simple interactive application to show how to use slack zio for much profit

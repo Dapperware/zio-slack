@@ -1,13 +1,12 @@
 package basic
 
 import com.github.dapperware.slack.models.events.SocketEventPayload.Event
-import com.github.dapperware.slack.models.events.{ Hello, SendMessage, SlackSocketEventEnvelope, UserTyping }
+import com.github.dapperware.slack.models.events.{ Hello, UserTyping }
 import com.github.dapperware.slack.{ AccessToken, AppToken, Slack, SlackError, SlackSocket, SlackSocketLive }
 import common.{ appToken, botToken, default, BasicConfig }
 import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
 import zio.console.{ putStrLn, Console }
 import zio.magic._
-import zio.stream.ZStream
 import zio.{ App, ExitCode, Has, ZIO, ZLayer, ZManaged }
 
 object BasicApp extends App {
@@ -30,17 +29,14 @@ object BasicApp extends App {
   val testRealtime: ZManaged[Has[Slack] with Has[AppToken] with Has[AccessToken] with Has[SlackSocket] with Has[
     BasicConfig
   ] with Console, SlackError, Unit] =
-    for {
-      config <- ZManaged.service[BasicConfig]
-      // Test that we can receive messages
-      _      <- SlackSocket().collectM {
-                  case Left(_: Hello)                                                  =>
-                    putStrLn("Said Hello").orDie
-                  case Right(Event(_, _, _, UserTyping(channel, user), _, _, _, _, _)) =>
-                    putStrLn(s"User $user is typing in $channel").orDie
-                  case _                                                               => ZIO.unit
-                }.runDrain.toManaged_
-    } yield ()
+    // Test that we can receive messages
+    SlackSocket().collectM {
+      case Left(_: Hello)                                                  =>
+        putStrLn("Said Hello").orDie
+      case Right(Event(_, _, _, UserTyping(channel, user), _, _, _, _, _)) =>
+        putStrLn(s"User $user is typing in $channel").orDie
+      case _                                                               => ZIO.unit
+    }.runDrain.toManaged_
 
   val testApi: ZIO[Has[Slack] with Has[AccessToken] with Has[BasicConfig], SlackError, String] =
     for {

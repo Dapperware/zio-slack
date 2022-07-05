@@ -17,7 +17,7 @@ trait Reactions { self: Slack =>
     channelId: String,
     timestamp: String
   ): URIO[Has[AccessToken], SlackResponse[Unit]] =
-    apiCall(Reactions.addReactions(AddReactionsRequest(emojiName, channelId, timestamp)))
+    apiCall(Reactions.addReactions(AddReactionsRequest(channel = channelId, name = emojiName, timestamp = timestamp)))
 
   def removeReaction(
     emojiName: String,
