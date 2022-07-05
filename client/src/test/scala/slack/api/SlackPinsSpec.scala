@@ -2,10 +2,10 @@ package slack.api
 
 import com.github.dapperware.slack.{ HttpSlack, Slack, SlackResponse }
 import sttp.client3.Request
-import sttp.client3.asynchttpclient.zio.{ stubbing, SttpClient, SttpClientStubbing }
+import sttp.client3.asynchttpclient.zio.{ stubbing, SttpClientStubbing }
 import sttp.model.Method
 import zio.test.{ Assertion, _ }
-import zio.{ Has, Layer }
+import zio.magic._
 
 object SlackPinsSpec extends DefaultRunnableSpec with MockSttpBackend {
   private def whenRequestMatches(p: Request[_, _] => Boolean): SttpClientStubbing.StubbingWhenRequest =
@@ -22,8 +22,6 @@ object SlackPinsSpec extends DefaultRunnableSpec with MockSttpBackend {
   private val expectedBody2 = "channel=zoo-channel&timestamp=1234567890.123456"
 
   private val expectedBody1 = "channel=foo-channel"
-
-  private val stubLayer: Layer[Nothing, SttpClient with Has[SttpClientStubbing.Service]] = sttpBackEndStubLayer
 
   override def spec: ZSpec[Environment, Failure] = suite("Pins")(
     testM("sends channel-id") {
@@ -42,5 +40,5 @@ object SlackPinsSpec extends DefaultRunnableSpec with MockSttpBackend {
 
       assertM(stubEffect *> Slack.pin("zoo-channel", Some("1234567890.123456")))(isOk)
     }
-  ).provideLayer((stubLayer >>> HttpSlack.layer) ++ accessTokenLayer("foo-access-token") ++ stubLayer)
+  ).inject(sttpBackEndStubLayer, HttpSlack.layer, accessTokenLayer("foo-access-token"))
 }

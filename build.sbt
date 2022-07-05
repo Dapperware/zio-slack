@@ -74,8 +74,9 @@ lazy val client = project
     testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
     libraryDependencies ++= Seq(
       "io.circe"                      %% "circe-generic"                  % circeV,
-      "dev.zio"                       %% "zio-test"                       % zioV % "it,test",
-      "dev.zio"                       %% "zio-test-sbt"                   % zioV % "it,test",
+      "dev.zio"                       %% "zio-test"                       % zioV     % "it,test",
+      "dev.zio"                       %% "zio-test-sbt"                   % zioV     % "it,test",
+      "io.github.kitlangton"          %% "zio-magic"                      % "0.3.12" % Test,
       "com.softwaremill.sttp.client3" %% "core"                           % sttpV,
       "com.softwaremill.sttp.client3" %% "circe"                          % sttpV,
       "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio1" % sttpV

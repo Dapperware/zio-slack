@@ -49,7 +49,7 @@ trait Calls { self: Slack =>
     id: String,
     duration: Option[Duration]
   ): URIO[Has[AccessToken], SlackResponse[Call]] =
-    apiCall(Calls.endCalls(EndCallsRequest(id, duration = duration.map(_.toSeconds.toInt))).map(_.call))
+    apiCall(Calls.endCalls(EndCallsRequest(id, duration = duration.map(d => (d.toMillis / 1000).toInt))).map(_.call))
 
   /**
    * https://api.slack.com/methods/calls.info

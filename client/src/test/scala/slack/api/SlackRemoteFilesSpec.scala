@@ -9,6 +9,7 @@ import sttp.client3.asynchttpclient.zio.{ stubbing, SttpClient, SttpClientStubbi
 import zio.{ Chunk, Has, Layer }
 import com.github.dapperware.slack.models.Shares
 import sttp.client3.Request
+import zio.magic._
 
 object SlackRemoteFilesSpec extends DefaultRunnableSpec with MockSttpBackend {
 
@@ -96,8 +97,6 @@ object SlackRemoteFilesSpec extends DefaultRunnableSpec with MockSttpBackend {
     Nil
   )
 
-  private val stubLayer: Layer[Nothing, SttpClient with Has[SttpClientStubbing.Service]] = sttpBackEndStubLayer
-
   private def isExpectedContent(reqString: String, expectedBits: String*): Boolean =
     (expectedBits.toList ++ minimumExpectedContent).forall(reqString.contains)
 
@@ -152,6 +151,10 @@ object SlackRemoteFilesSpec extends DefaultRunnableSpec with MockSttpBackend {
       )
       assertM(effect)(equalTo(expectedResponse))
     }
-  ).provideLayer((stubLayer >>> HttpSlack.layer) ++ accessTokenLayer("foo-access-token") ++ stubLayer)
+  ).inject(
+    sttpBackEndStubLayer,
+    HttpSlack.layer,
+    accessTokenLayer("foo-access-token")
+  )
 
 }
