@@ -1,7 +1,7 @@
 package com.github.dapperware.slack.models.events
 
 import com.github.dapperware.slack.models
-import com.github.dapperware.slack.models.{ Attachment, Channel, File, Im, ReactionItem, User }
+import com.github.dapperware.slack.models.{ Attachment, Block, Channel, File, Im, ReactionItem, User }
 import io.circe.Decoder.Result
 import io.circe._
 import io.circe.generic.semiauto._
@@ -9,8 +9,6 @@ import io.circe.syntax._
 
 // Marker trait for slack events we receive from the realtime system
 sealed trait SlackEvent extends Serializable with Product
-
-case class Hello(`type`: String) extends SlackEvent
 
 // TODO: Message Sub-types
 case class Message(
@@ -81,6 +79,19 @@ object MessageSubtypes {
   }
 
 }
+
+case class AppMention(
+  ts: String,
+  channel: String,
+  client_msg_id: String,
+  text: Option[String],
+  user: String,
+  bot_id: Option[String],
+  username: Option[String],
+  blocks: Option[List[Block]],
+  attachments: Option[List[Attachment]],
+  event_ts: String
+) extends SlackEvent
 
 case class ReactionAdded(
   reaction: String,
@@ -293,7 +304,6 @@ case class MobileInAppNotification(
 
 object SlackEvent {
   // Event Formats
-  implicit val helloFmt: Codec.AsObject[Hello]                                  = deriveCodec[Hello]
   implicit val messageFmt: Codec.AsObject[Message]                              = deriveCodec[Message]
   implicit val messageRepl: Codec.AsObject[Reply]                               = deriveCodec[Reply]
   implicit val replyMarkerFmt: Codec.AsObject[ReplyMarker]                      = deriveCodec[ReplyMarker]
@@ -372,6 +382,7 @@ object SlackEvent {
   implicit val memberLeft: Codec.AsObject[MemberLeft]                           = deriveCodec[MemberLeft]
   implicit val pong: Codec.AsObject[Pong]                                       = deriveCodec[Pong]
   implicit val mobileInAppNotification: Codec.AsObject[MobileInAppNotification] = deriveCodec[MobileInAppNotification]
+  implicit val appMentionCodec: Codec.AsObject[AppMention]                      = deriveCodec[AppMention]
 
   // Message sub-types
   import MessageSubtypes._
@@ -392,7 +403,6 @@ object SlackEvent {
 
   // Event Reads/Writes
   implicit val slackEventWrites: Encoder[SlackEvent] = Encoder.instance[SlackEvent] {
-    case e: Hello                   => e.asJson
     case e: Message                 => e.asJson
     case e: Reply                   => e.asJson
     case e: MessageChanged          => e.asJson
@@ -496,13 +506,13 @@ object SlackEvent {
         etype   <- c.downField("type").as[String]
         subtype <- c.downField("subtype").as[Option[String]]
         result  <- etype match {
-                     case "hello"                                          => c.as[Hello]
                      case "message" if subtype.contains("message_changed") => c.as[MessageChanged]
                      case "message" if subtype.contains("message_deleted") => c.as[MessageDeleted]
                      case "message" if subtype.contains("message_replied") => c.as[MessageReplied]
                      case "message" if subtype.contains("bot_message")     => c.as[BotMessage]
                      case "message" if subtype.isDefined                   => c.as[MessageWithSubtype]
                      case "message"                                        => c.as[Message]
+                     case "app_mention"                                    => c.as[AppMention]
                      case "user_typing"                                    => c.as[UserTyping]
                      case "reaction_added"                                 => c.as[ReactionAdded]
                      case "reaction_removed"                               => c.as[ReactionRemoved]

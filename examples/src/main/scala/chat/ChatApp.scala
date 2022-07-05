@@ -1,6 +1,7 @@
 package chat
 
-import com.github.dapperware.slack.models.events.{ Message, SendMessage }
+import com.github.dapperware.slack.models.events.SocketEventPayload.Event
+import com.github.dapperware.slack.models.events.{ Message, SendMessage, SlackSocketEventEnvelope }
 import com.github.dapperware.slack.{ AccessToken, AppToken, Slack, SlackSocket, SlackSocketLive }
 import common.{ appToken, botToken, default, BasicConfig }
 import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
@@ -43,34 +44,23 @@ object ChatApp extends App {
       appToken.toLayer
     )
 
-  override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, ExitCode] = {
-    val messageSender = ZStream
-      .repeatEffect(for {
-        input   <- getStrLn
-        channel <- ZIO.service[BasicConfig].map(_.channel)
-        message  = SendMessage(channel, input)
-      } yield message)
-      .toQueueUnbounded
-
-    val chatStack = for {
-      outgoing <- messageSender
-    } yield SlackSocket.connect(ZStream.fromQueue(outgoing).flattenTake)
-
-    chatStack.use { receiver =>
-      for {
-        socketFiber <- receiver.collectM { case Message(_, channel, user, text, _, _) =>
-                         val references = ZIO.foreach(findReferences(text)) { ref =>
-                           Slack.getUserInfo(ref).map(_.toEither.map(ref -> _.user.name)).absolve
-                         }
-                         (Slack.getConversationInfo(channel).map(_.toEither).absolve <&>
-                           Slack.getUserInfo(user).map(_.toEither).absolve <&>
-                           references).flatMap { case ((c, u), r) =>
-                           putStrLn(s"${c.name}: ${u.user.name} -> ${replaceReferences(text, r)}")
-                         }
-                       }.runDrain.fork
-        _           <- putStrLn("Ready for input!")
-        _           <- socketFiber.join
-      } yield ()
-    }.provideCustomLayer(layers).exitCode
-  }
+  override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, ExitCode] =
+    (for {
+      fib <-
+        SlackSocket().collectM { case Right(Event(_, _, _, Message(_, channel, user, text, _, _), _, _, _, _, _)) =>
+          val references = ZIO.foreach(findReferences(text)) { ref =>
+            Slack.getUserInfo(ref).map(_.toEither.map(ref -> _.user.name)).absolve
+          }
+          (Slack.getConversationInfo(channel).map(_.toEither).absolve <&>
+            Slack.getUserInfo(user).map(_.toEither).absolve <&>
+            references).flatMap { case ((c, u), r) =>
+            putStrLn(s"${c.name}: ${u.user.name} -> ${replaceReferences(text, r)}").orDie
+          }
+        }.runDrain
+          .tapError(e => putStrLn(e.toString).orDie)
+          .fork
+      _   <- getStrLn *> fib.interrupt
+    } yield ())
+      .provideCustomLayer(layers)
+      .exitCode
 }

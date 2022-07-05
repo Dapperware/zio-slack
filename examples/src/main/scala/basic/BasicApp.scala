@@ -1,6 +1,7 @@
 package basic
 
-import com.github.dapperware.slack.models.events.{ SendMessage, UserTyping }
+import com.github.dapperware.slack.models.events.SocketEventPayload.Event
+import com.github.dapperware.slack.models.events.{ Hello, SendMessage, SlackSocketEventEnvelope, UserTyping }
 import com.github.dapperware.slack.{ AccessToken, AppToken, Slack, SlackError, SlackSocket, SlackSocketLive }
 import common.{ appToken, botToken, default, BasicConfig }
 import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
@@ -32,14 +33,13 @@ object BasicApp extends App {
     for {
       config <- ZManaged.service[BasicConfig]
       // Test that we can receive messages
-      _      <- SlackSocket
-                  .connect(ZStream(SendMessage(config.channel, "Hi realtime!")))
-                  .collectM {
-                    case UserTyping(channel, user) => putStrLn(s"User $user is typing in $channel").orDie
-                    case _                         => ZIO.unit
-                  }
-                  .runDrain
-                  .toManaged_
+      _      <- SlackSocket().collectM {
+                  case Left(_: Hello)                                                  =>
+                    putStrLn("Said Hello").orDie
+                  case Right(Event(_, _, _, UserTyping(channel, user), _, _, _, _, _)) =>
+                    putStrLn(s"User $user is typing in $channel").orDie
+                  case _                                                               => ZIO.unit
+                }.runDrain.toManaged_
     } yield ()
 
   val testApi: ZIO[Has[Slack] with Has[AccessToken] with Has[BasicConfig], SlackError, String] =

@@ -10,11 +10,10 @@ import zio.{ App, ExitCode, Has, Layer, ZIO, ZLayer }
 
 object SearchApp extends App {
 
-  val layers: Layer[Throwable, Has[Slack] with Has[SlackSocket] with Has[AccessToken] with Has[BasicConfig]] =
-    ZLayer.fromMagic[Has[Slack] with Has[SlackSocket] with Has[AccessToken] with Has[BasicConfig]](
+  val layers: Layer[Throwable, Has[Slack] with Has[AccessToken] with Has[BasicConfig]] =
+    ZLayer.fromMagic[Has[Slack] with Has[AccessToken] with Has[BasicConfig]](
       AsyncHttpClientZioBackend.layer(),
       Slack.http,
-      SlackSocketLive.layer,
       common.default,
       userToken.toLayer
     )
