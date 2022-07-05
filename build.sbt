@@ -56,8 +56,9 @@ lazy val core = project
     testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
     libraryDependencies ++= Seq(
       "dev.zio"                       %% "zio"                            % zioV,
-      "dev.zio"                       %% "zio-test"                       % zioV % Test,
-      "dev.zio"                       %% "zio-test-sbt"                   % zioV % Test,
+      "dev.zio"                       %% "zio-test"                       % zioV     % Test,
+      "dev.zio"                       %% "zio-test-sbt"                   % zioV     % Test,
+      "io.github.kitlangton"          %% "zio-magic"                      % "0.3.12" % Test,
       "com.softwaremill.sttp.client3" %% "core"                           % sttpV,
       "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio1" % sttpV,
       "com.softwaremill.sttp.client3" %% "circe"                          % sttpV

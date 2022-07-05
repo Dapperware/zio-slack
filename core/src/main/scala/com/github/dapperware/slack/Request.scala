@@ -99,7 +99,7 @@ object Request {
   ): ResponseAs[Either[ResponseException[String, circe.Error], A], Any] =
     asString.mapWithMetadata(ResponseAs.deserializeRightWithError(f)).showAsJson
 
-  def make(method: MethodName, body: SlackBody = SlackBody.empty): Request[Unit, AccessToken] =
+  def make(method: MethodName, body: SlackBody = SlackBody.empty): Request[Unit, Unit] =
     Request(method, body, _ => Right(()))
 
 }
