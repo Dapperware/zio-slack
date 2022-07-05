@@ -4,51 +4,51 @@
 #
 version: 2
 jobs:
-  test212_jdk8:
-    docker:
-      - image: cimg/openjdk:8-jdk
-    steps:
-      - checkout
-      - restore_cache:
-          key: sbtcache
-      - run: sbt ++2.12.10! core/test client/test examples/compile
-      - save_cache:
-          key: sbtcache
-          paths:
-            - "~/.ivy2/cache"
-            - "~/.sbt"
-            - "~/.m2"
-  test213_jdk11:
-    docker:
-      - image: cimg/openjdk:11-jdk
-    steps:
-      - checkout
-      - restore_cache:
-          key: sbtcache
-      - run: sbt ++2.13.1! core/test client/test examples/compile
-      - save_cache:
-          key: sbtcache
-          paths:
-            - "~/.ivy2/cache"
-            - "~/.sbt"
-            - "~/.m2"
-  test213_jdk17:
-    docker:
-      - image: cimg/openjdk:17-jdk
-    steps:
-      - checkout
-      - restore_cache:
-          key: sbtcache
-      - run: sbt ++2.13.1! core/test client/test examples/compile
-      - save_cache:
-          key: sbtcache
-          paths:
-            - "~/.ivy2/cache"
-            - "~/.sbt"
-            - "~/.m2"
+#  test212_jdk8:
+#    docker:
+#      - image: cimg/openjdk:8-jdk
+#    steps:
+#      - checkout
+#      - restore_cache:
+#          key: sbtcache
+#      - run: sbt ++2.12.10! core/test client/test examples/compile
+#      - save_cache:
+#          key: sbtcache
+#          paths:
+#            - "~/.ivy2/cache"
+#            - "~/.sbt"
+#            - "~/.m2"
+#  test213_jdk11:
+#    docker:
+#      - image: cimg/openjdk:11-jdk
+#    steps:
+#      - checkout
+#      - restore_cache:
+#          key: sbtcache
+#      - run: sbt ++2.13.1! core/test client/test examples/compile
+#      - save_cache:
+#          key: sbtcache
+#          paths:
+#            - "~/.ivy2/cache"
+#            - "~/.sbt"
+#            - "~/.m2"
+#  test213_jdk17:
+#    docker:
+#      - image: cimg/openjdk:17-jdk
+#    steps:
+#      - checkout
+#      - restore_cache:
+#          key: sbtcache
+#      - run: sbt ++2.13.1! core/test client/test examples/compile
+#      - save_cache:
+#          key: sbtcache
+#          paths:
+#            - "~/.ivy2/cache"
+#            - "~/.sbt"
+#            - "~/.m2"
   release:
     docker:
-      - image: cimg/openjdk:11-jdk
+      - image: openjdk:11-jdk
     steps:
       - checkout
       - run: git fetch --tags
@@ -63,19 +63,19 @@ workflows:
   version: 2
   build:
     jobs:
-      - test212_jdk8:
-          filters:
-            tags:
-              only: /^v[0-9]+(\.[0-9]+)*(-[-_a-zA-Z1-9]+)?$/
-      - test213_jdk11:
-          filters:
-            tags:
-              only: /^v[0-9]+(\.[0-9]+)*(-[-_a-zA-Z1-9]+)?$/
+#      - test212_jdk8:
+#          filters:
+#            tags:
+#              only: /^v[0-9]+(\.[0-9]+)*(-[-_a-zA-Z1-9]+)?$/
+#      - test213_jdk11:
+#          filters:
+#            tags:
+#              only: /^v[0-9]+(\.[0-9]+)*(-[-_a-zA-Z1-9]+)?$/
       - release:
           context: Sonatype
-          requires:
-            - test212_jdk8
-            - test213_jdk11
+#          requires:
+#            - test212_jdk8
+#            - test213_jdk11
           filters:
             branches:
               ignore: /.*/
