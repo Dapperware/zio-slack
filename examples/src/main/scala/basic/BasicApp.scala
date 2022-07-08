@@ -5,40 +5,34 @@ import com.github.dapperware.slack.models.events.{ Hello, UserTyping }
 import com.github.dapperware.slack.{ AccessToken, AppToken, Slack, SlackError, SlackSocket, SlackSocketLive }
 import common.{ appToken, botToken, default, BasicConfig }
 import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
-import zio.console.{ putStrLn, Console }
-import zio.magic._
-import zio.{ App, ExitCode, Has, ZIO, ZLayer, ZManaged }
+import zio.Console.printLine
+import zio.{ ExitCode, ZIO, ZIOAppDefault }
 
-object BasicApp extends App {
+object BasicApp extends ZIOAppDefault {
 
-  val layers =
-    ZLayer.fromMagic[Has[Slack] with Has[SlackSocket] with Has[AccessToken] with Has[BasicConfig] with Has[AppToken]](
-      AsyncHttpClientZioBackend.layer(),
-      Slack.http,
-      SlackSocketLive.layer,
-      botToken.toLayer,
-      appToken.toLayer,
-      default
-    )
-
-  override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, ExitCode] =
+  override def run: ZIO[Any, Nothing, ExitCode] =
     (for {
-      resp <- (testApi.toManaged_ <&> testRealtime).provideCustomLayer(layers)
-    } yield resp).use_(ZIO.unit).exitCode
+      resp <- (testApi <&> testRealtime).provide(
+                AsyncHttpClientZioBackend.layer(),
+                Slack.http,
+                SlackSocketLive.layer,
+                botToken,
+                appToken,
+                default
+              )
+    } yield resp).exitCode
 
-  val testRealtime: ZManaged[Has[Slack] with Has[AppToken] with Has[AccessToken] with Has[SlackSocket] with Has[
-    BasicConfig
-  ] with Console, SlackError, Unit] =
+  val testRealtime: ZIO[Slack with AppToken with AccessToken with SlackSocket with BasicConfig, SlackError, Unit] =
     // Test that we can receive messages
-    SlackSocket().collectM {
+    SlackSocket().collectZIO {
       case Left(_: Hello)                                                  =>
-        putStrLn("Said Hello").orDie
+        printLine("Said Hello").orDie
       case Right(Event(_, _, _, UserTyping(channel, user), _, _, _, _, _)) =>
-        putStrLn(s"User $user is typing in $channel").orDie
+        printLine(s"User $user is typing in $channel").orDie
       case _                                                               => ZIO.unit
-    }.runDrain.toManaged_
+    }.runDrain
 
-  val testApi: ZIO[Has[Slack] with Has[AccessToken] with Has[BasicConfig], SlackError, String] =
+  val testApi: ZIO[Slack with AccessToken with BasicConfig, SlackError, String] =
     for {
       config <- ZIO.service[BasicConfig]
       resp   <- Slack.postChatMessage(config.channel, text = Some("Hello Slack client!")).map(_.toEither).absolve

@@ -1,6 +1,6 @@
 package com.github.dapperware.slack
 
-import zio.duration._
+import zio._
 
 /**
  * A base error type for slack related issues

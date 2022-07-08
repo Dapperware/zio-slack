@@ -2,20 +2,20 @@ import zio.config._
 import ConfigDescriptor._
 import com.github.dapperware.slack.{ AccessToken, AppToken }
 import zio.config.typesafe.TypesafeConfig
-import zio.{ Has, Layer, ZIO }
+import zio.{ Layer, ZIO, ZLayer }
 
 package object common {
 
-  val default: Layer[ReadError[String], Has[BasicConfig]] =
+  val default: Layer[ReadError[String], BasicConfig] =
     TypesafeConfig.fromResourcePath(nested("basic")(BasicConfig.descriptor))
 
-  val botToken: ZIO[Has[BasicConfig], Nothing, AccessToken] =
-    ZIO.service[BasicConfig].map(c => AccessToken(c.botToken))
+  val botToken: ZLayer[BasicConfig, Nothing, AccessToken] =
+    ZLayer(ZIO.serviceWith[BasicConfig](c => AccessToken(c.botToken)))
 
-  val appToken: ZIO[Has[BasicConfig], Nothing, AppToken] =
-    ZIO.service[BasicConfig].map(c => AppToken(c.appToken))
+  val appToken: ZLayer[BasicConfig, Nothing, AppToken] =
+    ZLayer(ZIO.serviceWith[BasicConfig](c => AppToken(c.appToken)))
 
-  val userToken: ZIO[Has[BasicConfig], Nothing, AccessToken] =
-    ZIO.service[BasicConfig].map(c => AccessToken(c.userToken))
+  val userToken: ZLayer[BasicConfig, Nothing, AccessToken] =
+    ZLayer(ZIO.serviceWith[BasicConfig](c => AccessToken(c.userToken)))
 
 }

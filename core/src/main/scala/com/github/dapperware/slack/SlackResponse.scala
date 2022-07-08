@@ -3,7 +3,7 @@ package com.github.dapperware.slack
 import com.github.dapperware.slack.SlackResponse.Ok
 import io.circe.{ Decoder, Json }
 import zio.Zippable
-import zio.duration.Duration
+import zio.Duration
 
 /**
  * A slack response as detailed by the slack api documentation.

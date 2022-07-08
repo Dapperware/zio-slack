@@ -3,25 +3,25 @@ package com.github.dapperware.slack
 import com.github.dapperware.slack.generated.GeneratedPins
 import com.github.dapperware.slack.generated.requests.{ AddPinsRequest, ListPinsRequest, RemovePinsRequest }
 import com.github.dapperware.slack.generated.responses.ListPinsResponse
-import zio.{ Has, URIO }
+import zio.{ URIO, ZIO }
 
 trait Pins { self: Slack =>
   def pin(
     channelId: String,
     timeStamp: Option[String] = None
-  ): URIO[Has[AccessToken], SlackResponse[Unit]] =
+  ): URIO[AccessToken, SlackResponse[Unit]] =
     apiCall(Pins.addPins(AddPinsRequest(channelId, timeStamp)))
 
   def removePin(
     channelId: String,
     timeStamp: Option[String] = None
-  ): URIO[Has[AccessToken], SlackResponse[Unit]] =
+  ): URIO[AccessToken, SlackResponse[Unit]] =
     apiCall(Pins.removePins(RemovePinsRequest(channelId, timeStamp)))
 
   // TODO This is wrong response type
   def listPins(
     channelId: String
-  ): URIO[Has[AccessToken], SlackResponse[ListPinsResponse]] =
+  ): URIO[AccessToken, SlackResponse[ListPinsResponse]] =
     apiCall(Pins.listPins(ListPinsRequest(channelId)))
 }
 
@@ -29,20 +29,20 @@ trait PinsAccessors { _: Slack.type =>
   def pin(
     channelId: String,
     timeStamp: Option[String] = None
-  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Unit]] =
-    URIO.accessM(_.get.pin(channelId, timeStamp))
+  ): URIO[Slack with AccessToken, SlackResponse[Unit]] =
+    ZIO.serviceWithZIO[Slack](_.pin(channelId, timeStamp))
 
   def removePin(
     channelId: String,
     timeStamp: Option[String] = None
-  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Unit]] =
-    URIO.accessM(_.get.removePin(channelId, timeStamp))
+  ): URIO[Slack with AccessToken, SlackResponse[Unit]] =
+    ZIO.serviceWithZIO[Slack](_.removePin(channelId, timeStamp))
 
   // TODO This is wrong response type
   def listPins(
     channelId: String
-  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[ListPinsResponse]] =
-    URIO.accessM(_.get.listPins(channelId))
+  ): URIO[Slack with AccessToken, SlackResponse[ListPinsResponse]] =
+    ZIO.serviceWithZIO[Slack](_.listPins(channelId))
 }
 
 object Pins extends GeneratedPins

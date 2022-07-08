@@ -10,11 +10,11 @@ import com.github.dapperware.slack.generated.requests.{
 import com.github.dapperware.slack.generated.responses.{ InfoRemindersResponse, ListRemindersResponse }
 import com.github.dapperware.slack.models.Reminder
 import io.circe.Json
-import zio.{ Has, URIO }
+import zio.{ URIO, ZIO }
 
 trait Reminders { self: Slack =>
 
-  def addReminder(text: String, time: String, user: String): URIO[Has[AccessToken], SlackResponse[Reminder]] =
+  def addReminder(text: String, time: String, user: String): URIO[AccessToken, SlackResponse[Reminder]] =
     apiCall(
       request("reminders.add")
         .jsonBody(
@@ -28,16 +28,16 @@ trait Reminders { self: Slack =>
     )
 
   // FIXME the arguments shouldn't be optional
-  def completeReminder(reminder: String): URIO[Has[AccessToken], SlackResponse[Unit]] =
+  def completeReminder(reminder: String): URIO[AccessToken, SlackResponse[Unit]] =
     apiCall(Reminders.completeReminders(CompleteRemindersRequest(Some(reminder))))
 
-  def deleteReminder(reminder: String): URIO[Has[AccessToken], SlackResponse[Unit]] =
+  def deleteReminder(reminder: String): URIO[AccessToken, SlackResponse[Unit]] =
     apiCall(Reminders.deleteReminders(DeleteRemindersRequest(Some(reminder))))
 
-  def getReminderInfo(reminder: String): URIO[Has[AccessToken], SlackResponse[InfoRemindersResponse]] =
+  def getReminderInfo(reminder: String): URIO[AccessToken, SlackResponse[InfoRemindersResponse]] =
     apiCall(Reminders.infoReminders(InfoRemindersRequest(Some(reminder))))
 
-  def listReminders: URIO[Has[AccessToken], SlackResponse[ListRemindersResponse]] =
+  def listReminders: URIO[AccessToken, SlackResponse[ListRemindersResponse]] =
     apiCall(Reminders.listReminders)
 
 }
@@ -48,21 +48,21 @@ private[slack] trait RemindersAccessors { _: Slack.type =>
     text: String,
     time: String,
     user: String
-  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Reminder]] =
-    URIO.accessM(_.get.addReminder(text, time, user))
+  ): URIO[Slack with AccessToken, SlackResponse[Reminder]] =
+    ZIO.serviceWithZIO[Slack](_.addReminder(text, time, user))
 
   // FIXME the arguments shouldn't be optional
-  def completeReminder(reminder: String): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Unit]] =
-    URIO.accessM(_.get.completeReminder(reminder))
+  def completeReminder(reminder: String): URIO[Slack with AccessToken, SlackResponse[Unit]] =
+    ZIO.serviceWithZIO[Slack](_.completeReminder(reminder))
 
-  def deleteReminder(reminder: String): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Unit]] =
-    URIO.accessM(_.get.deleteReminder(reminder))
+  def deleteReminder(reminder: String): URIO[Slack with AccessToken, SlackResponse[Unit]] =
+    ZIO.serviceWithZIO[Slack](_.deleteReminder(reminder))
 
-  def getReminderInfo(reminder: String): URIO[Has[Slack] with Has[AccessToken], SlackResponse[InfoRemindersResponse]] =
-    URIO.accessM(_.get.getReminderInfo(reminder))
+  def getReminderInfo(reminder: String): URIO[Slack with AccessToken, SlackResponse[InfoRemindersResponse]] =
+    ZIO.serviceWithZIO[Slack](_.getReminderInfo(reminder))
 
-  def listReminders: URIO[Has[Slack] with Has[AccessToken], SlackResponse[ListRemindersResponse]] =
-    URIO.accessM(_.get.listReminders)
+  def listReminders: URIO[Slack with AccessToken, SlackResponse[ListRemindersResponse]] =
+    ZIO.serviceWithZIO[Slack](_.listReminders)
 
 }
 

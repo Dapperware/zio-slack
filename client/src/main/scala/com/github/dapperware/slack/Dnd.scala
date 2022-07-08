@@ -5,19 +5,19 @@ import com.github.dapperware.slack.generated.GeneratedDnd
 import com.github.dapperware.slack.generated.requests.{ SetSnoozeDndRequest, TeamInfoDndRequest }
 import com.github.dapperware.slack.generated.responses.{ EndSnoozeDndResponse, SetSnoozeDndResponse }
 import com.github.dapperware.slack.models.DndInfo
-import zio.{ Has, URIO }
+import zio.{ URIO, ZIO }
 
 trait Dnd { self: Slack =>
-  def endDnd(): URIO[Has[AccessToken], SlackResponse[Unit]] =
+  def endDnd(): URIO[AccessToken, SlackResponse[Unit]] =
     apiCall(Dnd.endDndDnd)
 
-  def endSnooze(): URIO[Has[AccessToken], SlackResponse[EndSnoozeDndResponse]] =
+  def endSnooze(): URIO[AccessToken, SlackResponse[EndSnoozeDndResponse]] =
     apiCall(Dnd.endSnoozeDnd)
 
   def getDoNotDisturbInfo(
     userId: Option[String] = None,
     teamId: Option[String] = None
-  ): URIO[Has[AccessToken], SlackResponse[DndInfo]] =
+  ): URIO[AccessToken, SlackResponse[DndInfo]] =
     apiCall(
       request("dnd.info")
         .formBody(
@@ -27,33 +27,33 @@ trait Dnd { self: Slack =>
         .as[DndInfo]
     )
 
-  def setSnooze(numMinutes: Int): URIO[Has[AccessToken], SlackResponse[SetSnoozeDndResponse]] =
+  def setSnooze(numMinutes: Int): URIO[AccessToken, SlackResponse[SetSnoozeDndResponse]] =
     apiCall(Dnd.setSnoozeDnd(SetSnoozeDndRequest(numMinutes.toString)))
 
   // FIXME This is the wrong return type
-  def getTeamDoNotDisturbInfo(users: List[String]): URIO[Has[AccessToken], SlackResponse[Unit]] =
+  def getTeamDoNotDisturbInfo(users: List[String]): URIO[AccessToken, SlackResponse[Unit]] =
     apiCall(Dnd.teamInfoDnd(TeamInfoDndRequest(Some(users).filter(_.nonEmpty).map(_.mkString(",")))))
 }
 
 private[slack] trait DndAccessors { _: Slack.type =>
-  def endDnd(): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Unit]] =
-    URIO.accessM(_.get.endDnd())
+  def endDnd(): URIO[Slack with AccessToken, SlackResponse[Unit]] =
+    ZIO.serviceWithZIO[Slack](_.endDnd())
 
-  def endSnooze(): URIO[Has[Slack] with Has[AccessToken], SlackResponse[EndSnoozeDndResponse]] =
-    URIO.accessM(_.get.endSnooze())
+  def endSnooze(): URIO[Slack with AccessToken, SlackResponse[EndSnoozeDndResponse]] =
+    ZIO.serviceWithZIO[Slack](_.endSnooze())
 
   def getDoNotDisturbInfo(
     userId: Option[String] = None,
     teamId: Option[String] = None
-  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[DndInfo]] =
-    URIO.accessM(_.get.getDoNotDisturbInfo(userId, teamId))
+  ): URIO[Slack with AccessToken, SlackResponse[DndInfo]] =
+    ZIO.serviceWithZIO[Slack](_.getDoNotDisturbInfo(userId, teamId))
 
-  def setSnooze(numMinutes: Int): URIO[Has[Slack] with Has[AccessToken], SlackResponse[SetSnoozeDndResponse]] =
-    URIO.accessM(_.get.setSnooze(numMinutes))
+  def setSnooze(numMinutes: Int): URIO[Slack with AccessToken, SlackResponse[SetSnoozeDndResponse]] =
+    ZIO.serviceWithZIO[Slack](_.setSnooze(numMinutes))
 
   // FIXME This is the wrong return type
-  def getTeamDoNotDisturbInfo(users: List[String]): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Unit]] =
-    URIO.accessM(_.get.getTeamDoNotDisturbInfo(users))
+  def getTeamDoNotDisturbInfo(users: List[String]): URIO[Slack with AccessToken, SlackResponse[Unit]] =
+    ZIO.serviceWithZIO[Slack](_.getTeamDoNotDisturbInfo(users))
 }
 
 object Dnd extends GeneratedDnd

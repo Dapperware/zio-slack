@@ -3,10 +3,10 @@ package com.github.dapperware.slack
 import com.github.dapperware.slack.Slack.request
 import com.github.dapperware.slack.generated.GeneratedApps
 import com.github.dapperware.slack.generated.requests.UninstallAppsRequest
-import zio.{ Has, ZIO }
+import zio.ZIO
 
 trait Apps { self: Slack =>
-  def uninstall: ZIO[Has[AccessToken] with Has[ClientSecret], Nothing, SlackResponse[Unit]] =
+  def uninstall: ZIO[AccessToken with ClientSecret, Nothing, SlackResponse[Unit]] =
     ZIO
       .service[ClientSecret]
       .flatMap(clientSecret =>
@@ -17,7 +17,7 @@ trait Apps { self: Slack =>
         )
       )
 
-  def openSocketModeConnection: ZIO[Has[AppToken], Nothing, SlackResponse[String]] =
+  def openSocketModeConnection: ZIO[AppToken, Nothing, SlackResponse[String]] =
     apiCall(
       request("apps.connections.open")
         .at[String]("url")
@@ -27,11 +27,11 @@ trait Apps { self: Slack =>
 }
 
 private[slack] trait AppsAccessors { self: Slack.type =>
-  def uninstall: ZIO[Has[Slack] with Has[AccessToken] with Has[ClientSecret], Nothing, SlackResponse[Unit]] =
-    ZIO.accessM(_.get.uninstall)
+  def uninstall: ZIO[Slack with AccessToken with ClientSecret, Nothing, SlackResponse[Unit]] =
+    ZIO.serviceWithZIO[Slack](_.uninstall)
 
-  def openSocketModeConnection: ZIO[Has[Slack] with Has[AppToken], Nothing, SlackResponse[String]] =
-    ZIO.accessM(_.get.openSocketModeConnection)
+  def openSocketModeConnection: ZIO[Slack with AppToken, Nothing, SlackResponse[String]] =
+    ZIO.serviceWithZIO[Slack](_.openSocketModeConnection)
 }
 
 object Apps extends GeneratedApps

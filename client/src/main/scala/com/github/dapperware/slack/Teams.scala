@@ -3,7 +3,7 @@ package com.github.dapperware.slack
 import com.github.dapperware.slack.generated.GeneratedTeam
 import com.github.dapperware.slack.generated.requests.{ AccessLogsTeamRequest, InfoTeamRequest }
 import com.github.dapperware.slack.generated.responses.{ AccessLogsTeamResponse, InfoTeamResponse }
-import zio.{ Has, URIO }
+import zio.{ URIO, ZIO }
 
 trait Teams { self: Slack =>
 
@@ -11,10 +11,10 @@ trait Teams { self: Slack =>
     count: Option[Int] = None,
     page: Option[Int] = None,
     before: Option[String] = None
-  ): URIO[Has[AccessToken], SlackResponse[AccessLogsTeamResponse]] =
+  ): URIO[AccessToken, SlackResponse[AccessLogsTeamResponse]] =
     apiCall(Teams.accessLogsTeam(AccessLogsTeamRequest(count = count, page = page, before = before)))
 
-  def getTeamInfo: URIO[Has[AccessToken], SlackResponse[InfoTeamResponse]] =
+  def getTeamInfo: URIO[AccessToken, SlackResponse[InfoTeamResponse]] =
     apiCall(Teams.infoTeam(InfoTeamRequest(None)))
 }
 
@@ -24,11 +24,11 @@ private[slack] trait TeamsAccessors { _: Slack.type =>
     count: Option[Int] = None,
     page: Option[Int] = None,
     before: Option[String] = None
-  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[AccessLogsTeamResponse]] =
-    URIO.accessM(_.get.getTeamAccessLogs(count, page, before))
+  ): URIO[Slack with AccessToken, SlackResponse[AccessLogsTeamResponse]] =
+    ZIO.serviceWithZIO[Slack](_.getTeamAccessLogs(count, page, before))
 
-  def getTeamInfo: URIO[Has[Slack] with Has[AccessToken], SlackResponse[InfoTeamResponse]] =
-    URIO.accessM(_.get.getTeamInfo)
+  def getTeamInfo: URIO[Slack with AccessToken, SlackResponse[InfoTeamResponse]] =
+    ZIO.serviceWithZIO[Slack](_.getTeamInfo)
 }
 
 object Teams extends GeneratedTeam

@@ -8,9 +8,9 @@ import io.circe.CursorOp.DownField
 import io.circe.{ DecodingFailure, Json }
 import io.circe.syntax._
 
-object ExtractorSpec extends DefaultRunnableSpec {
+object ExtractorSpec extends ZIOSpecDefault {
 
-  override def spec: ZSpec[_root_.zio.test.environment.TestEnvironment, Any] = suite("Extractors")(
+  override def spec = suite("Extractors")(
     test("isOk is ok") {
       val json = Json.obj("ok" -> true.asJson)
       assert(json.as[SlackResponse[Unit]].map(_.isOk))(isRight(isTrue))

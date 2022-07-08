@@ -2,7 +2,7 @@ package com.github.dapperware.slack
 
 import io.circe.Decoder
 import sttp.client3.asynchttpclient.zio.SttpClient
-import zio.{ Has, Tag, UIO, URIO, ZIO, ZLayer }
+import zio.{ Tag, UIO, URIO, ZIO, ZLayer }
 
 /**
  * The root trait for the Slack API.
@@ -37,7 +37,7 @@ trait Slack
   def apiCall[T](request: Request[T, Unit]): UIO[SlackResponse[T]] =
     client.apiCall(request)
 
-  def apiCall[T, A](request: Request[T, A])(implicit ev: HasAuth[A], tag: Tag[A]): URIO[Has[A], SlackResponse[T]] =
+  def apiCall[T, A](request: Request[T, A])(implicit ev: HasAuth[A], tag: Tag[A]): URIO[A, SlackResponse[T]] =
     client.apiCall(request)
 
 }
@@ -72,7 +72,7 @@ object Slack
   def request[A: Decoder](name: String, args: (String, SlackParamMagnet)*): Request[A, Unit] =
     Request.make(MethodName(name)).formBody(args: _*).as[A]
 
-  def make: ZIO[Has[SlackClient], Nothing, Slack] =
+  def make: ZIO[SlackClient, Nothing, Slack] =
     ZIO
       .service[SlackClient]
       .map(c =>
@@ -81,7 +81,7 @@ object Slack
         }
       )
 
-  val http: ZLayer[Has[SttpClient.Service], Nothing, Has[SlackClient] with Has[Slack]] =
-    HttpSlack.layer >+> make.toLayer
+  val http: ZLayer[SttpClient, Nothing, SlackClient with Slack] =
+    HttpSlack.layer >+> ZLayer(make)
 
 }

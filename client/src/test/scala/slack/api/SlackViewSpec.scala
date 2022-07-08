@@ -9,14 +9,14 @@ import com.github.dapperware.slack.models.{
   ViewPayload
 }
 import io.circe.parser
+import zio.ZIO
 import zio.test.Assertion.{ equalTo, isRight }
 import zio.test._
-import zio.{ UIO, ZManaged }
 
 import scala.io.Source
 
-object SlackViewSpec extends DefaultRunnableSpec {
-  override def spec: ZSpec[_root_.zio.test.environment.TestEnvironment, Any] =
+object SlackViewSpec extends ZIOSpecDefault {
+  override def spec =
     suite("View")(
       test("deserialize modal payload") {
         val payload =
@@ -80,7 +80,7 @@ object SlackViewSpec extends DefaultRunnableSpec {
                       "mlvalue",
                       multiline = Some(true)
                     ),
-                    block_id = Some("multiline"),
+                    block_id = Some("multiline")
                   ),
                   InputBlock(
                     PlainTextObject("Select a channel to post the result on"),
@@ -99,13 +99,14 @@ object SlackViewSpec extends DefaultRunnableSpec {
           )
         )
       },
-      testM("deserialize kitchen sink submission") {
-        val body = ZManaged
-          .fromAutoCloseable(UIO(Source.fromResource("payloads/kitchen_sink_view_submission.json")))
-          .map(_.mkString)
-          .useNow
+      test("deserialize kitchen sink submission") {
+        val body = ZIO.scoped(
+          ZIO
+            .fromAutoCloseable(ZIO.succeed(Source.fromResource("payloads/kitchen_sink_view_submission.json")))
+            .map(_.mkString)
+        )
 
-        assertM(body.map(parser.parse(_).flatMap(_.as[View])))(isRight)
+        assertZIO(body.map(parser.parse(_).flatMap(_.as[View])))(isRight)
       }
     )
 }

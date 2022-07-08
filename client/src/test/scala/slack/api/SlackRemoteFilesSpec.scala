@@ -6,11 +6,10 @@ import com.github.dapperware.slack.{ Slack, SlackResponse }
 import sttp.client3.Request
 import sttp.client3.asynchttpclient.zio.{ stubbing, SttpClientStubbing }
 import zio.Chunk
-import zio.magic._
 import zio.test.Assertion._
 import zio.test._
 
-object SlackRemoteFilesSpec extends DefaultRunnableSpec with MockSttpBackend {
+object SlackRemoteFilesSpec extends ZIOSpecDefault with MockSttpBackend {
 
   def whenRequestMatches(p: Request[_, _] => Boolean): SttpClientStubbing.StubbingWhenRequest =
     stubbing.whenRequestMatches(p)
@@ -105,8 +104,8 @@ object SlackRemoteFilesSpec extends DefaultRunnableSpec with MockSttpBackend {
   private def isExpectedContent(reqString: String, expectedBits: String*): Boolean =
     (expectedBits.toList ++ minimumExpectedContent).forall(reqString.contains)
 
-  override def spec: ZSpec[Environment, Failure] = suite("Remote Files")(
-    testM("sends parameters to add remote files - WITHOUT indexable file contents and preview image") {
+  override def spec = suite("Remote Files")(
+    test("sends parameters to add remote files - WITHOUT indexable file contents and preview image") {
       val stubEffect = whenRequestMatches(req =>
         req.uri.toString == "https://slack.com/api/files.remote.add" &&
           req.header("Authorization").contains("Bearer foo-access-token") &&
@@ -115,9 +114,9 @@ object SlackRemoteFilesSpec extends DefaultRunnableSpec with MockSttpBackend {
       ).thenRespond(response)
 
       val effect = stubEffect *> Slack.addRemoteFile("foo-external-id", "foo-external-url", "foo-title", Some("txt"))
-      assertM(effect)(equalTo(expectedResponse))
+      assertZIO(effect)(equalTo(expectedResponse))
     },
-    testM("sends parameters to add remote files - WITH indexable file contents") {
+    test("sends parameters to add remote files - WITH indexable file contents") {
       val stubEffect = whenRequestMatches(req =>
         req.uri.toString == "https://slack.com/api/files.remote.add" &&
           req.header("Authorization").contains("Bearer foo-access-token") &&
@@ -132,9 +131,9 @@ object SlackRemoteFilesSpec extends DefaultRunnableSpec with MockSttpBackend {
         Some("txt"),
         indexableFileContents = Some(Chunk.empty)
       )
-      assertM(effect)(equalTo(expectedResponse))
+      assertZIO(effect)(equalTo(expectedResponse))
     },
-    testM("sends parameters to add remote files - WITH indexable file contents and preview image") {
+    test("sends parameters to add remote files - WITH indexable file contents and preview image") {
       val stubEffect = whenRequestMatches(req =>
         req.uri.toString == "https://slack.com/api/files.remote.add" &&
           req.header("Authorization").contains("Bearer foo-access-token") &&
@@ -154,9 +153,9 @@ object SlackRemoteFilesSpec extends DefaultRunnableSpec with MockSttpBackend {
         indexableFileContents = Some(Chunk.empty),
         previewImage = Some(Chunk.empty)
       )
-      assertM(effect)(equalTo(expectedResponse))
+      assertZIO(effect)(equalTo(expectedResponse))
     }
-  ).inject(
+  ).provide(
     sttpBackEndStubLayer,
     Slack.http,
     accessTokenLayer("foo-access-token")

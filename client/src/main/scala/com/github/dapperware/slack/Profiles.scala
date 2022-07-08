@@ -4,13 +4,13 @@ import com.github.dapperware.slack.Slack.request
 import com.github.dapperware.slack.models.UserProfile
 import io.circe.Json
 import io.circe.syntax._
-import zio.{ Has, URIO }
+import zio.{ URIO, ZIO }
 
 trait Profiles { self: Slack =>
   def getProfile(
     includeLabel: Boolean = false,
     user: Option[String] = None
-  ): URIO[Has[AccessToken], SlackResponse[UserProfile]] =
+  ): URIO[AccessToken, SlackResponse[UserProfile]] =
     apiCall(
       request("users.profile.get")
         .formBody(
@@ -23,7 +23,7 @@ trait Profiles { self: Slack =>
   def setProfile(
     profile: Map[String, String],
     user: Option[String] = None
-  ): URIO[Has[AccessToken], SlackResponse[UserProfile]] =
+  ): URIO[AccessToken, SlackResponse[UserProfile]] =
     apiCall(
       request("users.profile.set")
         .jsonBody(
@@ -39,7 +39,7 @@ trait Profiles { self: Slack =>
     name: String,
     value: String,
     user: Option[String] = None
-  ): URIO[Has[AccessToken], SlackResponse[UserProfile]] =
+  ): URIO[AccessToken, SlackResponse[UserProfile]] =
     apiCall(
       request("users.profile.set")
         .jsonBody(
@@ -57,19 +57,19 @@ private[slack] trait ProfilesAccessors { self: Slack.type =>
   def getProfile(
     includeLabel: Boolean = false,
     user: Option[String] = None
-  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[UserProfile]] =
-    URIO.accessM(_.get.getProfile(includeLabel, user))
+  ): URIO[Slack with AccessToken, SlackResponse[UserProfile]] =
+    ZIO.serviceWithZIO[Slack](_.getProfile(includeLabel, user))
 
   def setProfile(
     profile: Map[String, String],
     user: Option[String] = None
-  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[UserProfile]] =
-    URIO.accessM(_.get.setProfile(profile, user))
+  ): URIO[Slack with AccessToken, SlackResponse[UserProfile]] =
+    ZIO.serviceWithZIO[Slack](_.setProfile(profile, user))
 
   def setProfileValue(
     name: String,
     value: String,
     user: Option[String] = None
-  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[UserProfile]] =
-    URIO.accessM(_.get.setProfileValue(name, value, user))
+  ): URIO[Slack with AccessToken, SlackResponse[UserProfile]] =
+    ZIO.serviceWithZIO[Slack](_.setProfileValue(name, value, user))
 }

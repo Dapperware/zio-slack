@@ -1,13 +1,12 @@
 package slack.api
 
-import com.github.dapperware.slack.{ HttpSlack, Slack, SlackResponse }
+import com.github.dapperware.slack.{ Slack, SlackResponse }
 import sttp.client3.Request
 import sttp.client3.asynchttpclient.zio.{ stubbing, SttpClientStubbing }
 import sttp.model.Method
 import zio.test.{ Assertion, _ }
-import zio.magic._
 
-object SlackPinsSpec extends DefaultRunnableSpec with MockSttpBackend {
+object SlackPinsSpec extends ZIOSpecDefault with MockSttpBackend {
   private def whenRequestMatches(p: Request[_, _] => Boolean): SttpClientStubbing.StubbingWhenRequest =
     stubbing.whenRequestMatches(p)
 
@@ -23,22 +22,22 @@ object SlackPinsSpec extends DefaultRunnableSpec with MockSttpBackend {
 
   private val expectedBody1 = """{"channel":"foo-channel"}"""
 
-  override def spec: ZSpec[Environment, Failure] = suite("Pins")(
-    testM("sends channel-id") {
+  override def spec = suite("Pins")(
+    test("sends channel-id") {
       val stubEffect = whenRequestMatches(req =>
         req.uri.toString == "https://slack.com/api/pins.add" && req.method == Method.POST &&
           req.header("Authorization") == Some("Bearer foo-access-token") && req.body.show.contains(expectedBody1)
       ).thenRespond(response)
 
-      assertM(stubEffect *> Slack.pin("foo-channel"))(isOk)
+      assertZIO(stubEffect *> Slack.pin("foo-channel"))(isOk)
     },
-    testM("sends channel-id and timestamp") {
+    test("sends channel-id and timestamp") {
       val stubEffect = whenRequestMatches(req =>
         req.uri.toString == "https://slack.com/api/pins.add" && req.method == Method.POST &&
           req.header("Authorization") == Some("Bearer foo-access-token") && req.body.show.contains(expectedBody2)
       ).thenRespond(response)
 
-      assertM(stubEffect *> Slack.pin("zoo-channel", Some("1234567890.123456")))(isOk)
+      assertZIO(stubEffect *> Slack.pin("zoo-channel", Some("1234567890.123456")))(isOk)
     }
-  ).inject(sttpBackEndStubLayer, Slack.http, accessTokenLayer("foo-access-token"))
+  ).provide(sttpBackEndStubLayer, Slack.http, accessTokenLayer("foo-access-token"))
 }

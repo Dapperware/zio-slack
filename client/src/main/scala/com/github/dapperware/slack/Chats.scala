@@ -5,7 +5,7 @@ import com.github.dapperware.slack.generated.requests._
 import com.github.dapperware.slack.generated.responses._
 import com.github.dapperware.slack.models.{ Attachment, Block }
 import io.circe.syntax._
-import zio.{ Has, URIO }
+import zio.{ URIO, ZIO }
 
 import java.time.Instant
 
@@ -14,14 +14,14 @@ trait Chats { self: Slack =>
   def permalink(
     channelId: String,
     ts: String
-  ): URIO[Has[AccessToken], SlackResponse[GetPermalinkChatResponse]] =
+  ): URIO[AccessToken, SlackResponse[GetPermalinkChatResponse]] =
     apiCall(Chats.getPermalinkChat(GetPermalinkChatRequest(channelId, ts)))
 
   def deleteChat(
     channelId: String,
     ts: String,
     asUser: Option[Boolean] = None
-  ): URIO[Has[AccessToken], SlackResponse[DeleteChatResponse]] =
+  ): URIO[AccessToken, SlackResponse[DeleteChatResponse]] =
     apiCall(Chats.deleteChat(DeleteChatRequest(channelId, ts, asUser)))
 
   def postChatEphemeral(
@@ -37,7 +37,7 @@ trait Chats { self: Slack =>
     iconEmoji: Option[String] = None,
     threadTs: Option[String] = None,
     username: Option[String] = None
-  ): URIO[Has[AccessToken], SlackResponse[PostEphemeralChatResponse]] =
+  ): URIO[AccessToken, SlackResponse[PostEphemeralChatResponse]] =
     apiCall(
       Chats
         .postEphemeralChat(
@@ -74,7 +74,7 @@ trait Chats { self: Slack =>
     threadTs: Option[String] = None,
     mrkdown: Option[Boolean] = None,
     replyBroadcast: Option[Boolean] = None
-  ): URIO[Has[AccessToken], SlackResponse[PostMessageChatResponse]] =
+  ): URIO[AccessToken, SlackResponse[PostMessageChatResponse]] =
     apiCall(
       Chats
         .postMessageChat(
@@ -107,7 +107,7 @@ trait Chats { self: Slack =>
     parse: Option[String] = None,
     linkNames: Option[String] = None,
     asUser: Option[Boolean] = None
-  ): URIO[Has[AccessToken], SlackResponse[UpdateChatResponse]] =
+  ): URIO[AccessToken, SlackResponse[UpdateChatResponse]] =
     apiCall(
       Chats
         .updateChat(
@@ -137,7 +137,7 @@ trait Chats { self: Slack =>
     threadTs: Option[String] = None,
     unfurlLinks: Option[Boolean] = None,
     unfurlMedia: Option[Boolean] = None
-  ): URIO[Has[AccessToken], SlackResponse[ScheduleMessageChatResponse]] =
+  ): URIO[AccessToken, SlackResponse[ScheduleMessageChatResponse]] =
     apiCall(
       Chats
         .scheduleMessageChat(
@@ -165,7 +165,7 @@ trait Chats { self: Slack =>
     oldest: Option[String] = None,
     latest: Option[String] = None,
     teamId: Option[String] = None
-  ): URIO[Has[AccessToken], SlackResponse[ListScheduledMessagesChatResponse]] =
+  ): URIO[AccessToken, SlackResponse[ListScheduledMessagesChatResponse]] =
     apiCall(
       Chats
         .listScheduledMessagesChat(
@@ -184,7 +184,7 @@ trait Chats { self: Slack =>
     channel: String,
     scheduledMessageId: String,
     asUser: Option[Boolean] = None
-  ): URIO[Has[AccessToken], SlackResponse[Unit]] =
+  ): URIO[AccessToken, SlackResponse[Unit]] =
     apiCall(
       Chats
         .deleteScheduledMessageChat(
@@ -203,15 +203,15 @@ private[slack] trait ChatsAccessors {
   def permalink(
     channelId: String,
     ts: String
-  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[GetPermalinkChatResponse]] =
-    URIO.accessM(_.get.permalink(channelId, ts))
+  ): URIO[Slack with AccessToken, SlackResponse[GetPermalinkChatResponse]] =
+    ZIO.serviceWithZIO[Slack](_.permalink(channelId, ts))
 
   def deleteChat(
     channelId: String,
     ts: String,
     asUser: Option[Boolean] = None
-  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[DeleteChatResponse]] =
-    URIO.accessM(_.get.deleteChat(channelId, ts, asUser))
+  ): URIO[Slack with AccessToken, SlackResponse[DeleteChatResponse]] =
+    ZIO.serviceWithZIO[Slack](_.deleteChat(channelId, ts, asUser))
 
   def postChatEphemeral(
     channelId: String,
@@ -226,9 +226,9 @@ private[slack] trait ChatsAccessors {
     iconEmoji: Option[String] = None,
     threadTs: Option[String] = None,
     username: Option[String] = None
-  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[PostEphemeralChatResponse]] =
-    URIO.accessM(
-      _.get.postChatEphemeral(
+  ): URIO[Slack with AccessToken, SlackResponse[PostEphemeralChatResponse]] =
+    ZIO.serviceWithZIO[Slack](
+      _.postChatEphemeral(
         channelId,
         text,
         user,
@@ -260,9 +260,9 @@ private[slack] trait ChatsAccessors {
     threadTs: Option[String] = None,
     mrkdown: Option[Boolean] = None,
     replyBroadcast: Option[Boolean] = None
-  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[PostMessageChatResponse]] =
-    URIO.accessM(
-      _.get.postChatMessage(
+  ): URIO[Slack with AccessToken, SlackResponse[PostMessageChatResponse]] =
+    ZIO.serviceWithZIO[Slack](
+      _.postChatMessage(
         channelId,
         text,
         username,
@@ -290,9 +290,9 @@ private[slack] trait ChatsAccessors {
     parse: Option[String] = None,
     linkNames: Option[String] = None,
     asUser: Option[Boolean] = None
-  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[UpdateChatResponse]] =
-    URIO.accessM(
-      _.get.updateChatMessage(
+  ): URIO[Slack with AccessToken, SlackResponse[UpdateChatResponse]] =
+    ZIO.serviceWithZIO[Slack](
+      _.updateChatMessage(
         channelId,
         ts,
         text,
@@ -317,9 +317,9 @@ private[slack] trait ChatsAccessors {
     threadTs: Option[String] = None,
     unfurlLinks: Option[Boolean] = None,
     unfurlMedia: Option[Boolean] = None
-  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[ScheduleMessageChatResponse]] =
-    URIO.accessM(
-      _.get.scheduleMessage(
+  ): URIO[Slack with AccessToken, SlackResponse[ScheduleMessageChatResponse]] =
+    ZIO.serviceWithZIO[Slack](
+      _.scheduleMessage(
         channel,
         postAt,
         text,
@@ -342,9 +342,9 @@ private[slack] trait ChatsAccessors {
     oldest: Option[String] = None,
     latest: Option[String] = None,
     teamId: Option[String] = None
-  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[ListScheduledMessagesChatResponse]] =
-    URIO.accessM(
-      _.get.listScheduledMessages(
+  ): URIO[Slack with AccessToken, SlackResponse[ListScheduledMessagesChatResponse]] =
+    ZIO.serviceWithZIO[Slack](
+      _.listScheduledMessages(
         channel,
         cursor,
         limit,
@@ -358,9 +358,9 @@ private[slack] trait ChatsAccessors {
     channel: String,
     scheduledMessageId: String,
     asUser: Option[Boolean] = None
-  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Unit]] =
-    URIO.accessM(
-      _.get.deleteScheduleMessage(
+  ): URIO[Slack with AccessToken, SlackResponse[Unit]] =
+    ZIO.serviceWithZIO[Slack](
+      _.deleteScheduleMessage(
         channel,
         scheduledMessageId,
         asUser

@@ -4,21 +4,21 @@ import com.github.dapperware.slack.Slack.request
 import com.github.dapperware.slack.generated.GeneratedOauth
 import com.github.dapperware.slack.generated.requests.{ AccessOauthRequest, AccessV2OauthRequest }
 import com.github.dapperware.slack.generated.responses.AccessV2OauthResponse
-import zio.{ Has, URIO }
+import zio.{ URIO, ZIO }
 
 trait OAuth { self: Slack =>
 
   def accessOAuthV2(
     code: String,
     redirectUri: Option[String] = None
-  ): URIO[Has[ClientSecret], SlackResponse[AccessV2OauthResponse]] =
+  ): URIO[ClientSecret, SlackResponse[AccessV2OauthResponse]] =
     apiCall(OAuth.accessV2Oauth(AccessV2OauthRequest(code, redirectUri)))
 
   def accessOAuth(
     code: String,
     redirectUri: Option[String] = None,
     singleChannel: Option[Boolean] = None
-  ): URIO[Has[ClientSecret], SlackResponse[Unit]] =
+  ): URIO[ClientSecret, SlackResponse[Unit]] =
     apiCall(
       OAuth
         .accessOauth(AccessOauthRequest(code = code, redirect_uri = redirectUri, single_channel = singleChannel))
@@ -27,7 +27,7 @@ trait OAuth { self: Slack =>
   def exchangeV2(
     clientId: String,
     clientSecret: String
-  ): URIO[Has[ClientSecret], SlackResponse[AccessV2OauthResponse]] =
+  ): URIO[ClientSecret, SlackResponse[AccessV2OauthResponse]] =
     apiCall(
       request("oauth.v2.exchange")
         .formBody("client_id" -> clientId, "client_secret" -> clientSecret)
@@ -43,21 +43,21 @@ trait OAuthAccessors {
   def accessOAuthV2(
     code: String,
     redirectUri: Option[String] = None
-  ): URIO[Has[Slack] with Has[ClientSecret], SlackResponse[AccessV2OauthResponse]] =
-    URIO.accessM(_.get.accessOAuthV2(code, redirectUri))
+  ): URIO[Slack with ClientSecret, SlackResponse[AccessV2OauthResponse]] =
+    ZIO.serviceWithZIO[Slack](_.accessOAuthV2(code, redirectUri))
 
   def accessOAuth(
     code: String,
     redirectUri: Option[String] = None,
     singleChannel: Option[Boolean] = None
-  ): URIO[Has[Slack] with Has[ClientSecret], SlackResponse[Unit]] =
-    URIO.accessM(_.get.accessOAuth(code, redirectUri, singleChannel))
+  ): URIO[Slack with ClientSecret, SlackResponse[Unit]] =
+    ZIO.serviceWithZIO[Slack](_.accessOAuth(code, redirectUri, singleChannel))
 
   def exchangeV2(
     clientId: String,
     clientSecret: String
-  ): URIO[Has[Slack] with Has[ClientSecret], SlackResponse[AccessV2OauthResponse]] =
-    URIO.accessM(_.get.exchangeV2(clientId, clientSecret))
+  ): URIO[Slack with ClientSecret, SlackResponse[AccessV2OauthResponse]] =
+    ZIO.serviceWithZIO[Slack](_.exchangeV2(clientId, clientSecret))
 
 }
 

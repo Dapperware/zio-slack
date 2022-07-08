@@ -3,25 +3,25 @@ package com.github.dapperware.slack
 import com.github.dapperware.slack.Slack.request
 import com.github.dapperware.slack.client.RequestEntity
 import com.github.dapperware.slack.models.{ FileInfo, FilesResponse }
-import zio.{ Has, URIO }
+import zio.{ URIO, ZIO }
 
 import java.io.File
 
 trait Files { self: Slack =>
-  def revokePublicURL(fileId: String): URIO[Has[AccessToken], SlackResponse[FilesResponse]] =
+  def revokePublicURL(fileId: String): URIO[AccessToken, SlackResponse[FilesResponse]] =
     apiCall(request[FilesResponse]("files.revokePublicURL", "file" -> fileId))
 
-  def sharedPublicURL(fileId: String): URIO[Has[AccessToken], SlackResponse[FilesResponse]] =
+  def sharedPublicURL(fileId: String): URIO[AccessToken, SlackResponse[FilesResponse]] =
     apiCall(request[FilesResponse]("files.sharedPublicURL", "file" -> fileId))
 
-  def deleteFile(fileId: String): URIO[Has[AccessToken], SlackResponse[Unit]]               =
+  def deleteFile(fileId: String): URIO[AccessToken, SlackResponse[Unit]]               =
     apiCall(request("files.delete").formBody(Map("file" -> fileId)))
 
   def getFileInfo(
     fileId: String,
     count: Option[Int] = None,
     page: Option[Int] = None
-  ): URIO[Has[AccessToken], SlackResponse[FileInfo]]                                        =
+  ): URIO[AccessToken, SlackResponse[FileInfo]]                                        =
     apiCall(request("files.info").formBody("file" -> fileId, "count" -> count, "page" -> page).as[FileInfo])
 
   def listFiles(
@@ -31,7 +31,7 @@ trait Files { self: Slack =>
     types: Option[Seq[String]] = None,
     count: Option[Int] = None,
     page: Option[Int] = None
-  ): URIO[Has[AccessToken], SlackResponse[FilesResponse]]                                   =
+  ): URIO[AccessToken, SlackResponse[FilesResponse]]                                   =
     apiCall(
       request("files.list")
         .formBody(
@@ -53,7 +53,7 @@ trait Files { self: Slack =>
     initialComment: Option[String] = None,
     channels: Option[Seq[String]] = None,
     threadTs: Option[String] = None
-  ): URIO[Has[AccessToken], SlackResponse[models.File]] = {
+  ): URIO[AccessToken, SlackResponse[models.File]] = {
     val entity = content match {
       case Right(bytes) => RequestEntity(bytes, fileName)
       case Left(file)   => RequestEntity(file)
@@ -89,21 +89,21 @@ trait Files { self: Slack =>
 
 trait FilesAccessors { _: Slack.type =>
 
-  def revokePublicURL(fileId: String): URIO[Has[Slack] with Has[AccessToken], SlackResponse[FilesResponse]] =
-    URIO.accessM(_.get.revokePublicURL(fileId))
+  def revokePublicURL(fileId: String): URIO[Slack with AccessToken, SlackResponse[FilesResponse]] =
+    ZIO.serviceWithZIO[Slack](_.revokePublicURL(fileId))
 
-  def sharedPublicURL(fileId: String): URIO[Has[Slack] with Has[AccessToken], SlackResponse[FilesResponse]] =
-    URIO.accessM(_.get.sharedPublicURL(fileId))
+  def sharedPublicURL(fileId: String): URIO[Slack with AccessToken, SlackResponse[FilesResponse]] =
+    ZIO.serviceWithZIO[Slack](_.sharedPublicURL(fileId))
 
-  def deleteFile(fileId: String): URIO[Has[Slack] with Has[AccessToken], SlackResponse[Unit]] =
-    URIO.accessM(_.get.deleteFile(fileId))
+  def deleteFile(fileId: String): URIO[Slack with AccessToken, SlackResponse[Unit]] =
+    ZIO.serviceWithZIO[Slack](_.deleteFile(fileId))
 
   def getFileInfo(
     fileId: String,
     count: Option[Int] = None,
     page: Option[Int] = None
-  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[FileInfo]] =
-    URIO.accessM(_.get.getFileInfo(fileId, count, page))
+  ): URIO[Slack with AccessToken, SlackResponse[FileInfo]] =
+    ZIO.serviceWithZIO[Slack](_.getFileInfo(fileId, count, page))
 
   def listFiles(
     userId: Option[String] = None,
@@ -112,8 +112,8 @@ trait FilesAccessors { _: Slack.type =>
     types: Option[Seq[String]] = None,
     count: Option[Int] = None,
     page: Option[Int] = None
-  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[FilesResponse]] =
-    URIO.accessM(_.get.listFiles(userId, tsFrom, tsTo, types, count, page))
+  ): URIO[Slack with AccessToken, SlackResponse[FilesResponse]] =
+    ZIO.serviceWithZIO[Slack](_.listFiles(userId, tsFrom, tsTo, types, count, page))
 
   def uploadFile(
     content: Either[File, Array[Byte]],
@@ -123,7 +123,7 @@ trait FilesAccessors { _: Slack.type =>
     initialComment: Option[String] = None,
     channels: Option[Seq[String]] = None,
     threadTs: Option[String] = None
-  ): URIO[Has[Slack] with Has[AccessToken], SlackResponse[models.File]] =
-    URIO.accessM(_.get.uploadFile(content, fileType, fileName, title, initialComment, channels, threadTs))
+  ): URIO[Slack with AccessToken, SlackResponse[models.File]] =
+    ZIO.serviceWithZIO[Slack](_.uploadFile(content, fileType, fileName, title, initialComment, channels, threadTs))
 
 }

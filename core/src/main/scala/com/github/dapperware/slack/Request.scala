@@ -21,7 +21,7 @@ import sttp.client3.{
   UriContext
 }
 import sttp.model.{ Part, StatusCode }
-import zio.duration.{ durationLong, Duration }
+import zio.{ durationLong, Duration }
 
 case class Request[+T, Auth](
   method: MethodName,

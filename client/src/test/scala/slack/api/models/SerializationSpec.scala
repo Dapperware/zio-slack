@@ -4,29 +4,28 @@ import com.github.dapperware.slack.models.{ InputBlockElement, PlainTextInput, P
 import io.circe.parser
 import io.circe.syntax.EncoderOps
 import zio.Chunk
-import zio.random.Random
 import zio.test.Assertion._
 import zio.test._
 import com.github.dapperware.slack.models.PlainTextObject
 import com.github.dapperware.slack.models.DispatchActionConfig
 import com.github.dapperware.slack.models.TriggerAction
 
-object SerializationSpec extends DefaultRunnableSpec {
+object SerializationSpec extends ZIOSpecDefault {
 
-  val plainTextObjectGen: Gen[Sized with Random, PlainTextObject] =
+  val plainTextObjectGen: Gen[Sized, PlainTextObject] =
     for {
       text  <- Gen.alphaNumericString
       emoji <- Gen.option(Gen.boolean)
       typ   <- Gen.const("plain_text")
     } yield PlainTextObject(text, emoji, typ)
 
-  val dispatchActionConfigGen: Gen[Sized with Random, DispatchActionConfig] =
+  val dispatchActionConfigGen: Gen[Sized, DispatchActionConfig] =
     for {
       triggerActionsOn <-
         Gen.listOf(Gen.oneOf(Gen.const(TriggerAction.OnEnterPressed), Gen.const(TriggerAction.OnCharacterEntered)))
     } yield DispatchActionConfig(triggerActionsOn)
 
-  implicit val blockInputGen: Gen[Sized with Random, PlainTextInput] =
+  implicit val blockInputGen: Gen[Sized, PlainTextInput] =
     for {
       actionId             <- Gen.alphaNumericString
       placeholder          <- Gen.option(plainTextObjectGen)
@@ -40,7 +39,7 @@ object SerializationSpec extends DefaultRunnableSpec {
 
   override def spec = suite("Serialization")(
     suite("PlainTextInput")(
-      testM("reads what it writes")(check(blockInputGen) { blockInput =>
+      test("reads what it writes")(check(blockInputGen) { blockInput =>
         val encoded = (blockInput: InputBlockElement).asJson
         val decoded = encoded.as[InputBlockElement]
         assert(decoded)(isRight(equalTo(blockInput))) && assert(encoded.hcursor.downField("type").as[String])(
