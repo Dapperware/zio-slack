@@ -33,15 +33,15 @@ trait GeneratedFiles {
    * Adds a file from a remote service
    * @see https://api.slack.com/methods/files.remote.add
    */
-  def addRemoteFiles(req: AddRemoteFilesRequest): Request[Unit, AccessToken] =
-    request("files.remote.add").formBody(req).auth.accessToken
+  def addRemoteFiles(req: AddRemoteFilesRequest): Request[AddRemoteFilesResponse, AccessToken] =
+    request("files.remote.add").formBody(req).as[AddRemoteFilesResponse].auth.accessToken
 
   /**
    * Retrieve information about a remote file added to Slack
    * @see https://api.slack.com/methods/files.remote.info
    */
-  def infoRemoteFiles(req: InfoRemoteFilesRequest): Request[Unit, AccessToken] =
-    request("files.remote.info").formBody(req).auth.accessToken
+  def infoRemoteFiles(req: InfoRemoteFilesRequest): Request[InfoRemoteFilesResponse, AccessToken] =
+    request("files.remote.info").formBody(req).as[InfoRemoteFilesResponse].auth.accessToken
 
   /**
    * Retrieve information about a remote file added to Slack
@@ -61,14 +61,14 @@ trait GeneratedFiles {
    * Share a remote file into a channel.
    * @see https://api.slack.com/methods/files.remote.share
    */
-  def shareRemoteFiles(req: ShareRemoteFilesRequest): Request[Unit, AccessToken] =
-    request("files.remote.share").formBody(req).auth.accessToken
+  def shareRemoteFiles(req: ShareRemoteFilesRequest): Request[ShareRemoteFilesResponse, AccessToken] =
+    request("files.remote.share").formBody(req).as[ShareRemoteFilesResponse].auth.accessToken
 
   /**
    * Updates an existing remote file.
    * @see https://api.slack.com/methods/files.remote.update
    */
-  def updateRemoteFiles(req: UpdateRemoteFilesRequest): Request[Unit, AccessToken] =
-    request("files.remote.update").formBody(req).auth.accessToken
+  def updateRemoteFiles(req: UpdateRemoteFilesRequest): Request[UpdateRemoteFilesResponse, AccessToken] =
+    request("files.remote.update").formBody(req).as[UpdateRemoteFilesResponse].auth.accessToken
 
 }

@@ -389,7 +389,7 @@ object SlackEvent {
 
   implicit val messageSubtypeMeMessageFmt: Codec.AsObject[MeMessage]                   = deriveCodec[MeMessage]
   implicit val messageSubtypeChannelNameMessageFmt: Codec.AsObject[ChannelNameMessage] = deriveCodec[ChannelNameMessage]
-  implicit val messageSubtypeFileShareMessageFmt: Codec.AsObject[FileShareMessage]     = deriveCodec[FileShareMessage]
+  implicit val messageSubtypeFileShareMessageFmt: Decoder[FileShareMessage]            = deriveDecoder[FileShareMessage]
   implicit val messageSubtypeHandledSubtypeFmt: Codec.AsObject[UnhandledSubtype]       = deriveCodec[UnhandledSubtype]
 
   implicit val messageWithSubtypeWrites: Encoder[MessageWithSubtype] = Encoder.forProduct6(

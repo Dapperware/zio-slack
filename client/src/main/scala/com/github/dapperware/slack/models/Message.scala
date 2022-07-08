@@ -1,6 +1,6 @@
 package com.github.dapperware.slack.models
 
-import io.circe.Codec
+import io.circe.{ Codec, Decoder }
 import io.circe.generic.semiauto._
 
 case class Message(
@@ -43,7 +43,7 @@ case class Message(
 )
 
 object Message {
-  implicit val codec: Codec.AsObject[Message] = deriveCodec[Message]
+  implicit val decoder: Decoder[Message] = deriveDecoder[Message]
 }
 
 final case class Icon(icon_url: Option[String] = None, icon_emoji: Option[String] = None)

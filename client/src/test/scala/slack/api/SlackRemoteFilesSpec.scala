@@ -1,15 +1,14 @@
 package slack.api
 
-import com.github.dapperware.slack.models.RemoteFile
-import zio.test._
-import zio.test.Assertion
-import Assertion._
-import com.github.dapperware.slack.{ HttpSlack, Slack, SlackResponse }
-import sttp.client3.asynchttpclient.zio.{ stubbing, SttpClient, SttpClientStubbing }
-import zio.{ Chunk, Has, Layer }
-import com.github.dapperware.slack.models.Shares
+import com.github.dapperware.slack.models.File.{ FileMeta, Preview, Sharing }
+import com.github.dapperware.slack.models.{ File, Shares }
+import com.github.dapperware.slack.{ Slack, SlackResponse }
 import sttp.client3.Request
+import sttp.client3.asynchttpclient.zio.{ stubbing, SttpClientStubbing }
+import zio.Chunk
 import zio.magic._
+import zio.test.Assertion._
+import zio.test._
 
 object SlackRemoteFilesSpec extends DefaultRunnableSpec with MockSttpBackend {
 
@@ -63,36 +62,42 @@ object SlackRemoteFilesSpec extends DefaultRunnableSpec with MockSttpBackend {
   )
 
   private val expectedResponse = SlackResponse.Ok(
-    RemoteFile(
+    File(
       id = "F0GDJ3XMH",
-      created = 1563919925,
-      timestamp = 1563919925,
-      name = "LeadvilleAndBackAgain",
-      title = "LeadvilleAndBackAgain",
-      mimetype = "application/vnd.slack-remote",
-      filetype = "remote",
-      pretty_type = "Remote",
-      user = "U0F8RBVNF",
-      editable = false,
-      size = 0,
-      mode = "external",
-      is_external = true,
-      external_type = "app",
-      is_public = false,
-      public_url_shared = false,
-      display_as_bot = false,
-      username = "",
-      url_private = "https://docs.google.com/document/d/1TA9fIaph4eSz2fC_1JGMuYaYUc4IvieIop0WqfCXw5Y/edit?usp=sharing",
-      permalink = "https://kraneflannel.slack.com/files/U0F8RBVNF/F0GDJ3XMH/leadvilleandbackagain",
-      comments_count = 0,
-      is_starred = false,
-      shares = Shares(Map.empty, Map.empty),
-      channels = List.empty,
-      groups = List.empty,
-      ims = List.empty,
-      external_id = "1234",
-      external_url = "https://docs.google.com/document/d/1TA9fIaph4eSz2fC_1JGMuYaYUc4IvieIop0WqfCXw5Y/edit?usp=sharing",
-      has_rich_preview = false
+      meta = FileMeta(
+        created = 1563919925,
+        timestamp = 1563919925,
+        name = Some("LeadvilleAndBackAgain"),
+        title = Some("LeadvilleAndBackAgain"),
+        mimetype = Some("application/vnd.slack-remote"),
+        filetype = Some("remote"),
+        pretty_type = Some("Remote"),
+        user = Some("U0F8RBVNF"),
+        editable = Some(false),
+        size = Some(0),
+        mode = Some("external"),
+        username = Some("")
+      ),
+      sharing = Sharing(
+        is_external = true,
+        external_type = Some("app"),
+        external_id = Some("1234"),
+        external_url =
+          Some("https://docs.google.com/document/d/1TA9fIaph4eSz2fC_1JGMuYaYUc4IvieIop0WqfCXw5Y/edit?usp=sharing"),
+        display_as_bot = Some(false),
+        public_url_shared = Some(false),
+        is_public = Some(false),
+        url_private =
+          Some("https://docs.google.com/document/d/1TA9fIaph4eSz2fC_1JGMuYaYUc4IvieIop0WqfCXw5Y/edit?usp=sharing"),
+        permalink = Some("https://kraneflannel.slack.com/files/U0F8RBVNF/F0GDJ3XMH/leadvilleandbackagain"),
+        shares = Some(Shares(Map.empty, Map.empty)),
+        channels = Some(Nil),
+        groups = Some(Nil),
+        ims = Some(Nil)
+      ),
+      preview = Preview(
+        has_rich_preview = Some(false)
+      )
     ),
     Nil
   )
@@ -153,7 +158,7 @@ object SlackRemoteFilesSpec extends DefaultRunnableSpec with MockSttpBackend {
     }
   ).inject(
     sttpBackEndStubLayer,
-    HttpSlack.layer,
+    Slack.http,
     accessTokenLayer("foo-access-token")
   )
 

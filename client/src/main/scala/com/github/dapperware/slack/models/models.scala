@@ -43,7 +43,6 @@ package object models {
   implicit val userFmt: Codec.AsObject[User]                                   = deriveCodec[User]
   implicit val reactionFmt: Codec.AsObject[Reaction]                           = deriveCodec[Reaction]
   implicit val slackCommentFmt: Codec.AsObject[SlackComment]                   = deriveCodec[SlackComment]
-  implicit val slackFileFmt: Codec.AsObject[File]                              = deriveCodec[File]
   implicit val slackFileIdFmt: Codec.AsObject[SlackFileId]                     = deriveCodec[SlackFileId]
   implicit val updateResponseFmt: Codec.AsObject[UpdateResponse]               = deriveCodec[UpdateResponse]
   implicit val appFmt: Codec.AsObject[App]                                     = deriveCodec[App]

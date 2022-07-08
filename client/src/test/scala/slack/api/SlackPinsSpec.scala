@@ -19,9 +19,9 @@ object SlackPinsSpec extends DefaultRunnableSpec with MockSttpBackend {
                     "ok": true
                     }
                 """
-  private val expectedBody2 = "channel=zoo-channel&timestamp=1234567890.123456"
+  private val expectedBody2 = """{"channel":"zoo-channel","timestamp":"1234567890.123456"}"""
 
-  private val expectedBody1 = "channel=foo-channel"
+  private val expectedBody1 = """{"channel":"foo-channel"}"""
 
   override def spec: ZSpec[Environment, Failure] = suite("Pins")(
     testM("sends channel-id") {
@@ -40,5 +40,5 @@ object SlackPinsSpec extends DefaultRunnableSpec with MockSttpBackend {
 
       assertM(stubEffect *> Slack.pin("zoo-channel", Some("1234567890.123456")))(isOk)
     }
-  ).inject(sttpBackEndStubLayer, HttpSlack.layer, accessTokenLayer("foo-access-token"))
+  ).inject(sttpBackEndStubLayer, Slack.http, accessTokenLayer("foo-access-token"))
 }
