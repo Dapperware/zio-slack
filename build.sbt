@@ -112,7 +112,7 @@ scalacOptions ++= Seq(
 val commonSettings = Def.settings(
   libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, 13)) => Nil
-    case Some((3, 0))  => Nil
+    case Some((3, _))  => Nil
     case _             => compilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full) :: Nil
   }),
   scalacOptions ++= Seq(
