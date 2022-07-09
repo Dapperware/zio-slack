@@ -15,7 +15,7 @@ trait Rtm { self: Slack =>
 
 }
 
-private[slack] trait RtmAccessors { _: Slack.type =>
+private[slack] trait RtmAccessors { self: Slack.type =>
 
   def connectRtm(
     batchPresenceAware: Option[Boolean] = None,

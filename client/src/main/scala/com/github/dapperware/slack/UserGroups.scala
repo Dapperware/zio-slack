@@ -106,7 +106,7 @@ trait UserGroups { self: Slack =>
     )
 }
 
-private[slack] trait UserGroupsAccessors { _: Slack.type =>
+private[slack] trait UserGroupsAccessors { self: Slack.type =>
   def createUserGroup(
     name: String,
     channels: List[String] = List.empty,

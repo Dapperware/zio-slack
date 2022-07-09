@@ -87,7 +87,7 @@ trait Files { self: Slack =>
 
 }
 
-trait FilesAccessors { _: Slack.type =>
+trait FilesAccessors { self: Slack.type =>
 
   def revokePublicURL(fileId: String): URIO[Slack with AccessToken, SlackResponse[FilesResponse]] =
     ZIO.serviceWithZIO[Slack](_.revokePublicURL(fileId))

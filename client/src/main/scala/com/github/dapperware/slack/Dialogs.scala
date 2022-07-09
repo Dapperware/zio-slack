@@ -3,6 +3,7 @@ package com.github.dapperware.slack
 import com.github.dapperware.slack.generated.GeneratedDialog
 import com.github.dapperware.slack.generated.requests.OpenDialogRequest
 import com.github.dapperware.slack.models.Dialog
+import com.github.dapperware.slack.models.dialogFmt
 import io.circe.syntax._
 import zio.{ URIO, ZIO }
 
@@ -13,7 +14,7 @@ trait Dialogs { self: Slack =>
 
 }
 
-private[slack] trait DialogsAccessors { _: Slack.type =>
+private[slack] trait DialogsAccessors { self: Slack.type =>
 
   def openDialog(triggerId: String, dialog: Dialog): URIO[Slack with AccessToken, SlackResponse[Unit]] =
     ZIO.serviceWithZIO[Slack](_.openDialog(triggerId, dialog))

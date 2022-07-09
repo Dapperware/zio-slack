@@ -65,7 +65,7 @@ trait Users { self: Slack =>
 
 }
 
-private[slack] trait UsersAccessors { _: Slack.type =>
+private[slack] trait UsersAccessors { self: Slack.type =>
   // TODO: Full payload for authed user: https://api.slack.com/methods/users.getPresence
   def getUserPresence(userId: String): URIO[Slack with AccessToken, SlackResponse[GetPresenceUsersResponse]] =
     ZIO.serviceWithZIO[Slack](_.getUserPresence(userId))

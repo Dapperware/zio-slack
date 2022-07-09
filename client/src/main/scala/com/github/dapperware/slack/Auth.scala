@@ -14,7 +14,7 @@ trait Auth { self: Slack =>
 
 }
 
-private[slack] trait AuthAccessors { _: Slack.type =>
+private[slack] trait AuthAccessors { self: Slack.type =>
   def testAuth: URIO[Slack with AccessToken, SlackResponse[TestAuthResponse]] =
     ZIO.serviceWithZIO[Slack](_.testAuth)
 

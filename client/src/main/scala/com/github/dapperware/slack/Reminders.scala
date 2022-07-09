@@ -11,6 +11,7 @@ import com.github.dapperware.slack.generated.responses.{ InfoRemindersResponse, 
 import com.github.dapperware.slack.models.Reminder
 import io.circe.Json
 import zio.{ URIO, ZIO }
+import com.github.dapperware.slack.models.reminderCodec
 
 trait Reminders { self: Slack =>
 
@@ -42,7 +43,7 @@ trait Reminders { self: Slack =>
 
 }
 
-private[slack] trait RemindersAccessors { _: Slack.type =>
+private[slack] trait RemindersAccessors { self: Slack.type =>
 
   def addReminder(
     text: String,

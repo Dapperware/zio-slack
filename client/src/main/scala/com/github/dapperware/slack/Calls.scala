@@ -95,7 +95,7 @@ trait Calls { self: Slack =>
 }
 
 private[slack] trait CallsAccessors {
-  _: Slack.type =>
+  self: Slack.type =>
 
   /**
    * https://api.slack.com/methods/calls.add

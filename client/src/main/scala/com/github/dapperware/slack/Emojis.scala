@@ -23,7 +23,7 @@ trait Emojis { self: Slack =>
     )
 }
 
-private[slack] trait EmojisAccessors { _: Slack.type =>
+private[slack] trait EmojisAccessors { self: Slack.type =>
   def listEmojis: URIO[Slack with AccessToken, SlackResponse[EmojiMap]] =
     ZIO.serviceWithZIO[Slack](_.listEmojis)
 

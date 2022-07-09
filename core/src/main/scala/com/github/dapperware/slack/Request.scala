@@ -1,6 +1,6 @@
 package com.github.dapperware.slack
 
-import com.github.dapperware.slack.Request.{ extractBodyAt, respondWith }
+import com.github.dapperware.slack.Request.{ extractBodyAt, respondWith, RequestAuth }
 import com.github.dapperware.slack.client.RequestEntity
 import io.circe
 import io.circe.syntax.EncoderOps
@@ -41,7 +41,7 @@ case class Request[+T, Auth](
   def at[B: IsOption](key: String)(implicit ev: Decoder[B]): Request[B, Auth] =
     copy(responseAs = extractBodyAt[B](key).decodeJson)
 
-  def auth: RequestAuth[T] =
+  def auth: RequestAuth[T, Auth] =
     RequestAuth(self)
 
   def jsonBody[A: Encoder](json: A): Request[T, Auth] = copy(body = SlackBody.JsonBody(json.asJson))
@@ -90,6 +90,14 @@ case class Request[+T, Auth](
 }
 
 object Request {
+
+  case class RequestAuth[+T, Unused] private[slack] (request: Request[T, Unused]) {
+    def clientSecret: Request[T, ClientSecret] = request.asInstanceOf[Request[T, ClientSecret]]
+    def accessToken: Request[T, AccessToken]   = request.asInstanceOf[Request[T, AccessToken]]
+    def appToken: Request[T, AppToken]         = request.asInstanceOf[Request[T, AppToken]]
+    def none: Request[T, Unit]                 = request.asInstanceOf[Request[T, Unit]]
+
+  }
 
   private def extractBodyAt[A: Decoder](key: String): Decoder[A] =
     Decoder.instance[A](_.downField(key).as[A])

@@ -10,7 +10,7 @@ trait Bots { self: Slack =>
     apiCall(Bots.infoBots(req))
 }
 
-private[slack] trait BotsAccessors { _: Slack.type =>
+private[slack] trait BotsAccessors { self: Slack.type =>
   def botsInfo(req: InfoBotsRequest): URIO[Slack with AccessToken, SlackResponse[InfoBotsResponse]] =
     ZIO.serviceWithZIO[Slack](_.botsInfo(req))
 }

@@ -9,7 +9,7 @@ import com.github.dapperware.slack.models.{
   ViewPayload
 }
 import io.circe.parser
-import zio.ZIO
+import zio.{ UIO, ZIO }
 import zio.test.Assertion.{ equalTo, isRight }
 import zio.test._
 
@@ -100,7 +100,7 @@ object SlackViewSpec extends ZIOSpecDefault {
         )
       },
       test("deserialize kitchen sink submission") {
-        val body = ZIO.scoped(
+        val body: UIO[String] = ZIO.scoped(
           ZIO
             .fromAutoCloseable(ZIO.succeed(Source.fromResource("payloads/kitchen_sink_view_submission.json")))
             .map(_.mkString)

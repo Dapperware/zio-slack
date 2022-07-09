@@ -37,7 +37,7 @@ trait Stars { self: Slack =>
 
 }
 
-private[slack] trait StarsAccessors { _: Slack.type =>
+private[slack] trait StarsAccessors { self: Slack.type =>
   def addStars(
     channel: Option[String] = None,
     file: Option[String],

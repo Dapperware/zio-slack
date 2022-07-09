@@ -38,7 +38,7 @@ trait OAuth { self: Slack =>
 
 }
 
-trait OAuthAccessors {
+trait OAuthAccessors { self: Slack.type =>
 
   def accessOAuthV2(
     code: String,

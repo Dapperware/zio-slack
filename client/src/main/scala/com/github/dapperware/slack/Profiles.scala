@@ -5,6 +5,7 @@ import com.github.dapperware.slack.models.UserProfile
 import io.circe.Json
 import io.circe.syntax._
 import zio.{ URIO, ZIO }
+import com.github.dapperware.slack.models.userProfileFmt
 
 trait Profiles { self: Slack =>
   def getProfile(

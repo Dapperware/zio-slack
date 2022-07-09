@@ -76,7 +76,7 @@ trait Views { self: Slack =>
 
 }
 
-private[slack] trait ViewsAccessors { _: Slack.type =>
+private[slack] trait ViewsAccessors { self: Slack.type =>
 
   def openView(
     triggerId: String,

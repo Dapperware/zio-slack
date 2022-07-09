@@ -115,6 +115,10 @@ trait TextObject {
 case class PlainTextObject(text: String, emoji: Option[Boolean] = None, `type`: String = "plain_text")
     extends TextObject
 
+object PlainTextObject {
+  implicit val codec: Codec[PlainTextObject] = deriveCodec[PlainTextObject]
+}
+
 case class MarkdownTextObject(text: String, verbatim: Option[Boolean] = None, `type`: String = "mrkdwn")
     extends TextObject
 
@@ -146,15 +150,31 @@ object TextObject {
 
 case class OptionObject(text: PlainTextObject, value: String)
 
+object OptionObject {
+  implicit val codec: Codec[OptionObject] = deriveCodec[OptionObject]
+}
+
 case class OptionGroupObject(label: PlainTextObject, options: Seq[OptionObject])
 
+object OptionGroupObject {
+  implicit val codec: Codec[OptionGroupObject] = deriveCodec[OptionGroupObject]
+}
+
 case class ConfirmationObject(title: PlainTextObject, text: TextObject, confirm: PlainTextObject, deny: PlainTextObject)
+
+object ConfirmationObject {
+  implicit val codec: Codec[ConfirmationObject] = deriveCodec[ConfirmationObject]
+}
 
 trait BlockElement {
   val `type`: String
 }
 
 case class ImageElement(image_url: String, alt_text: String, `type`: String = "image") extends BlockElement {}
+
+object ImageElement {
+  implicit val codec: Codec[ImageElement] = deriveCodec[ImageElement]
+}
 
 case class ButtonElement(
   text: PlainTextObject,
@@ -164,6 +184,10 @@ case class ButtonElement(
   confirm: Option[ConfirmationObject] = None
 ) extends BlockElement {
   override val `type`: String = "button"
+}
+
+object ButtonElement {
+  implicit val codec: Codec[ButtonElement] = deriveCodec[ButtonElement]
 }
 
 case class StaticSelectElement(
@@ -198,12 +222,20 @@ case class UserSelectElement(
   override val `type`: String = "users_select"
 }
 
+object UserSelectElement {
+  implicit val codec: Codec.AsObject[UserSelectElement] = deriveCodec[UserSelectElement]
+}
+
 case class MultiUsersSelectElement(
   placeholder: PlainTextObject,
   action_id: String
 ) extends BlockElement
     with InputBlockElement {
   override val `type`: String = "multi_users_select"
+}
+
+object MultiUsersSelectElement {
+  implicit val codec: Codec.AsObject[MultiUsersSelectElement] = deriveCodec[MultiUsersSelectElement]
 }
 
 case class ChannelSelectElement(
@@ -215,6 +247,10 @@ case class ChannelSelectElement(
   override val `type`: String = "channels_select"
 }
 
+object ChannelSelectElement {
+  implicit val codec: Codec[ChannelSelectElement] = deriveCodec[ChannelSelectElement]
+}
+
 case class ConversationSelectElement(
   placeholder: PlainTextObject,
   action_id: String,
@@ -224,6 +260,10 @@ case class ConversationSelectElement(
 ) extends BlockElement
     with InputBlockElement {
   override val `type`: String = "conversations_select"
+}
+
+object ConversationSelectElement {
+  implicit val codec: Codec.AsObject[ConversationSelectElement] = deriveCodec[ConversationSelectElement]
 }
 
 case class MultiConversationsSelectElement(
@@ -239,9 +279,17 @@ case class MultiConversationsSelectElement(
   override val `type`: String = "multi_conversations_select"
 }
 
+object MultiConversationsSelectElement {
+  implicit val codec: Codec.AsObject[MultiConversationsSelectElement] = deriveCodec[MultiConversationsSelectElement]
+}
+
 case class OverflowElement(action_id: String, options: Seq[OptionObject], confirm: Option[ConfirmationObject] = None)
     extends BlockElement {
   override val `type`: String = "overflow"
+}
+
+object OverflowElement {
+  implicit val codec: Codec.AsObject[OverflowElement] = deriveCodec[OverflowElement]
 }
 
 case class DatePickerElement(
@@ -252,6 +300,10 @@ case class DatePickerElement(
 ) extends BlockElement
     with InputBlockElement {
   override val `type`: String = "datepicker"
+}
+
+object DatePickerElement {
+  implicit val codec: Codec.AsObject[DatePickerElement] = deriveCodec[DatePickerElement]
 }
 
 sealed trait RichTextElement
@@ -429,28 +481,11 @@ object RichTextPreformattedElement {
 }
 
 object BlockElement {
-  implicit val plainTextFmt: Codec.AsObject[PlainTextObject] = deriveCodec[PlainTextObject]
-
-  implicit val optionObjFmt: Codec.AsObject[OptionObject]         = deriveCodec[OptionObject]
-  implicit val optionGrpObjFmt: Codec.AsObject[OptionGroupObject] = deriveCodec[OptionGroupObject]
-  implicit val confirmObjFmt: Codec.AsObject[ConfirmationObject]  = deriveCodec[ConfirmationObject]
-
-  implicit val eitherOptFmt: Codec[Either[OptionObject, OptionGroupObject]]                     =
+  implicit val eitherOptFmt: Codec[Either[OptionObject, OptionGroupObject]] =
     eitherObjectFormat[OptionObject, OptionGroupObject]("text", "label")
-  implicit val buttonElementFmt: Codec.AsObject[ButtonElement]                                  = deriveCodec[ButtonElement]
-  implicit val imageElementFmt: Codec.AsObject[ImageElement]                                    = deriveCodec[ImageElement]
-  implicit val staticMenuElementFmt: Codec.AsObject[StaticSelectElement]                        = deriveCodec[StaticSelectElement]
-  implicit val extMenuElementFmt: Codec.AsObject[ExternalSelectElement]                         = deriveCodec[ExternalSelectElement]
-  implicit val userMenuElementFmt: Codec.AsObject[UserSelectElement]                            = deriveCodec[UserSelectElement]
-  implicit val multiUsersSelectElementFmt: Codec.AsObject[MultiUsersSelectElement]              =
-    deriveCodec[MultiUsersSelectElement]
-  implicit val channelMenuElementFmt: Codec.AsObject[ChannelSelectElement]                      = deriveCodec[ChannelSelectElement]
-  implicit val conversationMenuElementFmt: Codec.AsObject[ConversationSelectElement]            =
-    deriveCodec[ConversationSelectElement]
-  implicit val multiConversationMenuElementFmt: Codec.AsObject[MultiConversationsSelectElement] =
-    deriveCodec[MultiConversationsSelectElement]
-  implicit val overflowElementFmt: Codec.AsObject[OverflowElement]                              = deriveCodec[OverflowElement]
-  implicit val datePickerElementFmt: Codec.AsObject[DatePickerElement]                          = deriveCodec[DatePickerElement]
+
+  implicit val staticMenuElementFmt: Codec.AsObject[StaticSelectElement] = deriveCodec[StaticSelectElement]
+  implicit val extMenuElementFmt: Codec.AsObject[ExternalSelectElement]  = deriveCodec[ExternalSelectElement]
 
   private val elemWrites: Encoder[BlockElement] = new Encoder[BlockElement] {
     def apply(element: BlockElement): Json = {
@@ -493,7 +528,7 @@ object BlockElement {
       } yield result
   }
 
-  implicit val format: Codec[BlockElement] = Codec.from(elemReads, elemWrites)
+  implicit val codec: Codec[BlockElement] = Codec.from(elemReads, elemWrites)
 }
 
 object InputBlockElement {
@@ -576,5 +611,5 @@ object Block {
     } yield result
   }
 
-  implicit val format: Codec[Block] = Codec.from(blockDecoder, blockEncoder)
+  implicit val codec: Codec[Block] = Codec.from(blockDecoder, blockEncoder)
 }

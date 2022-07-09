@@ -4,6 +4,7 @@ import com.github.dapperware.slack.generated.GeneratedChat
 import com.github.dapperware.slack.generated.requests._
 import com.github.dapperware.slack.generated.responses._
 import com.github.dapperware.slack.models.{ Attachment, Block }
+import com.github.dapperware.slack.models.attachmentFmt
 import io.circe.syntax._
 import zio.{ URIO, ZIO }
 

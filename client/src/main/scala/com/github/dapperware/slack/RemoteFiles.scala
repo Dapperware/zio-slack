@@ -102,7 +102,7 @@ trait RemoteFiles { self: Slack =>
     )
 }
 
-private[slack] trait RemoteFilesAccessors {
+private[slack] trait RemoteFilesAccessors { self: Slack.type =>
   def addRemoteFile(
     externalId: String,
     externalUrl: String,

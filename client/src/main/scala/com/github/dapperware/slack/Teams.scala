@@ -18,7 +18,7 @@ trait Teams { self: Slack =>
     apiCall(Teams.infoTeam(InfoTeamRequest(None)))
 }
 
-private[slack] trait TeamsAccessors { _: Slack.type =>
+private[slack] trait TeamsAccessors { self: Slack.type =>
 
   def getTeamAccessLogs(
     count: Option[Int] = None,

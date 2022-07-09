@@ -155,6 +155,6 @@ val commonSettings = Def.settings(
         "-Ywarn-unused:patvars,-implicits",
         "-Ywarn-value-discard"
       )
-    case _             => Seq("-Ykind-projector:underscores") ++ Seq("-Xmax-inlines", "50")
+    case _             => Seq("-Ykind-projector:underscores") ++ Seq("-Xmax-inlines", "100")
   })
 )

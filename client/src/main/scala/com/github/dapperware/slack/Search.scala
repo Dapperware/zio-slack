@@ -73,7 +73,7 @@ trait Search { self: Slack =>
     )
 }
 
-private[slack] trait SearchAccessors { _: Slack.type =>
+private[slack] trait SearchAccessors { self: Slack.type =>
 
   // TODO: Return proper search results (not JsValue)
   def searchFiles(

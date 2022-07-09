@@ -35,7 +35,7 @@ trait Dnd { self: Slack =>
     apiCall(Dnd.teamInfoDnd(TeamInfoDndRequest(Some(users).filter(_.nonEmpty).map(_.mkString(",")))))
 }
 
-private[slack] trait DndAccessors { _: Slack.type =>
+private[slack] trait DndAccessors { self: Slack.type =>
   def endDnd(): URIO[Slack with AccessToken, SlackResponse[Unit]] =
     ZIO.serviceWithZIO[Slack](_.endDnd())
 

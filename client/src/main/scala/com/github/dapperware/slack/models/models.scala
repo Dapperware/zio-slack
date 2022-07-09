@@ -28,12 +28,12 @@ package object models {
       }
     )
 
-  implicit val confirmFieldFmt: Codec.AsObject[ConfirmField]                   = deriveCodec[ConfirmField]
-  implicit val actionFieldFmt: Codec.AsObject[ActionField]                     = deriveCodec[ActionField]
-  implicit val attachmentFieldFmt: Codec.AsObject[AttachmentField]             = deriveCodec[AttachmentField]
-  implicit val attachmentFmt: Codec.AsObject[Attachment]                       = deriveCodec[Attachment]
-  implicit val authIdentityFmt: Codec.AsObject[AuthIdentity]                   = deriveCodec[AuthIdentity]
-  implicit val teamFmt: Codec.AsObject[Team]                                   = deriveCodec[Team]
+  implicit val confirmFieldFmt: Codec.AsObject[ConfirmField]       = deriveCodec[ConfirmField]
+  implicit val actionFieldFmt: Codec.AsObject[ActionField]         = deriveCodec[ActionField]
+  implicit val attachmentFieldFmt: Codec.AsObject[AttachmentField] = deriveCodec[AttachmentField]
+  implicit val attachmentFmt: Codec.AsObject[Attachment]           = deriveCodec[Attachment]
+  implicit val authIdentityFmt: Codec.AsObject[AuthIdentity]       = deriveCodec[AuthIdentity]
+
   implicit val channelValueFmt: Codec.AsObject[ChannelValue]                   = deriveCodec[ChannelValue]
   implicit val groupValueFmt: Codec.AsObject[GroupValue]                       = deriveCodec[GroupValue]
   implicit val imFmt: Codec.AsObject[Im]                                       = deriveCodec[Im]

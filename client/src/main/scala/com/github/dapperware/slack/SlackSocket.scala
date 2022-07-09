@@ -64,7 +64,6 @@ class SlackSocketLive(slack: Slack, client: SttpClient) extends SlackSocket {
       // After the socket has been opened the first message we expect is the "hello" message
       // Chew that off the front of the socket, if we don't receive it we should return an exception
       r                <- readAllMessages(w).peel(ZSink.head[Either[Json, SlackSocketEvent]])
-      // TODO Need to intercept and handle the "disconnect" message
       (handshake, rest) = r
       _                <- ZIO.whenCase(handshake) {
                             case Some(Right(Hello(_, _, _))) => ZIO.unit

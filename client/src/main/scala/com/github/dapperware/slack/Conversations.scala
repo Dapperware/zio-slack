@@ -9,6 +9,7 @@ import io.circe.Json
 import io.circe.syntax._
 import sttp.client3.IsOption
 import zio.{ URIO, ZIO }
+import com.github.dapperware.slack.models.channelFmt
 
 trait Conversations { self: Slack =>
 
@@ -249,7 +250,7 @@ trait Conversations { self: Slack =>
     apiCall(Conversations.unarchiveConversations(UnarchiveConversationsRequest(Some(channel))))
 }
 
-private[slack] trait ConversationsAccessors { _: Slack.type =>
+private[slack] trait ConversationsAccessors { self: Slack.type =>
 
   /**
    * https://api.slack.com/methods/conversations.archive

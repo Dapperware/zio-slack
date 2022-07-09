@@ -25,7 +25,7 @@ trait Pins { self: Slack =>
     apiCall(Pins.listPins(ListPinsRequest(channelId)))
 }
 
-trait PinsAccessors { _: Slack.type =>
+trait PinsAccessors { self: Slack.type =>
   def pin(
     channelId: String,
     timeStamp: Option[String] = None

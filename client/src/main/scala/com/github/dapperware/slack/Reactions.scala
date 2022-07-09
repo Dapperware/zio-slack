@@ -76,7 +76,7 @@ trait Reactions { self: Slack =>
     removeReaction(emojiName, channelId = Some(channelId), timestamp = Some(timestamp))
 }
 
-private[slack] trait ReactionsAccessors { _: Slack.type =>
+private[slack] trait ReactionsAccessors { self: Slack.type =>
   def addReactionToMessage(
     emojiName: String,
     channelId: String,
