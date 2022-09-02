@@ -16,6 +16,11 @@ case class Divider(block_id: Option[String] = None) extends Block {
   override val `type`: String = "divider"
 }
 
+object Divider {
+  implicit val decoder: Decoder[Divider]          = deriveDecoder[Divider]
+  implicit val encoder: Encoder.AsObject[Divider] = deriveEncoder[Divider]
+}
+
 case class Section(
   text: TextObject,
   fields: Option[Seq[TextObject]] = None,
@@ -33,6 +38,11 @@ case class ImageBlock(
 ) extends Block {
   override val `type`: String = "image"
   require(title.forall(_.`type` == "plain_text"))
+}
+
+object ImageBlock {
+  implicit val decoder: Decoder[ImageBlock]          = deriveDecoder[ImageBlock]
+  implicit val encoder: Encoder.AsObject[ImageBlock] = deriveEncoder[ImageBlock]
 }
 
 case class ActionsBlock(elements: Seq[BlockElement], block_id: Option[String] = None) extends Block {
@@ -83,6 +93,11 @@ case class PlainTextInput(
   override val `type` = "plain_text_input"
 }
 
+object PlainTextInput {
+  implicit val decoder: Decoder[PlainTextInput]          = deriveDecoder[PlainTextInput]
+  implicit val encoder: Encoder.AsObject[PlainTextInput] = deriveEncoder[PlainTextInput]
+}
+
 case class DispatchActionConfig(trigger_actions_on: List[TriggerAction])
 
 object DispatchActionConfig {
@@ -116,15 +131,17 @@ case class PlainTextObject(text: String, emoji: Option[Boolean] = None, `type`: 
     extends TextObject
 
 object PlainTextObject {
-  implicit val codec: Codec[PlainTextObject] = deriveCodec[PlainTextObject]
+  implicit val codec: Codec.AsObject[PlainTextObject] = deriveCodec[PlainTextObject]
 }
 
 case class MarkdownTextObject(text: String, verbatim: Option[Boolean] = None, `type`: String = "mrkdwn")
     extends TextObject
 
+object MarkdownTextObject {
+  implicit val codec: Codec.AsObject[MarkdownTextObject] = deriveCodec[MarkdownTextObject]
+}
+
 object TextObject {
-  implicit private[slack] val plainTextFmt: Codec.AsObject[PlainTextObject]     = deriveCodec[PlainTextObject]
-  implicit private[slack] val mrkdwnTextFmt: Codec.AsObject[MarkdownTextObject] = deriveCodec[MarkdownTextObject]
 
   private val textEncoder = Encoder.AsObject.instance[TextObject] { text =>
     val json = text match {
@@ -532,7 +549,6 @@ object BlockElement {
 }
 
 object InputBlockElement {
-  implicit val plainTextInputCodec: Codec.AsObject[PlainTextInput] = deriveCodec[PlainTextInput]
 
   implicit val encoder: Encoder[InputBlockElement] = Encoder.AsObject.instance[InputBlockElement] { ibe =>
     val json = ibe match {
@@ -566,13 +582,9 @@ object InputBlockElement {
 }
 
 object Block {
-  implicit val plainTextFmt: Codec.AsObject[PlainTextObject] = deriveCodec[PlainTextObject]
-  implicit val imageElementFmt: Codec.AsObject[ImageElement] = deriveCodec[ImageElement]
 
   implicit val eitherContextFmt: Codec[Either[ImageElement, TextObject]] =
     eitherObjectFormat[ImageElement, TextObject]("image_url", "text")
-  implicit val dividerFmt: Codec.AsObject[Divider]                       = deriveCodec[Divider]
-  implicit val imageBlockFmt: Codec.AsObject[ImageBlock]                 = deriveCodec[ImageBlock]
   implicit val actionBlockFmt: Codec.AsObject[ActionsBlock]              = deriveCodec[ActionsBlock]
   implicit val contextBlockFmt: Codec.AsObject[ContextBlock]             = deriveCodec[ContextBlock]
   implicit val sectionFmt: Codec.AsObject[Section]                       = deriveCodec[Section]
@@ -580,7 +592,7 @@ object Block {
   implicit val inputBlockCodec: Codec.AsObject[InputBlock]               = deriveCodec[InputBlock]
   implicit val richTextBlock: Codec.AsObject[RichTextBlock]              = deriveCodec[RichTextBlock]
 
-  private val blockEncoder = Encoder.AsObject.instance[Block] { block =>
+  private lazy val blockEncoder = Encoder.AsObject.instance[Block] { block =>
     val json = block match {
       case b: Divider       => b.asJsonObject
       case b: Section       => b.asJsonObject
@@ -594,7 +606,7 @@ object Block {
     json.add("type", block.`type`.asJson)
   }
 
-  private val blockDecoder = Decoder.instance[Block] { c =>
+  private lazy val blockDecoder = Decoder.instance[Block] { c =>
     for {
       value  <- c.downField("type").as[String]
       result <- value match {
@@ -611,5 +623,5 @@ object Block {
     } yield result
   }
 
-  implicit val codec: Codec[Block] = Codec.from(blockDecoder, blockEncoder)
+  implicit lazy val codec: Codec.AsObject[Block] = Codec.AsObject.from(blockDecoder, blockEncoder)
 }

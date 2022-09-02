@@ -1,14 +1,27 @@
 package com.github.dapperware.slack
 
 import io.circe.Decoder
-import sttp.client3.asynchttpclient.zio.SttpClient
-import zio.{ Tag, UIO, URIO, ZIO, ZLayer }
+import sttp.client3.SttpBackend
+import zio.{ Tag, Task, Trace, UIO, URIO, ZIO, ZLayer }
+
+trait SlackApiBase {
+  def client: SlackClient
+
+  def apiCall[T](request: Request[T, Unit])(implicit trace: Trace): UIO[SlackResponse[T]] =
+    client.apiCall(request)
+
+  def apiCall[T, A](
+    request: Request[T, A]
+  )(implicit ev: HasAuth[A], tag: Tag[A], trace: Trace): URIO[A, SlackResponse[T]] =
+    client.apiCall(request)
+}
 
 /**
  * The root trait for the Slack API.
  */
 trait Slack
-    extends Apps
+    extends SlackApiBase
+    with Apps
     with Auth
     with Bots
     with Calls
@@ -30,17 +43,7 @@ trait Slack
     with Teams
     with UserGroups
     with Users
-    with Views {
-
-  def client: SlackClient
-
-  def apiCall[T](request: Request[T, Unit]): UIO[SlackResponse[T]] =
-    client.apiCall(request)
-
-  def apiCall[T, A](request: Request[T, A])(implicit ev: HasAuth[A], tag: Tag[A]): URIO[A, SlackResponse[T]] =
-    client.apiCall(request)
-
-}
+    with Views
 
 object Slack
     extends AppsAccessors
@@ -74,14 +77,13 @@ object Slack
 
   def make: ZIO[SlackClient, Nothing, Slack] =
     ZIO
-      .service[SlackClient]
-      .map(c =>
+      .serviceWith[SlackClient](c =>
         new Slack {
           val client: SlackClient = c
         }
       )
 
-  val http: ZLayer[SttpClient, Nothing, SlackClient with Slack] =
+  val http: ZLayer[SttpBackend[Task, Any], Nothing, SlackClient with Slack] =
     HttpSlack.layer >+> ZLayer(make)
 
 }

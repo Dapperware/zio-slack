@@ -4,19 +4,15 @@ import com.github.dapperware.slack.Slack.request
 import com.github.dapperware.slack.generated.GeneratedConversations
 import com.github.dapperware.slack.generated.requests._
 import com.github.dapperware.slack.generated.responses._
-import com.github.dapperware.slack.models.{ Channel, ChannelLike, ChannelLikeId, Message, Plural, ResponseChunk }
-import io.circe.Json
-import io.circe.syntax._
-import sttp.client3.IsOption
-import zio.{ URIO, ZIO }
-import com.github.dapperware.slack.models.channelFmt
+import com.github.dapperware.slack.models.{ Channel, Message, Plural, ResponseChunk }
+import zio.{ Trace, URIO, ZIO }
 
-trait Conversations { self: Slack =>
+trait Conversations { self: SlackApiBase =>
 
   /**
    * https://api.slack.com/methods/conversations.archive
    */
-  def archiveConversation(channel: String): URIO[AccessToken, SlackResponse[Unit]] =
+  def archiveConversation(channel: String)(implicit trace: Trace): URIO[AccessToken, SlackResponse[Unit]] =
     apiCall(Conversations.archiveConversations(ArchiveConversationsRequest(Some(channel))))
 
   /**
@@ -24,7 +20,7 @@ trait Conversations { self: Slack =>
    */
   def closeConversation(
     channelId: String
-  ): URIO[AccessToken, SlackResponse[CloseConversationsResponse]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[CloseConversationsResponse]] =
     apiCall(Conversations.closeConversations(CloseConversationsRequest(Some(channelId))))
 
   /**
@@ -35,7 +31,7 @@ trait Conversations { self: Slack =>
     name: String,
     isPrivate: Option[Boolean] = None,
     userIds: Option[List[String]]
-  ): URIO[AccessToken, SlackResponse[CreateConversationsResponse]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[CreateConversationsResponse]] =
     apiCall(Conversations.createConversations(CreateConversationsRequest(Some(name), isPrivate)))
 
   /**
@@ -48,7 +44,7 @@ trait Conversations { self: Slack =>
     latest: Option[String] = None,
     limit: Option[Int] = None,
     oldest: Option[String] = None
-  ): URIO[AccessToken, SlackResponse[HistoryConversationsResponse]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[HistoryConversationsResponse]] =
     apiCall(
       Conversations
         .historyConversations(
@@ -63,7 +59,9 @@ trait Conversations { self: Slack =>
         )
     )
 
-  def getSingleMessage(channelId: String, ts: String): ZIO[AccessToken, Nothing, SlackResponse[Option[Message]]] =
+  def getSingleMessage(channelId: String, ts: String)(implicit
+    trace: Trace
+  ): ZIO[AccessToken, Nothing, SlackResponse[Option[Message]]] =
     getConversationHistory(channelId, latest = Some(ts), inclusive = Some(true), limit = Some(1))
       .map(_.map(_.messages.headOption))
 
@@ -74,7 +72,7 @@ trait Conversations { self: Slack =>
     channel: String,
     includeLocale: Option[Boolean] = None,
     includeNumMembers: Option[Boolean] = None
-  ): URIO[AccessToken, SlackResponse[Channel]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[Channel]] =
     apiCall(
       request("conversations.info")
         .formBody(
@@ -82,7 +80,7 @@ trait Conversations { self: Slack =>
           "include_locale"  -> includeLocale,
           "include_num_mem" -> includeNumMembers
         )
-        .at[Channel]("channel")
+        .jsonAt[Channel]("channel")
     )
 
   /**
@@ -91,7 +89,7 @@ trait Conversations { self: Slack =>
   def inviteToConversation(
     channel: String,
     users: List[String]
-  ): URIO[AccessToken, SlackResponse[InviteConversationsResponse]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[InviteConversationsResponse]] =
     apiCall(Conversations.inviteConversations(InviteConversationsRequest(Some(channel), Some(users.mkString(",")))))
 
   def inviteShareConversation(
@@ -99,29 +97,35 @@ trait Conversations { self: Slack =>
     users: Option[List[String]] = None,
     emails: Option[List[String]] = None,
     externalLimited: Option[Boolean] = None
-  ): URIO[AccessToken, SlackResponse[Channel]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[Channel]] =
     apiCall(
       request("conversations.invite")
         .formBody("channel" -> channel, "users_ids" -> users.map(_.mkString(",")))
-        .at[Channel]("channel")
+        .jsonAt[Channel]("channel")
     )
 
   /**
    * https://api.slack.com/methods/conversations.join
    */
-  def joinConversation(channel: String): URIO[AccessToken, SlackResponse[JoinConversationsResponse]] =
+  def joinConversation(channel: String)(implicit
+    trace: Trace
+  ): URIO[AccessToken, SlackResponse[JoinConversationsResponse]] =
     apiCall(Conversations.joinConversations(JoinConversationsRequest(Some(channel))))
 
   /**
    * https://api.slack.com/methods/conversations.kick
    */
-  def kickFromConversation(channel: String, user: String): URIO[AccessToken, SlackResponse[Unit]] =
+  def kickFromConversation(channel: String, user: String)(implicit
+    trace: Trace
+  ): URIO[AccessToken, SlackResponse[Unit]] =
     apiCall(Conversations.kickConversations(KickConversationsRequest(Some(channel), Some(user))))
 
   /**
    * https://api.slack.com/methods/conversations.leave
    */
-  def leaveConversation(channel: String): URIO[AccessToken, SlackResponse[LeaveConversationsResponse]] =
+  def leaveConversation(channel: String)(implicit
+    trace: Trace
+  ): URIO[AccessToken, SlackResponse[LeaveConversationsResponse]] =
     apiCall(Conversations.leaveConversations(LeaveConversationsRequest(Some(channel))))
 
   /**
@@ -132,7 +136,7 @@ trait Conversations { self: Slack =>
     excludeArchived: Option[Boolean] = None,
     limit: Option[Int] = None,
     types: Option[List[String]] = None
-  ): URIO[AccessToken, SlackResponse[ListConversationsResponse]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[ListConversationsResponse]] =
     apiCall(
       Conversations
         .listConversations(
@@ -152,7 +156,7 @@ trait Conversations { self: Slack =>
     channel: String,
     cursor: Option[String] = None,
     limit: Option[Int] = None
-  ): URIO[AccessToken, SlackResponse[ResponseChunk[String]]] = {
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[ResponseChunk[String]]] = {
     implicit val plural: Plural[String] = Plural.const("members")
     apiCall(
       request("conversations.members")
@@ -170,19 +174,15 @@ trait Conversations { self: Slack =>
    */
   def openConversation[T](
     channel: Option[String] = None,
-    returnIm: ChannelLike[T] = ChannelLikeId,
+    returnIm: Boolean = false,
     users: Option[List[String]] = None
-  ): URIO[AccessToken, SlackResponse[returnIm.ChannelType]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[Either[String, Channel]]] =
     apiCall(
-      request("conversations.open")
-        .jsonBody(
-          Json.obj(
-            "channel"   -> channel.asJson,
-            "return_im" -> returnIm.isFull.asJson,
-            "users"     -> users.map(_.mkString(",")).asJson
-          )
+      Conversations
+        .openConversations(
+          OpenConversationsRequest(channel, return_im = Some(returnIm), users = users.map(_.mkString(",")))
         )
-        .as(returnIm.decoder("channel"), IsOption.otherIsNotOption)
+        .map(_.channel.channel)
     )
 
   /**
@@ -191,7 +191,7 @@ trait Conversations { self: Slack =>
   def renameConversation(
     channel: String,
     name: String
-  ): URIO[AccessToken, SlackResponse[RenameConversationsResponse]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[RenameConversationsResponse]] =
     apiCall(Conversations.renameConversations(RenameConversationsRequest(Some(channel), Some(name))))
 
   /**
@@ -205,7 +205,7 @@ trait Conversations { self: Slack =>
     latest: Option[String] = None,
     limit: Option[Int] = None,
     oldest: Option[String] = None
-  ): URIO[AccessToken, SlackResponse[ResponseChunk[Message]]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[ResponseChunk[Message]]] =
     apiCall(
       request("conversations.replies")
         .formBody(
@@ -226,7 +226,7 @@ trait Conversations { self: Slack =>
   def setConversationPurpose(
     channel: String,
     purpose: String
-  ): URIO[AccessToken, SlackResponse[SetPurposeConversationsResponse]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[SetPurposeConversationsResponse]] =
     apiCall(Conversations.setPurposeConversations(SetPurposeConversationsRequest(Some(channel), Some(purpose))))
 
   /**
@@ -235,10 +235,7 @@ trait Conversations { self: Slack =>
   def setConversationTopic(
     channel: String,
     topic: String
-  ): URIO[AccessToken, SlackResponse[SetTopicConversationsResponse]] =
-//    request("conversations.setTopic")
-//      .jsonBody(Json.obj("channel" -> channel.asJson, "topic" -> topic.asJson))
-//      .at[Conversation]("channel")
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[SetTopicConversationsResponse]] =
     apiCall(Conversations.setTopicConversations(SetTopicConversationsRequest(Some(channel), Some(topic))))
 
   /**
@@ -246,7 +243,7 @@ trait Conversations { self: Slack =>
    */
   def unarchiveConversation(
     channel: String
-  ): URIO[AccessToken, SlackResponse[Unit]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[Unit]] =
     apiCall(Conversations.unarchiveConversations(UnarchiveConversationsRequest(Some(channel))))
 }
 
@@ -255,7 +252,7 @@ private[slack] trait ConversationsAccessors { self: Slack.type =>
   /**
    * https://api.slack.com/methods/conversations.archive
    */
-  def archiveConversation(channel: String): URIO[Slack with AccessToken, SlackResponse[Unit]] =
+  def archiveConversation(channel: String)(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[Unit]] =
     ZIO.serviceWithZIO[Slack](_.archiveConversation(channel))
 
   /**
@@ -263,7 +260,7 @@ private[slack] trait ConversationsAccessors { self: Slack.type =>
    */
   def closeConversation(
     channelId: String
-  ): URIO[Slack with AccessToken, SlackResponse[CloseConversationsResponse]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[CloseConversationsResponse]] =
     ZIO.serviceWithZIO[Slack](_.closeConversation(channelId))
 
   /**
@@ -274,7 +271,7 @@ private[slack] trait ConversationsAccessors { self: Slack.type =>
     name: String,
     isPrivate: Option[Boolean] = None,
     userIds: Option[List[String]]
-  ): URIO[Slack with AccessToken, SlackResponse[CreateConversationsResponse]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[CreateConversationsResponse]] =
     ZIO.serviceWithZIO[Slack](_.createConversation(name, isPrivate, userIds))
 
   /**
@@ -287,13 +284,13 @@ private[slack] trait ConversationsAccessors { self: Slack.type =>
     latest: Option[String] = None,
     limit: Option[Int] = None,
     oldest: Option[String] = None
-  ): ZIO[Slack with AccessToken, Nothing, SlackResponse[HistoryConversationsResponse]] =
+  )(implicit trace: Trace): ZIO[Slack with AccessToken, Nothing, SlackResponse[HistoryConversationsResponse]] =
     ZIO.serviceWithZIO[Slack](_.getConversationHistory(channelId, cursor, inclusive, latest, limit, oldest))
 
   def getSingleMessage(
     channelId: String,
     ts: String
-  ): ZIO[Slack with AccessToken, Nothing, SlackResponse[Option[Message]]] =
+  )(implicit trace: Trace): ZIO[Slack with AccessToken, Nothing, SlackResponse[Option[Message]]] =
     ZIO.serviceWithZIO[Slack](_.getSingleMessage(channelId, ts))
 
   /**
@@ -303,7 +300,7 @@ private[slack] trait ConversationsAccessors { self: Slack.type =>
     channel: String,
     includeLocale: Option[Boolean] = None,
     includeNumMembers: Option[Boolean] = None
-  ): URIO[Slack with AccessToken, SlackResponse[Channel]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[Channel]] =
     ZIO.serviceWithZIO[Slack](_.getConversationInfo(channel, includeLocale, includeNumMembers))
 
   /**
@@ -312,7 +309,7 @@ private[slack] trait ConversationsAccessors { self: Slack.type =>
   def inviteToConversation(
     channel: String,
     users: List[String]
-  ): ZIO[Slack with AccessToken, Nothing, SlackResponse[InviteConversationsResponse]] =
+  )(implicit trace: Trace): ZIO[Slack with AccessToken, Nothing, SlackResponse[InviteConversationsResponse]] =
     ZIO.serviceWithZIO[Slack](_.inviteToConversation(channel, users))
 
   def inviteShareConversation(
@@ -320,7 +317,7 @@ private[slack] trait ConversationsAccessors { self: Slack.type =>
     users: Option[List[String]] = None,
     emails: Option[List[String]] = None,
     externalLimited: Option[Boolean] = None
-  ): URIO[Slack with AccessToken, SlackResponse[Channel]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[Channel]] =
     ZIO.serviceWithZIO[Slack](_.inviteShareConversation(channel, users, emails, externalLimited))
 
   /**
@@ -328,13 +325,15 @@ private[slack] trait ConversationsAccessors { self: Slack.type =>
    */
   def joinConversation(
     channel: String
-  ): URIO[Slack with AccessToken, SlackResponse[JoinConversationsResponse]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[JoinConversationsResponse]] =
     ZIO.serviceWithZIO[Slack](_.joinConversation(channel))
 
   /**
    * https://api.slack.com/methods/conversations.kick
    */
-  def kickFromConversation(channel: String, user: String): URIO[Slack with AccessToken, SlackResponse[Unit]] =
+  def kickFromConversation(channel: String, user: String)(implicit
+    trace: Trace
+  ): URIO[Slack with AccessToken, SlackResponse[Unit]] =
     ZIO.serviceWithZIO[Slack](_.kickFromConversation(channel, user))
 
   /**
@@ -342,7 +341,7 @@ private[slack] trait ConversationsAccessors { self: Slack.type =>
    */
   def leaveConversation(
     channel: String
-  ): URIO[Slack with AccessToken, SlackResponse[LeaveConversationsResponse]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[LeaveConversationsResponse]] =
     ZIO.serviceWithZIO[Slack](_.leaveConversation(channel))
 
   /**
@@ -353,7 +352,7 @@ private[slack] trait ConversationsAccessors { self: Slack.type =>
     excludeArchived: Option[Boolean] = None,
     limit: Option[Int] = None,
     types: Option[List[String]] = None
-  ): URIO[Slack with AccessToken, SlackResponse[ListConversationsResponse]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[ListConversationsResponse]] =
     ZIO.serviceWithZIO[Slack](_.listConversations(cursor, excludeArchived, limit, types))
 
   /**
@@ -363,7 +362,7 @@ private[slack] trait ConversationsAccessors { self: Slack.type =>
     channel: String,
     cursor: Option[String] = None,
     limit: Option[Int] = None
-  ): URIO[Slack with AccessToken, SlackResponse[ResponseChunk[String]]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[ResponseChunk[String]]] =
     ZIO.serviceWithZIO[Slack](_.getConversationMembers(channel, cursor, limit))
 
   /**
@@ -371,9 +370,9 @@ private[slack] trait ConversationsAccessors { self: Slack.type =>
    */
   def openConversation[T](
     channel: Option[String] = None,
-    returnIm: ChannelLike[T] = ChannelLikeId,
+    returnIm: Boolean = false,
     users: Option[List[String]] = None
-  ): URIO[Slack with AccessToken, SlackResponse[returnIm.ChannelType]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[Either[String, Channel]]] =
     ZIO.serviceWithZIO[Slack](_.openConversation(channel, returnIm, users))
 
   /**
@@ -382,7 +381,7 @@ private[slack] trait ConversationsAccessors { self: Slack.type =>
   def renameConversation(
     channel: String,
     name: String
-  ): URIO[Slack with AccessToken, SlackResponse[RenameConversationsResponse]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[RenameConversationsResponse]] =
     ZIO.serviceWithZIO[Slack](_.renameConversation(channel, name))
 
   /**
@@ -396,7 +395,7 @@ private[slack] trait ConversationsAccessors { self: Slack.type =>
     latest: Option[String] = None,
     limit: Option[Int] = None,
     oldest: Option[String] = None
-  ): URIO[Slack with AccessToken, SlackResponse[ResponseChunk[Message]]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[ResponseChunk[Message]]] =
     ZIO.serviceWithZIO[Slack](_.getConversationReplies(channel, ts, cursor, inclusive, latest, limit, oldest))
 
   /**
@@ -405,7 +404,7 @@ private[slack] trait ConversationsAccessors { self: Slack.type =>
   def setConversationPurpose(
     channel: String,
     purpose: String
-  ): URIO[Slack with AccessToken, SlackResponse[SetPurposeConversationsResponse]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[SetPurposeConversationsResponse]] =
     ZIO.serviceWithZIO[Slack](_.setConversationPurpose(channel, purpose))
 
   /**
@@ -414,10 +413,7 @@ private[slack] trait ConversationsAccessors { self: Slack.type =>
   def setConversationTopic(
     channel: String,
     topic: String
-  ): URIO[Slack with AccessToken, SlackResponse[SetTopicConversationsResponse]] =
-//    request("conversations.setTopic")
-//      .jsonBody(Json.obj("channel" -> channel.asJson, "topic" -> topic.asJson))
-//      .at[Conversation]("channel")
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[SetTopicConversationsResponse]] =
     ZIO.serviceWithZIO[Slack](_.setConversationTopic(channel, topic))
 
   /**
@@ -425,7 +421,7 @@ private[slack] trait ConversationsAccessors { self: Slack.type =>
    */
   def unarchiveConversation(
     channel: String
-  ): URIO[Slack with AccessToken, SlackResponse[Unit]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[Unit]] =
     ZIO.serviceWithZIO[Slack](_.unarchiveConversation(channel))
 }
 

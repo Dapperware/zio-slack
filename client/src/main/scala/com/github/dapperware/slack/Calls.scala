@@ -5,11 +5,11 @@ import com.github.dapperware.slack.generated.requests._
 import com.github.dapperware.slack.models.Call
 import io.circe.syntax._
 import io.circe.{ Encoder, Json }
-import zio.{ Duration, URIO, ZIO }
+import zio.{ Duration, Trace, URIO, ZIO }
 
 import java.time.Instant
 
-trait Calls { self: Slack =>
+trait Calls { self: SlackApiBase =>
 
   /**
    * https://api.slack.com/methods/calls.add
@@ -23,7 +23,7 @@ trait Calls { self: Slack =>
     externalDisplayId: Option[String] = None,
     title: Option[String] = None,
     users: Option[List[CallParticipant]]
-  ): URIO[AccessToken, SlackResponse[Call]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[Call]] =
     apiCall(
       Calls
         .addCalls(
@@ -47,13 +47,13 @@ trait Calls { self: Slack =>
   def endCall(
     id: String,
     duration: Option[Duration]
-  ): URIO[AccessToken, SlackResponse[Call]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[Call]] =
     apiCall(Calls.endCalls(EndCallsRequest(id, duration = duration.map(d => (d.toMillis / 1000).toInt))).map(_.call))
 
   /**
    * https://api.slack.com/methods/calls.info
    */
-  def getCallInfo(id: String): URIO[AccessToken, SlackResponse[Call]] =
+  def getCallInfo(id: String)(implicit trace: Trace): URIO[AccessToken, SlackResponse[Call]] =
     apiCall(Calls.infoCalls(InfoCallsRequest(id)).map(_.call))
 
   /**
@@ -64,7 +64,7 @@ trait Calls { self: Slack =>
     desktopAppJoinUrl: Option[String],
     joinUrl: Option[String],
     title: Option[String]
-  ): URIO[AccessToken, SlackResponse[Call]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[Call]] =
     apiCall(
       Calls
         .updateCalls(
@@ -76,7 +76,7 @@ trait Calls { self: Slack =>
   def addParticipants(
     id: String,
     users: List[CallParticipant]
-  ): URIO[AccessToken, SlackResponse[Call]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[Call]] =
     apiCall(
       Calls
         .addParticipantsCalls(AddParticipantsCallsRequest(id = id, users = users.asJson.noSpaces))
@@ -86,7 +86,7 @@ trait Calls { self: Slack =>
   def removeParticipants(
     id: String,
     users: List[CallParticipant]
-  ): URIO[AccessToken, SlackResponse[Call]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[Call]] =
     apiCall(
       Calls
         .removeParticipantsCalls(RemoveParticipantsCallsRequest(id = id, users = users.asJson.noSpaces))
@@ -109,7 +109,7 @@ private[slack] trait CallsAccessors {
     externalDisplayId: Option[String] = None,
     title: Option[String] = None,
     users: Option[List[CallParticipant]]
-  ): URIO[Slack with AccessToken, SlackResponse[Call]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[Call]] =
     ZIO.serviceWithZIO[Slack](
       _.addCall(externalUniqueId, joinUrl, createdBy, dateStart, desktopAppJoinUrl, externalDisplayId, title, users)
     )
@@ -120,13 +120,13 @@ private[slack] trait CallsAccessors {
   def endCall(
     id: String,
     duration: Option[Duration]
-  ): URIO[Slack with AccessToken, SlackResponse[Call]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[Call]] =
     ZIO.serviceWithZIO[Slack](_.endCall(id, duration))
 
   /**
    * https://api.slack.com/methods/calls.info
    */
-  def getCallInfo(id: String): URIO[Slack with AccessToken, SlackResponse[Call]] =
+  def getCallInfo(id: String)(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[Call]] =
     ZIO.serviceWithZIO[Slack](_.getCallInfo(id))
 
   /**
@@ -137,19 +137,19 @@ private[slack] trait CallsAccessors {
     desktopAppJoinUrl: Option[String],
     joinUrl: Option[String],
     title: Option[String]
-  ): URIO[Slack with AccessToken, SlackResponse[Call]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[Call]] =
     ZIO.serviceWithZIO[Slack](_.updateCall(id, desktopAppJoinUrl, joinUrl, title))
 
   def addParticipants(
     id: String,
     users: List[CallParticipant]
-  ): URIO[Slack with AccessToken, SlackResponse[Call]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[Call]] =
     ZIO.serviceWithZIO[Slack](_.addParticipants(id, users))
 
   def removeParticipants(
     id: String,
     users: List[CallParticipant]
-  ): URIO[Slack with AccessToken, SlackResponse[Call]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[Call]] =
     ZIO.serviceWithZIO[Slack](_.removeParticipants(id, users))
 }
 

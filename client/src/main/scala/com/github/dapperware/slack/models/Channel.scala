@@ -1,6 +1,7 @@
 package com.github.dapperware.slack.models
 
-import io.circe.Json
+import io.circe.generic.semiauto.deriveCodec
+import io.circe.{ Codec, Json }
 
 case class Channel(
   id: String,
@@ -23,4 +24,12 @@ case class Channel(
   unread_count_display: Option[Int] = None
 )
 
+object Channel {
+  implicit val codec: Codec.AsObject[Channel] = deriveCodec[Channel]
+}
+
 case class ChannelValue(value: String, creator: Option[String], last_set: Long)
+
+object ChannelValue {
+  implicit val codec: Codec.AsObject[ChannelValue] = deriveCodec[ChannelValue]
+}

@@ -2,18 +2,13 @@ package com.github.dapperware.slack
 
 import com.github.dapperware.slack.Slack.request
 import com.github.dapperware.slack.generated.GeneratedFiles
-import com.github.dapperware.slack.generated.requests.{
-  InfoRemoteFilesRequest,
-  RemoveRemoteFilesRequest,
-  ShareRemoteFilesRequest,
-  UpdateRemoteFilesRequest
-}
+import com.github.dapperware.slack.generated.requests.{InfoRemoteFilesRequest, RemoveRemoteFilesRequest, ShareRemoteFilesRequest, UpdateRemoteFilesRequest}
 import com.github.dapperware.slack.models.File
 import io.circe.Decoder
 import sttp.client3.multipart
-import zio.{ Chunk, URIO, ZIO }
+import zio.{Chunk, Trace, URIO, ZIO}
 
-trait RemoteFiles { self: Slack =>
+trait RemoteFiles { self: SlackApiBase =>
   def addRemoteFile(
     externalId: String,
     externalUrl: String,
@@ -21,7 +16,7 @@ trait RemoteFiles { self: Slack =>
     fileType: Option[String] = None,
     indexableFileContents: Option[Chunk[Byte]] = None,
     previewImage: Option[Chunk[Byte]] = None
-  ): URIO[AccessToken, SlackResponse[File]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[File]] =
     apiCall(
       RemoteFiles
         .addRemoteFiles(
@@ -40,7 +35,7 @@ trait RemoteFiles { self: Slack =>
   def removeRemoteFile(
     fileId: Option[String] = None,
     externalId: Option[String] = None
-  ): URIO[AccessToken, SlackResponse[Unit]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[Unit]] =
     apiCall(
       RemoteFiles
         .removeRemoteFiles(
@@ -55,7 +50,7 @@ trait RemoteFiles { self: Slack =>
     channels: List[String],
     fileId: Option[String] = None,
     externalId: Option[String] = None
-  ): URIO[AccessToken, SlackResponse[File]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[File]] =
     apiCall(
       RemoteFiles
         .shareRemoteFiles(
@@ -67,7 +62,7 @@ trait RemoteFiles { self: Slack =>
   def getRemoteFile(
     fileId: Option[String],
     externalId: Option[String] = None
-  ): URIO[AccessToken, SlackResponse[File]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[File]] =
     apiCall(
       RemoteFiles
         .infoRemoteFiles(
@@ -84,7 +79,7 @@ trait RemoteFiles { self: Slack =>
     externalUrl: Option[String] = None,
     previewImage: Option[String] = None,
     indexableFileContents: Option[String] = None
-  ): URIO[AccessToken, SlackResponse[File]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[File]] =
     apiCall(
       RemoteFiles
         .updateRemoteFiles(
@@ -110,7 +105,7 @@ private[slack] trait RemoteFilesAccessors { self: Slack.type =>
     fileType: Option[String] = None,
     indexableFileContents: Option[Chunk[Byte]] = None,
     previewImage: Option[Chunk[Byte]] = None
-  ): URIO[Slack with AccessToken, SlackResponse[File]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[File]] =
     ZIO.serviceWithZIO[Slack](
       _.addRemoteFile(externalId, externalUrl, title, fileType, indexableFileContents, previewImage)
     )

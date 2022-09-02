@@ -1,8 +1,8 @@
 package com.github.dapperware.slack.models.events
 
 import cats.implicits.toFunctorOps
-import io.circe.{ Decoder, Encoder, Json }
 import io.circe.generic.semiauto.{ deriveDecoder, deriveEncoder }
+import io.circe.{ Decoder, Encoder, Json }
 
 sealed trait SlackSocketEvent
 

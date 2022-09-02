@@ -84,11 +84,7 @@ object MembersConversationsResponse {
     io.circe.generic.semiauto.deriveDecoder[MembersConversationsResponse]
 }
 
-case class OpenConversationsResponse(
-  already_open: Option[Boolean],
-  channel: com.github.dapperware.slack.models.Channel,
-  no_op: Option[Boolean]
-)
+case class OpenConversationsResponse(channel: com.github.dapperware.slack.models.ChannelLike)
 
 object OpenConversationsResponse {
   implicit val decoder: io.circe.Decoder[OpenConversationsResponse] =

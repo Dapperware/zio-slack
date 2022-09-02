@@ -1,22 +1,17 @@
 package com.github.dapperware.slack
 
 import com.github.dapperware.slack.generated.GeneratedViews
-import com.github.dapperware.slack.generated.requests.{
-  OpenViewsRequest,
-  PublishViewsRequest,
-  PushViewsRequest,
-  UpdateViewsRequest
-}
-import com.github.dapperware.slack.models.{ View, ViewPayload }
+import com.github.dapperware.slack.generated.requests.{OpenViewsRequest, PublishViewsRequest, PushViewsRequest, UpdateViewsRequest}
+import com.github.dapperware.slack.models.{View, ViewPayload}
 import io.circe.syntax._
-import zio.{ URIO, ZIO }
+import zio.{Trace, URIO, ZIO}
 
-trait Views { self: Slack =>
+trait Views { self: SlackApiBase =>
 
   def openView(
     triggerId: String,
     view: ViewPayload
-  ): URIO[AccessToken, SlackResponse[View]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[View]] =
     apiCall(
       Views
         .openViews(
@@ -32,7 +27,7 @@ trait Views { self: Slack =>
     userId: String,
     view: ViewPayload,
     hash: Option[String] = None
-  ): URIO[AccessToken, SlackResponse[View]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[View]] =
     apiCall(
       Views
         .publishViews(
@@ -48,7 +43,7 @@ trait Views { self: Slack =>
   def pushView(
     triggerId: String,
     view: ViewPayload
-  ): URIO[AccessToken, SlackResponse[View]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[View]] =
     apiCall(
       Views
         .pushViews(PushViewsRequest(trigger_id = triggerId, view = view.asJson.noSpaces))
@@ -60,7 +55,7 @@ trait Views { self: Slack =>
     externalId: Option[String] = None,
     hash: Option[String] = None,
     viewId: Option[String]
-  ): URIO[AccessToken, SlackResponse[View]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[View]] =
     apiCall(
       Views
         .updateViews(
@@ -81,20 +76,20 @@ private[slack] trait ViewsAccessors { self: Slack.type =>
   def openView(
     triggerId: String,
     view: ViewPayload
-  ): URIO[Slack with AccessToken, SlackResponse[View]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[View]] =
     ZIO.serviceWithZIO[Slack](_.openView(triggerId, view))
 
   def publishView(
     userId: String,
     view: ViewPayload,
     hash: Option[String] = None
-  ): URIO[Slack with AccessToken, SlackResponse[View]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[View]] =
     ZIO.serviceWithZIO[Slack](_.publishView(userId, view, hash))
 
   def pushView(
     triggerId: String,
     view: ViewPayload
-  ): URIO[Slack with AccessToken, SlackResponse[View]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[View]] =
     ZIO.serviceWithZIO[Slack](_.pushView(triggerId, view))
 
   def updateView(
@@ -102,7 +97,7 @@ private[slack] trait ViewsAccessors { self: Slack.type =>
     externalId: Option[String] = None,
     hash: Option[String] = None,
     viewId: Option[String]
-  ): URIO[Slack with AccessToken, SlackResponse[View]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[View]] =
     ZIO.serviceWithZIO[Slack](_.updateView(view, externalId, hash, viewId))
 
 }

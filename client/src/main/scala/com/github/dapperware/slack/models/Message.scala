@@ -1,7 +1,7 @@
 package com.github.dapperware.slack.models
 
-import io.circe.{ Codec, Decoder }
 import io.circe.generic.semiauto._
+import io.circe.{ Codec, Decoder }
 
 case class Message(
   user: Option[String] = None,

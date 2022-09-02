@@ -5,9 +5,9 @@ import com.github.dapperware.slack.{ AccessToken, Slack, SlackError }
 import common.botToken
 import io.circe
 import io.circe.{ DecodingFailure, Json }
-import sttp.client3.asynchttpclient.zio.{ send, AsyncHttpClientZioBackend, SttpClient }
+import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
 import sttp.client3.circe.asJson
-import sttp.client3.{ basicRequest, Request, ResponseException, UriContext }
+import sttp.client3.{ basicRequest, Request, ResponseException, SttpBackend, UriContext }
 import zio._
 import zio.stream.ZStream
 
@@ -37,12 +37,13 @@ object JokeApp extends ZIOAppDefault {
       .runCollect
       .flatMap(c => Random.shuffle(c.toList))
 
-  val result: ZIO[Slack with AccessToken with SttpClient, SlackError, Unit] =
+  val result: ZIO[Slack with AccessToken with SttpBackend[Task, Any], SlackError, Unit] =
     for {
+      client   <- ZIO.service[SttpBackend[Task, Any]]
       shuffled <- shuffledConversations
       _        <- ZIO.foreachDiscard(shuffled) { channel =>
                     (for {
-                      resp <- send(getJoke).mapError(SlackError.fromThrowable)
+                      resp <- client.send(getJoke).mapError(SlackError.fromThrowable)
                       body <- ZIO.from(resp.body).mapError(SlackError.fromThrowable)
                       joke <- ZIO.from(body).mapError(SlackError.fromThrowable)
                       _    <- Slack.postChatMessage(channel.id, text = Some(joke)).map(_.toEither).absolve

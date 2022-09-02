@@ -1,5 +1,8 @@
 package com.github.dapperware.slack.models
 
+import io.circe.Codec
+import io.circe.generic.semiauto.deriveCodec
+
 case class User(
   id: String,
   name: String,
@@ -18,6 +21,10 @@ case class User(
   tz_offset: Option[Int] = None,
   presence: Option[String] = None
 )
+
+object User {
+  implicit val codec: Codec.AsObject[User] = deriveCodec[User]
+}
 
 case class UserProfile(
   real_name: String,
@@ -50,3 +57,7 @@ case class UserProfile(
   api_app_id: Option[String] = None,
   pronouns: Option[String] = None
 )
+
+object UserProfile {
+  implicit val codec: Codec.AsObject[UserProfile] = deriveCodec[UserProfile]
+}

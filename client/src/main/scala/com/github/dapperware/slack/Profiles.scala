@@ -4,27 +4,26 @@ import com.github.dapperware.slack.Slack.request
 import com.github.dapperware.slack.models.UserProfile
 import io.circe.Json
 import io.circe.syntax._
-import zio.{ URIO, ZIO }
-import com.github.dapperware.slack.models.userProfileFmt
+import zio.{Trace, URIO, ZIO}
 
-trait Profiles { self: Slack =>
+trait Profiles { self: SlackApiBase =>
   def getProfile(
     includeLabel: Boolean = false,
     user: Option[String] = None
-  ): URIO[AccessToken, SlackResponse[UserProfile]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[UserProfile]] =
     apiCall(
       request("users.profile.get")
         .formBody(
           "include_labels" -> includeLabel.toString,
           "user"           -> user
         )
-        .at[UserProfile]("profile")
+        .jsonAt[UserProfile]("profile")
     )
 
   def setProfile(
     profile: Map[String, String],
     user: Option[String] = None
-  ): URIO[AccessToken, SlackResponse[UserProfile]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[UserProfile]] =
     apiCall(
       request("users.profile.set")
         .jsonBody(
@@ -33,14 +32,14 @@ trait Profiles { self: Slack =>
             "user"    -> user.asJson
           )
         )
-        .at[UserProfile]("profile")
+        .jsonAt[UserProfile]("profile")
     )
 
   def setProfileValue(
     name: String,
     value: String,
     user: Option[String] = None
-  ): URIO[AccessToken, SlackResponse[UserProfile]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[UserProfile]] =
     apiCall(
       request("users.profile.set")
         .jsonBody(
@@ -50,7 +49,7 @@ trait Profiles { self: Slack =>
             "user"  -> user.asJson
           )
         )
-        .at[UserProfile]("profile")
+        .jsonAt[UserProfile]("profile")
     )
 }
 
@@ -58,19 +57,19 @@ private[slack] trait ProfilesAccessors { self: Slack.type =>
   def getProfile(
     includeLabel: Boolean = false,
     user: Option[String] = None
-  ): URIO[Slack with AccessToken, SlackResponse[UserProfile]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[UserProfile]] =
     ZIO.serviceWithZIO[Slack](_.getProfile(includeLabel, user))
 
   def setProfile(
     profile: Map[String, String],
     user: Option[String] = None
-  ): URIO[Slack with AccessToken, SlackResponse[UserProfile]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[UserProfile]] =
     ZIO.serviceWithZIO[Slack](_.setProfile(profile, user))
 
   def setProfileValue(
     name: String,
     value: String,
     user: Option[String] = None
-  ): URIO[Slack with AccessToken, SlackResponse[UserProfile]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[UserProfile]] =
     ZIO.serviceWithZIO[Slack](_.setProfileValue(name, value, user))
 }

@@ -14,7 +14,7 @@ object EmojiMap {
     Decoder.forProduct1("emoji")(EmojiMap.apply)
 }
 
-trait Emojis { self: Slack =>
+trait Emojis { self: SlackApiBase =>
   def listEmojis: URIO[AccessToken, SlackResponse[EmojiMap]] =
     apiCall(
       request("emoji.list")

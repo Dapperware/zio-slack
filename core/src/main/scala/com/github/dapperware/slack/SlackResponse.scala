@@ -94,7 +94,7 @@ object SlackError {
 
   /**
    * Indicates an error occurred from the slack API these messages have a set structure and will
-   * always have
+   * always have an error message
    */
   case class ApiError(error: String, needed: Option[String] = None, provided: Option[String] = None) extends SlackError
 

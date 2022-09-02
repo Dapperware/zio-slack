@@ -47,6 +47,10 @@ case class BotMessage(
   attachments: Option[Seq[Attachment]]
 ) extends SlackEvent
 
+object BotMessage {
+  implicit val codec: Codec.AsObject[BotMessage] = deriveCodec[BotMessage]
+}
+
 // TODO: Message Sub-types
 case class MessageWithSubtype(
   ts: String,
@@ -92,6 +96,49 @@ case class AppMention(
   attachments: Option[List[Attachment]],
   event_ts: String
 ) extends SlackEvent
+
+object AppMention {
+  implicit val decoder: Decoder[AppMention] = Decoder.forProduct10(
+    "ts",
+    "channel",
+    "client_msg_id",
+    "text",
+    "user",
+    "bot_id",
+    "username",
+    "blocks",
+    "attachments",
+    "event_ts"
+  )(AppMention.apply)
+
+  implicit val encoder: Encoder[AppMention] = Encoder.forProduct10(
+    "ts",
+    "channel",
+    "client_msg_id",
+    "text",
+    "user",
+    "bot_id",
+    "username",
+    "blocks",
+    "attachments",
+    "event_ts"
+  )(am =>
+    (
+      am.ts,
+      am.channel,
+      am.client_msg_id,
+      am.text,
+      am.user,
+      am.bot_id,
+      am.username,
+      am.blocks,
+      am.attachments,
+      am.event_ts
+    )
+  )
+//  implicit val decoder: Decoder[AppMention]          = deriveDecoder[AppMention]
+//  implicit val encoder: Encoder.AsObject[AppMention] = deriveEncoder[AppMention]
+}
 
 case class ReactionAdded(
   reaction: String,
@@ -158,6 +205,10 @@ case class GroupArchive(channel: String) extends SlackEvent
 case class GroupUnarchive(channel: String) extends SlackEvent
 
 case class GroupRename(channel: Channel) extends SlackEvent
+
+object GroupRename {
+  implicit val codec: Codec.AsObject[GroupRename] = deriveCodec[GroupRename]
+}
 
 case class GroupMarked(channel: String, ts: String) extends SlackEvent
 
@@ -309,7 +360,6 @@ object SlackEvent {
   implicit val replyMarkerFmt: Codec.AsObject[ReplyMarker]                      = deriveCodec[ReplyMarker]
   implicit val editMessageFmt: Codec.AsObject[EditMessage]                      = deriveCodec[EditMessage]
   implicit val replyMessageFmt: Codec.AsObject[ReplyMessage]                    = deriveCodec[ReplyMessage]
-  implicit val botMessageFmt: Codec.AsObject[BotMessage]                        = deriveCodec[BotMessage]
   implicit val messageChangedFmt: Codec.AsObject[MessageChanged]                = deriveCodec[MessageChanged]
   implicit val messageDeletedFmt: Codec.AsObject[MessageDeleted]                = deriveCodec[MessageDeleted]
   implicit val messageRepliedFmt: Codec.AsObject[MessageReplied]                = deriveCodec[MessageReplied]
@@ -382,7 +432,6 @@ object SlackEvent {
   implicit val memberLeft: Codec.AsObject[MemberLeft]                           = deriveCodec[MemberLeft]
   implicit val pong: Codec.AsObject[Pong]                                       = deriveCodec[Pong]
   implicit val mobileInAppNotification: Codec.AsObject[MobileInAppNotification] = deriveCodec[MobileInAppNotification]
-  implicit val appMentionCodec: Codec.AsObject[AppMention]                      = deriveCodec[AppMention]
 
   // Message sub-types
   import MessageSubtypes._

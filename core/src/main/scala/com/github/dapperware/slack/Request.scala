@@ -38,7 +38,7 @@ case class Request[+T, Auth](
   def as[B: Decoder: IsOption]: Request[B, Auth] =
     copy(responseAs = implicitly[Decoder[B]].decodeJson)
 
-  def at[B: IsOption](key: String)(implicit ev: Decoder[B]): Request[B, Auth] =
+  def jsonAt[B: IsOption](key: String)(implicit ev: Decoder[B]): Request[B, Auth] =
     copy(responseAs = extractBodyAt[B](key).decodeJson)
 
   def auth: RequestAuth[T, Auth] =
@@ -91,7 +91,7 @@ case class Request[+T, Auth](
 
 object Request {
 
-  case class RequestAuth[+T, Unused] private[slack] (request: Request[T, Unused]) {
+  final case class RequestAuth[+T, Unused] private[slack] (request: Request[T, Unused]) {
     def clientSecret: Request[T, ClientSecret] = request.asInstanceOf[Request[T, ClientSecret]]
     def accessToken: Request[T, AccessToken]   = request.asInstanceOf[Request[T, AccessToken]]
     def appToken: Request[T, AppToken]         = request.asInstanceOf[Request[T, AppToken]]

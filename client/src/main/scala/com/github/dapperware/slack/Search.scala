@@ -3,9 +3,9 @@ package com.github.dapperware.slack
 import com.github.dapperware.slack.Slack.request
 import com.github.dapperware.slack.generated.GeneratedSearch
 import io.circe.Json
-import zio.{ URIO, ZIO }
+import zio.{Trace, URIO, ZIO}
 
-trait Search { self: Slack =>
+trait Search { self: SlackApiBase =>
 
   // TODO: Return proper search results (not JsValue)
   def searchFiles(
@@ -15,7 +15,7 @@ trait Search { self: Slack =>
     highlight: Option[String] = None,
     count: Option[Int] = None,
     page: Option[Int] = None
-  ): URIO[AccessToken, SlackResponse[Json]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[Json]] =
     apiCall(
       request("search.files")
         .formBody(
@@ -37,7 +37,7 @@ trait Search { self: Slack =>
     highlight: Option[String] = None,
     count: Option[Int] = None,
     page: Option[Int] = None
-  ): URIO[AccessToken, SlackResponse[Json]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[Json]] =
     apiCall(
       request("search.all")
         .formBody(
@@ -58,7 +58,7 @@ trait Search { self: Slack =>
     highlight: Option[String] = None,
     count: Option[Int] = None,
     page: Option[Int] = None
-  ): URIO[AccessToken, SlackResponse[Json]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[Json]] =
     apiCall(
       request("search.messages")
         .formBody(
@@ -83,7 +83,7 @@ private[slack] trait SearchAccessors { self: Slack.type =>
     highlight: Option[String] = None,
     count: Option[Int] = None,
     page: Option[Int] = None
-  ): URIO[Slack with AccessToken, SlackResponse[Json]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[Json]] =
     ZIO.serviceWithZIO[Slack](_.searchFiles(query, sort, sortDir, highlight, count, page))
 
   // TODO: Return proper search results (not JsValue)
@@ -94,7 +94,7 @@ private[slack] trait SearchAccessors { self: Slack.type =>
     highlight: Option[String] = None,
     count: Option[Int] = None,
     page: Option[Int] = None
-  ): URIO[Slack with AccessToken, SlackResponse[Json]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[Json]] =
     ZIO.serviceWithZIO[Slack](_.searchAll(query, sort, sortDir, highlight, count, page))
 
   def searchMessages(
@@ -104,7 +104,7 @@ private[slack] trait SearchAccessors { self: Slack.type =>
     highlight: Option[String] = None,
     count: Option[Int] = None,
     page: Option[Int] = None
-  ): URIO[Slack with AccessToken, SlackResponse[Json]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[Json]] =
     ZIO.serviceWithZIO[Slack](_.searchMessages(query, sort, sortDir, highlight, count, page))
 }
 

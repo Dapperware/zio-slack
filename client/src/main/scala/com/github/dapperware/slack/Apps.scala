@@ -5,11 +5,10 @@ import com.github.dapperware.slack.generated.GeneratedApps
 import com.github.dapperware.slack.generated.requests.UninstallAppsRequest
 import zio.ZIO
 
-trait Apps { self: Slack =>
+trait Apps { self: SlackApiBase =>
   def uninstall: ZIO[AccessToken with ClientSecret, Nothing, SlackResponse[Unit]] =
     ZIO
-      .service[ClientSecret]
-      .flatMap(clientSecret =>
+      .serviceWithZIO[ClientSecret](clientSecret =>
         apiCall(
           Apps.uninstallApps(
             UninstallAppsRequest(client_id = clientSecret.clientId, client_secret = clientSecret.clientSecret)
@@ -20,7 +19,7 @@ trait Apps { self: Slack =>
   def openSocketModeConnection: ZIO[AppToken, Nothing, SlackResponse[String]] =
     apiCall(
       request("apps.connections.open")
-        .at[String]("url")
+        .jsonAt[String]("url")
         .auth
         .appToken
     )

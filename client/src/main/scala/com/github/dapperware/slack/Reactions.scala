@@ -2,21 +2,17 @@ package com.github.dapperware.slack
 
 import com.github.dapperware.slack.Slack.request
 import com.github.dapperware.slack.generated.GeneratedReactions
-import com.github.dapperware.slack.generated.requests.{
-  AddReactionsRequest,
-  GetReactionsRequest,
-  RemoveReactionsRequest
-}
-import com.github.dapperware.slack.models.{ Plural, ResponseChunk }
+import com.github.dapperware.slack.generated.requests.{AddReactionsRequest, GetReactionsRequest, RemoveReactionsRequest}
+import com.github.dapperware.slack.models.{Plural, ResponseChunk}
 import io.circe.Json
-import zio.{ URIO, ZIO }
+import zio.{Trace, URIO, ZIO}
 
-trait Reactions { self: Slack =>
+trait Reactions { self: SlackApiBase =>
   def addReactionToMessage(
     emojiName: String,
     channelId: String,
     timestamp: String
-  ): URIO[AccessToken, SlackResponse[Unit]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[Unit]] =
     apiCall(Reactions.addReactions(AddReactionsRequest(channel = channelId, name = emojiName, timestamp = timestamp)))
 
   def removeReaction(
@@ -25,7 +21,7 @@ trait Reactions { self: Slack =>
     fileComment: Option[String] = None,
     channelId: Option[String] = None,
     timestamp: Option[String] = None
-  ): URIO[AccessToken, SlackResponse[Unit]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[Unit]] =
     apiCall(Reactions.removeReactions(RemoveReactionsRequest(emojiName, file, fileComment, channelId, timestamp)))
 
   def getReactions(
@@ -34,14 +30,14 @@ trait Reactions { self: Slack =>
     channelId: Option[String] = None,
     timestamp: Option[String] = None,
     full: Option[Boolean]
-  ): URIO[AccessToken, SlackResponse[Unit]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[Unit]] =
     apiCall(Reactions.getReactions(GetReactionsRequest(file, fileComment, channelId, full, timestamp)))
 
   def getReactionsForMessage(
     channelId: String,
     timestamp: String,
     full: Option[Boolean]
-  ): URIO[AccessToken, SlackResponse[Unit]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[Unit]] =
     getReactions(channelId = Some(channelId), timestamp = Some(timestamp), full = full)
 
   def listReactionsForUser(
@@ -51,7 +47,7 @@ trait Reactions { self: Slack =>
     page: Option[Int] = None,
     teamId: Option[String] = None,
     cursor: Option[String] = None
-  ): URIO[AccessToken, SlackResponse[ResponseChunk[Json]]] = {
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[ResponseChunk[Json]]] = {
     implicit val plural: Plural[Json] = Plural.const("items")
 
     apiCall(
@@ -72,7 +68,7 @@ trait Reactions { self: Slack =>
     emojiName: String,
     channelId: String,
     timestamp: String
-  ): URIO[AccessToken, SlackResponse[Unit]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[Unit]] =
     removeReaction(emojiName, channelId = Some(channelId), timestamp = Some(timestamp))
 }
 
@@ -81,7 +77,7 @@ private[slack] trait ReactionsAccessors { self: Slack.type =>
     emojiName: String,
     channelId: String,
     timestamp: String
-  ): URIO[Slack with AccessToken, SlackResponse[Unit]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[Unit]] =
     ZIO.serviceWithZIO[Slack](_.addReactionToMessage(emojiName, channelId, timestamp))
 
   def removeReaction(
@@ -90,7 +86,7 @@ private[slack] trait ReactionsAccessors { self: Slack.type =>
     fileComment: Option[String] = None,
     channelId: Option[String] = None,
     timestamp: Option[String] = None
-  ): URIO[Slack with AccessToken, SlackResponse[Unit]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[Unit]] =
     ZIO.serviceWithZIO[Slack](_.removeReaction(emojiName, file, fileComment, channelId, timestamp))
 
   def getReactions(
@@ -99,14 +95,14 @@ private[slack] trait ReactionsAccessors { self: Slack.type =>
     channelId: Option[String] = None,
     timestamp: Option[String] = None,
     full: Option[Boolean]
-  ): URIO[Slack with AccessToken, SlackResponse[Unit]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[Unit]] =
     ZIO.serviceWithZIO[Slack](_.getReactions(file, fileComment, channelId, timestamp, full))
 
   def getReactionsForMessage(
     channelId: String,
     timestamp: String,
     full: Option[Boolean]
-  ): URIO[Slack with AccessToken, SlackResponse[Unit]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[Unit]] =
     getReactions(channelId = Some(channelId), timestamp = Some(timestamp), full = full)
 
   def listReactionsForUser(
@@ -116,14 +112,14 @@ private[slack] trait ReactionsAccessors { self: Slack.type =>
     page: Option[Int] = None,
     teamId: Option[String] = None,
     cursor: Option[String] = None
-  ): URIO[Slack with AccessToken, SlackResponse[ResponseChunk[Json]]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[ResponseChunk[Json]]] =
     ZIO.serviceWithZIO[Slack](_.listReactionsForUser(userId, full, count, page, teamId, cursor))
 
   def removeReactionFromMessage(
     emojiName: String,
     channelId: String,
     timestamp: String
-  ): URIO[Slack with AccessToken, SlackResponse[Unit]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[Unit]] =
     removeReaction(emojiName, channelId = Some(channelId), timestamp = Some(timestamp))
 }
 

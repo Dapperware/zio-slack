@@ -2,18 +2,18 @@ package com.github.dapperware.slack
 
 import com.github.dapperware.slack.generated.GeneratedUsergroups
 import com.github.dapperware.slack.generated.requests._
-import com.github.dapperware.slack.generated.responses.{ CreateUsergroupsResponse, ListUsersUsergroupsResponse }
+import com.github.dapperware.slack.generated.responses.{CreateUsergroupsResponse, ListUsersUsergroupsResponse}
 import com.github.dapperware.slack.models.UserGroup
-import zio.{ Chunk, URIO, ZIO }
+import zio.{Chunk, Trace, URIO, ZIO}
 
-trait UserGroups { self: Slack =>
+trait UserGroups { self: SlackApiBase =>
   def createUserGroup(
     name: String,
     channels: List[String] = List.empty,
     description: Option[String] = None,
     handle: Option[String] = None,
     includeCount: Option[Boolean] = None
-  ): URIO[AccessToken, SlackResponse[CreateUsergroupsResponse]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[CreateUsergroupsResponse]] =
     apiCall(
       UserGroups
         .createUsergroups(
@@ -31,7 +31,7 @@ trait UserGroups { self: Slack =>
     usergroup: String,
     enabled: Boolean,
     includeCount: Option[Boolean] = None
-  ): URIO[AccessToken, SlackResponse[UserGroup]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[UserGroup]] =
     ZIO.suspendSucceed {
       apiCall(
         if (enabled)
@@ -46,7 +46,7 @@ trait UserGroups { self: Slack =>
     includeCount: Option[Boolean] = None,
     includeDisabled: Option[Boolean] = None,
     includeUsers: Option[Boolean] = None
-  ): URIO[AccessToken, SlackResponse[Chunk[UserGroup]]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[Chunk[UserGroup]]] =
     apiCall(
       UserGroups
         .listUsergroups(
@@ -66,7 +66,7 @@ trait UserGroups { self: Slack =>
     handle: Option[String] = None,
     includeCount: Option[Boolean] = None,
     name: Option[String] = None
-  ): URIO[AccessToken, SlackResponse[UserGroup]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[UserGroup]] =
     apiCall(
       UserGroups
         .updateUsergroups(
@@ -85,14 +85,14 @@ trait UserGroups { self: Slack =>
   def listUserGroupUsers(
     usergroup: String,
     includeDisabled: Option[Boolean] = None
-  ): URIO[AccessToken, SlackResponse[ListUsersUsergroupsResponse]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[ListUsersUsergroupsResponse]] =
     apiCall(UserGroups.listUsersUsergroups(ListUsersUsergroupsRequest(usergroup, includeDisabled)))
 
   def updateUserGroupUsers(
     usergroup: String,
     users: List[String],
     includeCount: Option[Boolean] = None
-  ): URIO[AccessToken, SlackResponse[UserGroup]] =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[UserGroup]] =
     apiCall(
       UserGroups
         .updateUsersUsergroups(
@@ -113,21 +113,21 @@ private[slack] trait UserGroupsAccessors { self: Slack.type =>
     description: Option[String] = None,
     handle: Option[String] = None,
     includeCount: Option[Boolean] = None
-  ): URIO[Slack with AccessToken, SlackResponse[CreateUsergroupsResponse]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[CreateUsergroupsResponse]] =
     ZIO.serviceWithZIO[Slack](_.createUserGroup(name, channels, description, handle, includeCount))
 
   def setUserGroupEnabled(
     usergroup: String,
     enabled: Boolean,
     includeCount: Option[Boolean] = None
-  ): URIO[Slack with AccessToken, SlackResponse[UserGroup]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[UserGroup]] =
     ZIO.serviceWithZIO[Slack](_.setUserGroupEnabled(usergroup, enabled, includeCount))
 
   def listUserGroups(
     includeCount: Option[Boolean] = None,
     includeDisabled: Option[Boolean] = None,
     includeUsers: Option[Boolean] = None
-  ): URIO[Slack with AccessToken, SlackResponse[Chunk[UserGroup]]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[Chunk[UserGroup]]] =
     ZIO.serviceWithZIO[Slack](_.listUserGroups(includeCount, includeDisabled, includeUsers))
 
   def updateUserGroup(
@@ -137,20 +137,20 @@ private[slack] trait UserGroupsAccessors { self: Slack.type =>
     handle: Option[String] = None,
     includeCount: Option[Boolean] = None,
     name: Option[String] = None
-  ): URIO[Slack with AccessToken, SlackResponse[UserGroup]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[UserGroup]] =
     ZIO.serviceWithZIO[Slack](_.updateUserGroup(usergroup, channels, description, handle, includeCount, name))
 
   def listUserGroupUsers(
     usergroup: String,
     includeDisabled: Option[Boolean] = None
-  ): URIO[Slack with AccessToken, SlackResponse[ListUsersUsergroupsResponse]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[ListUsersUsergroupsResponse]] =
     ZIO.serviceWithZIO[Slack](_.listUserGroupUsers(usergroup, includeDisabled))
 
   def updateUserGroupUsers(
     usergroup: String,
     users: List[String],
     includeCount: Option[Boolean] = None
-  ): URIO[Slack with AccessToken, SlackResponse[UserGroup]] =
+  )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[UserGroup]] =
     ZIO.serviceWithZIO[Slack](_.updateUserGroupUsers(usergroup, users, includeCount))
 }
 

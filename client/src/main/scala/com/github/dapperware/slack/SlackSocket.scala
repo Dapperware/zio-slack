@@ -4,11 +4,11 @@ import com.github.dapperware.slack.models.events._
 import io.circe.Json
 import io.circe.parser.parse
 import io.circe.syntax._
-import sttp.client3.asynchttpclient.zio.SttpClient
-import sttp.client3.{ asWebSocketAlways, basicRequest, UriContext }
+import sttp.capabilities.WebSockets
+import sttp.client3.{ asWebSocketAlways, basicRequest, SttpBackend, UriContext }
 import sttp.ws.{ WebSocket, WebSocketClosed }
 import zio.stream.{ ZSink, ZStream }
-import zio.{ IO, Promise, Scope, Task, URLayer, ZIO, ZLayer }
+import zio.{ IO, Promise, Scope, Task, Trace, URLayer, ZIO, ZLayer }
 
 /**
  * A wrapper over the Slack Socket Mode API
@@ -29,7 +29,7 @@ trait SlackSocket {
   def connect[R](
     onMessage: SocketEventPayload => ZIO[R, Nothing, Option[Json]] = (_: SocketEventPayload) => ZIO.none,
     onUnhandled: Json => ZIO[R, Nothing, Any] = (_: Json) => ZIO.unit
-  ): ZStream[R with AppToken, SlackError, Either[SlackControlEvent, SocketEventPayload]]
+  )(implicit trace: Trace): ZStream[R with AppToken, SlackError, Either[SlackControlEvent, SocketEventPayload]]
 }
 
 object SlackSocket {
@@ -37,14 +37,16 @@ object SlackSocket {
   def apply[R](
     onMessage: SocketEventPayload => ZIO[R, Nothing, Option[Json]] = (_: SocketEventPayload) => ZIO.none,
     onUnhandled: Json => ZIO[R, Nothing, Any] = (_: Json) => ZIO.unit
+  )(implicit
+    trace: Trace
   ): ZStream[R with AppToken with SlackSocket, SlackError, Either[SlackControlEvent, SocketEventPayload]] =
     ZStream.serviceWithStream[SlackSocket](
       _.connect(onMessage, onUnhandled)
     )
 }
 
-class SlackSocketLive(slack: Slack, client: SttpClient) extends SlackSocket {
-  private def openWebsocket: ZIO[Scope with AppToken, SlackError, WebSocket[Task]] = for {
+class SlackSocketLive(slack: Slack, client: SttpBackend[Task, WebSockets]) extends SlackSocket {
+  private def openWebsocket(implicit trace: Trace): ZIO[Scope with AppToken, SlackError, WebSocket[Task]] = for {
     url  <- slack.openSocketModeConnection.map(_.toEither).absolve
     done <- Promise.make[Nothing, Boolean]
     p    <- Promise.make[Nothing, WebSocket[Task]]
@@ -58,7 +60,7 @@ class SlackSocketLive(slack: Slack, client: SttpClient) extends SlackSocket {
   def connect[R](
     onMessage: SocketEventPayload => ZIO[R, Nothing, Option[Json]],
     onUnhandled: Json => ZIO[R, Nothing, Any]
-  ): ZStream[R with AppToken, SlackError, Either[SlackControlEvent, SocketEventPayload]] =
+  )(implicit trace: Trace): ZStream[R with AppToken, SlackError, Either[SlackControlEvent, SocketEventPayload]] =
     ZStream.unwrapScoped[R with AppToken](for {
       w                <- openWebsocket
       // After the socket has been opened the first message we expect is the "hello" message
@@ -87,15 +89,19 @@ class SlackSocketLive(slack: Slack, client: SttpClient) extends SlackSocket {
                           }
     } yield stream)
 
-  def parseMessage(message: String): IO[io.circe.Error, Either[Json, SlackSocketEvent]] =
+  def parseMessage(message: String)(implicit trace: Trace): IO[io.circe.Error, Either[Json, SlackSocketEvent]] =
     ZIO.fromEither(parse(message).map(json => json.as[SlackSocketEvent].left.map(_ => json)))
 
-  private def readAllMessages(ws: WebSocket[Task]): ZStream[Any, SlackError, Either[Json, SlackSocketEvent]] =
+  private def readAllMessages(
+    ws: WebSocket[Task]
+  )(implicit trace: Trace): ZStream[Any, SlackError, Either[Json, SlackSocketEvent]] =
     ZStream
       .repeatZIOOption(readMessage(ws))
       .mapError(SlackError.fromThrowable)
 
-  private def readMessage(ws: WebSocket[Task]): IO[Option[Throwable], Either[Json, SlackSocketEvent]] =
+  private def readMessage(
+    ws: WebSocket[Task]
+  )(implicit trace: Trace): IO[Option[Throwable], Either[Json, SlackSocketEvent]] =
     ws.receiveText()
       .flatMap(parseMessage)
       .asSomeError
@@ -105,6 +111,6 @@ class SlackSocketLive(slack: Slack, client: SttpClient) extends SlackSocket {
 }
 
 object SlackSocketLive {
-  def layer: URLayer[Slack with SttpClient, SlackSocket] =
+  def layer(implicit trace: Trace): URLayer[Slack with SttpBackend[Task, WebSockets], SlackSocket] =
     ZLayer.fromFunction(new SlackSocketLive(_, _))
 }
