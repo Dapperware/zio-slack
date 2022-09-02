@@ -1,15 +1,13 @@
 package com.github.dapperware.slack
 
+import com.github.dapperware.slack.SttpStubbing.whenAnyRequest
 import sttp.client3.Response
-import sttp.client3.asynchttpclient.zio.{ stubbing, SttpClientStubbing }
 import sttp.model.Header
 import sttp.model.StatusCode.TooManyRequests
 import zio.durationInt
 import zio.test._
 
 object RequestSpec extends ZIOSpecDefault {
-
-  def whenAnyRequest: SttpClientStubbing.StubbingWhenRequest = stubbing.whenAnyRequest
 
   override def spec = suite("Request")(
     test("ratelimit handling") {
@@ -21,6 +19,6 @@ object RequestSpec extends ZIOSpecDefault {
     }
   ).provide(
     HttpSlack.layer,
-    SttpClientStubbing.layer
+    SttpStubbing.layer
   )
 }

@@ -88,7 +88,7 @@ case class UsersSelectValue(selected_user: Option[String]) extends ViewStateValu
 
 object ViewState {
   private val typeDecoder: Decoder[String]                                               = Decoder.decodeString.at("type")
-  private implicit val selectedOptionDecoder: Decoder[SelectedOption]                    = deriveDecoder[SelectedOption]
+  private implicit val selectedOptionDecoder: Decoder[SelectedOption]                    = deriveDecoder
   private implicit val plainTextDecoder: Decoder[PlainTextValue]                         = deriveDecoder
   private implicit val staticSelectDecoder: Decoder[StaticSelectValue]                   = deriveDecoder
   private implicit val multiStaticSelectDecoder: Decoder[MultiStaticSelectValue]         = deriveDecoder

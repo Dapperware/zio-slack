@@ -2,17 +2,13 @@ package slack.api
 
 import com.github.dapperware.slack.models.File.{ FileMeta, Preview, Sharing }
 import com.github.dapperware.slack.models.{ File, Shares }
-import com.github.dapperware.slack.{ Slack, SlackResponse }
-import sttp.client3.Request
-import sttp.client3.asynchttpclient.zio.{ stubbing, SttpClientStubbing }
+import com.github.dapperware.slack.{ MockSttpBackend, Slack, SlackResponse }
+import com.github.dapperware.slack.SttpStubbing.whenRequestMatches
 import zio.Chunk
 import zio.test.Assertion._
 import zio.test._
 
 object SlackRemoteFilesSpec extends ZIOSpecDefault with MockSttpBackend {
-
-  def whenRequestMatches(p: Request[_, _] => Boolean): SttpClientStubbing.StubbingWhenRequest =
-    stubbing.whenRequestMatches(p)
 
   private val response               = """
                        {

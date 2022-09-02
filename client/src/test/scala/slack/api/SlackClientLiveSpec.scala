@@ -1,7 +1,6 @@
-package com.github.dapperware.slack
+package slack.api
 
-import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
-import zio.test._
+import zio.test.ZIOSpecDefault
 
 object SlackClientLiveSpec extends ZIOSpecDefault {
   def spec = suite("SlackClient")(
@@ -28,6 +27,6 @@ object SlackClientLiveSpec extends ZIOSpecDefault {
 //                      )
 //                      .run
 //      } yield assert(response.untraced)(fails(equalTo(RatelimitError(Some(30.seconds))))))
-    ).provideCustomLayer(AsyncHttpClientZioBackend.stubLayer.orDie)
+    )
   )
 }
