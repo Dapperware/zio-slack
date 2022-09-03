@@ -30,7 +30,7 @@ object ChatApp extends ZIOAppDefault {
       t.replaceAllLiterally(s"<@$ref>", s"@$replace")
     }
 
-  override def run: ZIO[Any, Nothing, ExitCode] =
+  override def run =
     (for {
       fib <-
         SlackSocket().collectZIO { case Right(Event(_, _, _, Message(_, channel, user, text, _, _), _, _, _, _, _)) =>
@@ -47,6 +47,12 @@ object ChatApp extends ZIOAppDefault {
           .fork
       _   <- Console.readLine *> fib.interrupt
     } yield ())
-      .provide(AsyncHttpClientZioBackend.layer(), Slack.http, SlackSocketLive.layer, default, botToken, appToken)
-      .exitCode
+      .provide(
+        AsyncHttpClientZioBackend.layer(),
+        Slack.http,
+        SlackSocketLive.layer,
+        default,
+        botToken,
+        appToken
+      )
 }

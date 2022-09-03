@@ -10,17 +10,17 @@ import zio.{ ExitCode, ZIO, ZIOAppDefault }
 
 object BasicApp extends ZIOAppDefault {
 
-  override def run: ZIO[Any, Nothing, ExitCode] =
+  override def run =
     (for {
-      resp <- (testApi <&> testRealtime).provide(
-                AsyncHttpClientZioBackend.layer(),
-                Slack.http,
-                SlackSocketLive.layer,
-                botToken,
-                appToken,
-                default
-              )
-    } yield resp).exitCode
+      resp <- (testApi <&> testRealtime)
+    } yield resp).provide(
+      AsyncHttpClientZioBackend.layer().orDie,
+      Slack.http,
+      SlackSocketLive.layer,
+      botToken,
+      appToken,
+      default
+    )
 
   val testRealtime: ZIO[Slack with AppToken with AccessToken with SlackSocket with BasicConfig, SlackError, Unit] =
     // Test that we can receive messages

@@ -6,7 +6,7 @@ import com.github.dapperware.slack.generated.responses.{ RevokeAuthResponse, Tes
 import zio.{ Trace, URIO, ZIO }
 
 trait Auth { self: SlackApiBase =>
-  def testAuth: URIO[AccessToken, SlackResponse[TestAuthResponse]] =
+  def testAuth(implicit trace: Trace): URIO[AccessToken, SlackResponse[TestAuthResponse]] =
     apiCall(Auth.testAuth)
 
   def revokeAuth(test: Option[Boolean])(implicit trace: Trace): URIO[AccessToken, SlackResponse[RevokeAuthResponse]] =

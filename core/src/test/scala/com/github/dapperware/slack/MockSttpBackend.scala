@@ -14,7 +14,7 @@ trait MockSttpBackend {
   val sttpBackEndStubLayer: ZLayer[Any, Nothing, SttpStubbing with SttpBackend[Task, Any]] =
     SttpStubbing.layer
 
-  def accessTokenLayer(accessToken: String): Layer[Nothing, AccessToken] = ZLayer(AccessToken.make(accessToken))
+  def accessTokenLayer(accessToken: String): Layer[Nothing, AccessToken] = ZLayer.succeed(AccessToken(accessToken))
 
 }
 

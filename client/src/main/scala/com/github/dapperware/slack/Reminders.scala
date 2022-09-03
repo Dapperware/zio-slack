@@ -2,15 +2,21 @@ package com.github.dapperware.slack
 
 import com.github.dapperware.slack.Slack.request
 import com.github.dapperware.slack.generated.GeneratedReminders
-import com.github.dapperware.slack.generated.requests.{CompleteRemindersRequest, DeleteRemindersRequest, InfoRemindersRequest}
-import com.github.dapperware.slack.generated.responses.{InfoRemindersResponse, ListRemindersResponse}
-import com.github.dapperware.slack.models.{Reminder, reminderCodec}
+import com.github.dapperware.slack.generated.requests.{
+  CompleteRemindersRequest,
+  DeleteRemindersRequest,
+  InfoRemindersRequest
+}
+import com.github.dapperware.slack.generated.responses.{ InfoRemindersResponse, ListRemindersResponse }
+import com.github.dapperware.slack.models.{ reminderCodec, Reminder }
 import io.circe.Json
-import zio.{Trace, URIO, ZIO}
+import zio.{ Trace, URIO, ZIO }
 
 trait Reminders { self: SlackApiBase =>
 
-  def addReminder(text: String, time: String, user: String)(implicit trace: Trace): URIO[AccessToken, SlackResponse[Reminder]] =
+  def addReminder(text: String, time: String, user: String)(implicit
+    trace: Trace
+  ): URIO[AccessToken, SlackResponse[Reminder]] =
     apiCall(
       request("reminders.add")
         .jsonBody(
@@ -21,6 +27,8 @@ trait Reminders { self: SlackApiBase =>
           )
         )
         .jsonAt[Reminder]("reminder")
+        .auth
+        .accessToken
     )
 
   // FIXME the arguments shouldn't be optional
@@ -30,7 +38,9 @@ trait Reminders { self: SlackApiBase =>
   def deleteReminder(reminder: String)(implicit trace: Trace): URIO[AccessToken, SlackResponse[Unit]] =
     apiCall(Reminders.deleteReminders(DeleteRemindersRequest(Some(reminder))))
 
-  def getReminderInfo(reminder: String)(implicit trace: Trace): URIO[AccessToken, SlackResponse[InfoRemindersResponse]] =
+  def getReminderInfo(reminder: String)(implicit
+    trace: Trace
+  ): URIO[AccessToken, SlackResponse[InfoRemindersResponse]] =
     apiCall(Reminders.infoReminders(InfoRemindersRequest(Some(reminder))))
 
   def listReminders: URIO[AccessToken, SlackResponse[ListRemindersResponse]] =
@@ -54,7 +64,9 @@ private[slack] trait RemindersAccessors { self: Slack.type =>
   def deleteReminder(reminder: String)(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[Unit]] =
     ZIO.serviceWithZIO[Slack](_.deleteReminder(reminder))
 
-  def getReminderInfo(reminder: String)(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[InfoRemindersResponse]] =
+  def getReminderInfo(reminder: String)(implicit
+    trace: Trace
+  ): URIO[Slack with AccessToken, SlackResponse[InfoRemindersResponse]] =
     ZIO.serviceWithZIO[Slack](_.getReminderInfo(reminder))
 
   def listReminders: URIO[Slack with AccessToken, SlackResponse[ListRemindersResponse]] =

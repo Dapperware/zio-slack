@@ -4,7 +4,7 @@ import com.github.dapperware.slack.Slack.request
 import com.github.dapperware.slack.models.UserProfile
 import io.circe.Json
 import io.circe.syntax._
-import zio.{Trace, URIO, ZIO}
+import zio.{ Trace, URIO, ZIO }
 
 trait Profiles { self: SlackApiBase =>
   def getProfile(
@@ -18,6 +18,8 @@ trait Profiles { self: SlackApiBase =>
           "user"           -> user
         )
         .jsonAt[UserProfile]("profile")
+        .auth
+        .accessToken
     )
 
   def setProfile(
@@ -33,6 +35,8 @@ trait Profiles { self: SlackApiBase =>
           )
         )
         .jsonAt[UserProfile]("profile")
+        .auth
+        .accessToken
     )
 
   def setProfileValue(
@@ -50,6 +54,8 @@ trait Profiles { self: SlackApiBase =>
           )
         )
         .jsonAt[UserProfile]("profile")
+        .auth
+        .accessToken
     )
 }
 

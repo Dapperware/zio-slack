@@ -16,11 +16,18 @@ import zio.stream.ZStream
  */
 object JokeApp extends ZIOAppDefault {
 
-  val getJoke: Request[Either[ResponseException[String, circe.Error], Either[DecodingFailure, String]], Any] =
+  val getJokeReq: Request[Either[ResponseException[String, circe.Error], Either[DecodingFailure, String]], Any] =
     basicRequest
       .get(uri"https://api.chucknorris.io/jokes/random")
       .response(asJson[Json])
       .mapResponseRight(_.hcursor.downField("value").as[String])
+
+  val getJoke = ZIO
+    .serviceWithZIO[SttpBackend[Task, Any]](_.send(getJokeReq))
+    .map(_.body)
+    .absolve
+    .absolve
+    .mapError(SlackError.fromThrowable)
 
   // Shuffle the conversations that we are a part of
   val shuffledConversations: ZIO[Slack with AccessToken, SlackError, List[Channel]] =
@@ -39,20 +46,21 @@ object JokeApp extends ZIOAppDefault {
 
   val result: ZIO[Slack with AccessToken with SttpBackend[Task, Any], SlackError, Unit] =
     for {
-      client   <- ZIO.service[SttpBackend[Task, Any]]
       shuffled <- shuffledConversations
       _        <- ZIO.foreachDiscard(shuffled) { channel =>
                     (for {
-                      resp <- client.send(getJoke).mapError(SlackError.fromThrowable)
-                      body <- ZIO.from(resp.body).mapError(SlackError.fromThrowable)
-                      joke <- ZIO.from(body).mapError(SlackError.fromThrowable)
+                      joke <- getJoke
                       _    <- Slack.postChatMessage(channel.id, text = Some(joke)).map(_.toEither).absolve
                     } yield ()) *> ZIO.sleep(3.hours)
                   }
     } yield ()
 
-  override val run: ZIO[ZIOAppArgs, Nothing, ExitCode] =
+  override val run =
     result
-      .provide(common.default, botToken, Slack.http, AsyncHttpClientZioBackend.layer())
-      .exitCode
+      .provide(
+        common.default,
+        botToken,
+        Slack.http,
+        AsyncHttpClientZioBackend.layer()
+      )
 }

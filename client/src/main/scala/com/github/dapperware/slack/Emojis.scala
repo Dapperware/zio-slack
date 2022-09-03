@@ -20,6 +20,8 @@ trait Emojis { self: SlackApiBase =>
       request("emoji.list")
         .formBody(Map.empty[String, String])
         .as[EmojiMap]
+        .auth
+        .accessToken
     )
 }
 

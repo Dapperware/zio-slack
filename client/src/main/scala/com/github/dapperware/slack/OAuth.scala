@@ -2,9 +2,9 @@ package com.github.dapperware.slack
 
 import com.github.dapperware.slack.Slack.request
 import com.github.dapperware.slack.generated.GeneratedOauth
-import com.github.dapperware.slack.generated.requests.{AccessOauthRequest, AccessV2OauthRequest}
+import com.github.dapperware.slack.generated.requests.{ AccessOauthRequest, AccessV2OauthRequest }
 import com.github.dapperware.slack.generated.responses.AccessV2OauthResponse
-import zio.{Trace, URIO, ZIO}
+import zio.{ Trace, URIO, ZIO }
 
 trait OAuth { self: SlackApiBase =>
 

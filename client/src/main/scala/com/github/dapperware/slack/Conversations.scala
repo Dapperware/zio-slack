@@ -81,6 +81,8 @@ trait Conversations { self: SlackApiBase =>
           "include_num_mem" -> includeNumMembers
         )
         .jsonAt[Channel]("channel")
+        .auth
+        .accessToken
     )
 
   /**
@@ -102,6 +104,8 @@ trait Conversations { self: SlackApiBase =>
       request("conversations.invite")
         .formBody("channel" -> channel, "users_ids" -> users.map(_.mkString(",")))
         .jsonAt[Channel]("channel")
+        .auth
+        .accessToken
     )
 
   /**
@@ -166,6 +170,8 @@ trait Conversations { self: SlackApiBase =>
           "limit"   -> limit
         )
         .as[ResponseChunk[String]]
+        .auth
+        .accessToken
     )
   }
 
@@ -218,6 +224,8 @@ trait Conversations { self: SlackApiBase =>
           "oldest"    -> oldest
         )
         .as[ResponseChunk[Message]]
+        .auth
+        .accessToken
     )
 
   /**

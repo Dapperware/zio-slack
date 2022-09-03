@@ -2,10 +2,10 @@ package com.github.dapperware.slack
 
 import com.github.dapperware.slack.Slack.request
 import com.github.dapperware.slack.generated.GeneratedDnd
-import com.github.dapperware.slack.generated.requests.{SetSnoozeDndRequest, TeamInfoDndRequest}
-import com.github.dapperware.slack.generated.responses.{EndSnoozeDndResponse, SetSnoozeDndResponse}
+import com.github.dapperware.slack.generated.requests.{ SetSnoozeDndRequest, TeamInfoDndRequest }
+import com.github.dapperware.slack.generated.responses.{ EndSnoozeDndResponse, SetSnoozeDndResponse }
 import com.github.dapperware.slack.models.DndInfo
-import zio.{Trace, URIO, ZIO}
+import zio.{ Trace, URIO, ZIO }
 
 trait Dnd { self: SlackApiBase =>
   def endDnd()(implicit trace: Trace): URIO[AccessToken, SlackResponse[Unit]] =
@@ -25,6 +25,8 @@ trait Dnd { self: SlackApiBase =>
           "team_id" -> teamId
         )
         .as[DndInfo]
+        .auth
+        .accessToken
     )
 
   def setSnooze(numMinutes: Int)(implicit trace: Trace): URIO[AccessToken, SlackResponse[SetSnoozeDndResponse]] =
@@ -48,11 +50,15 @@ private[slack] trait DndAccessors { self: Slack.type =>
   )(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[DndInfo]] =
     ZIO.serviceWithZIO[Slack](_.getDoNotDisturbInfo(userId, teamId))
 
-  def setSnooze(numMinutes: Int)(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[SetSnoozeDndResponse]] =
+  def setSnooze(numMinutes: Int)(implicit
+    trace: Trace
+  ): URIO[Slack with AccessToken, SlackResponse[SetSnoozeDndResponse]] =
     ZIO.serviceWithZIO[Slack](_.setSnooze(numMinutes))
 
   // FIXME This is the wrong return type
-  def getTeamDoNotDisturbInfo(users: List[String])(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[Unit]] =
+  def getTeamDoNotDisturbInfo(users: List[String])(implicit
+    trace: Trace
+  ): URIO[Slack with AccessToken, SlackResponse[Unit]] =
     ZIO.serviceWithZIO[Slack](_.getTeamDoNotDisturbInfo(users))
 }
 

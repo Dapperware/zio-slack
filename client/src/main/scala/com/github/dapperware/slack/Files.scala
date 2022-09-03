@@ -9,20 +9,22 @@ import java.io.File
 
 trait Files { self: SlackApiBase =>
   def revokePublicURL(fileId: String)(implicit trace: Trace): URIO[AccessToken, SlackResponse[FilesResponse]] =
-    apiCall(request[FilesResponse]("files.revokePublicURL", "file" -> fileId))
+    apiCall(request[FilesResponse]("files.revokePublicURL", "file" -> fileId).auth.accessToken)
 
   def sharedPublicURL(fileId: String)(implicit trace: Trace): URIO[AccessToken, SlackResponse[FilesResponse]] =
-    apiCall(request[FilesResponse]("files.sharedPublicURL", "file" -> fileId))
+    apiCall(request[FilesResponse]("files.sharedPublicURL", "file" -> fileId).auth.accessToken)
 
   def deleteFile(fileId: String)(implicit trace: Trace): URIO[AccessToken, SlackResponse[Unit]]               =
-    apiCall(request("files.delete").formBody(Map("file" -> fileId)))
+    apiCall(request("files.delete").formBody(Map("file" -> fileId)).auth.accessToken)
 
   def getFileInfo(
     fileId: String,
     count: Option[Int] = None,
     page: Option[Int] = None
   )(implicit trace: Trace): URIO[AccessToken, SlackResponse[FileInfo]]                                        =
-    apiCall(request("files.info").formBody("file" -> fileId, "count" -> count, "page" -> page).as[FileInfo])
+    apiCall(
+      request("files.info").formBody("file" -> fileId, "count" -> count, "page" -> page).as[FileInfo].auth.accessToken
+    )
 
   def listFiles(
     userId: Option[String] = None,
@@ -31,7 +33,7 @@ trait Files { self: SlackApiBase =>
     types: Option[Seq[String]] = None,
     count: Option[Int] = None,
     page: Option[Int] = None
-  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[FilesResponse]]                                   =
+  )(implicit trace: Trace): URIO[AccessToken, SlackResponse[FilesResponse]] =
     apiCall(
       request("files.list")
         .formBody(
@@ -43,6 +45,8 @@ trait Files { self: SlackApiBase =>
           "page"    -> page
         )
         .as[FilesResponse]
+        .auth
+        .accessToken
     )
 
   def uploadFile(
@@ -83,6 +87,8 @@ trait Files { self: SlackApiBase =>
           "thread_ts"       -> thread_ts
         )
         .jsonAt[models.File]("file")
+        .auth
+        .accessToken
     )
 
 }

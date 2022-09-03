@@ -2,10 +2,14 @@ package com.github.dapperware.slack
 
 import com.github.dapperware.slack.Slack.request
 import com.github.dapperware.slack.generated.GeneratedReactions
-import com.github.dapperware.slack.generated.requests.{AddReactionsRequest, GetReactionsRequest, RemoveReactionsRequest}
-import com.github.dapperware.slack.models.{Plural, ResponseChunk}
+import com.github.dapperware.slack.generated.requests.{
+  AddReactionsRequest,
+  GetReactionsRequest,
+  RemoveReactionsRequest
+}
+import com.github.dapperware.slack.models.{ Plural, ResponseChunk }
 import io.circe.Json
-import zio.{Trace, URIO, ZIO}
+import zio.{ Trace, URIO, ZIO }
 
 trait Reactions { self: SlackApiBase =>
   def addReactionToMessage(
@@ -61,6 +65,8 @@ trait Reactions { self: SlackApiBase =>
           "cursor"  -> cursor
         )
         .as[ResponseChunk[Json]]
+        .auth
+        .accessToken
     )
   }
 

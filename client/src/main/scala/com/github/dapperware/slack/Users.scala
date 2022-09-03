@@ -4,13 +4,19 @@ import com.github.dapperware.slack.Slack.request
 import com.github.dapperware.slack.client.RequestEntity
 import com.github.dapperware.slack.generated.GeneratedUsers
 import com.github.dapperware.slack.generated.requests._
-import com.github.dapperware.slack.generated.responses.{GetPresenceUsersResponse, InfoUsersResponse, ListUsersResponse}
+import com.github.dapperware.slack.generated.responses.{
+  GetPresenceUsersResponse,
+  InfoUsersResponse,
+  ListUsersResponse
+}
 import com.github.dapperware.slack.models.User
-import zio.{Trace, URIO, ZIO}
+import zio.{ Trace, URIO, ZIO }
 
 trait Users { self: SlackApiBase =>
   // TODO: Full payload for authed user: https://api.slack.com/methods/users.getPresence
-  def getUserPresence(userId: String)(implicit trace: Trace): URIO[AccessToken, SlackResponse[GetPresenceUsersResponse]] =
+  def getUserPresence(userId: String)(implicit
+    trace: Trace
+  ): URIO[AccessToken, SlackResponse[GetPresenceUsersResponse]] =
     apiCall(Users.getPresenceUsers(GetPresenceUsersRequest(Some(userId))))
 
   def getUserInfo(
@@ -57,13 +63,17 @@ trait Users { self: SlackApiBase =>
     apiCall(
       request("users.setPhoto")
         .entityBody(entity)("crop_w" -> cropW, "crop_x" -> cropX, "crop_y" -> cropY)
+        .auth
+        .accessToken
     )
 
 }
 
 private[slack] trait UsersAccessors { self: Slack.type =>
   // TODO: Full payload for authed user: https://api.slack.com/methods/users.getPresence
-  def getUserPresence(userId: String)(implicit trace: Trace): URIO[Slack with AccessToken, SlackResponse[GetPresenceUsersResponse]] =
+  def getUserPresence(userId: String)(implicit
+    trace: Trace
+  ): URIO[Slack with AccessToken, SlackResponse[GetPresenceUsersResponse]] =
     ZIO.serviceWithZIO[Slack](_.getUserPresence(userId))
 
   def getUserInfo(

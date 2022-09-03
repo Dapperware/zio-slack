@@ -4,14 +4,10 @@ import sttp.client3.{ Identity, RequestT, SttpBackend }
 import zio.{ Tag, Task, Trace, UIO, URIO, ZIO, ZLayer }
 
 class HttpSlack private (baseUrl: String, client: SttpBackend[Task, Any]) extends SlackClient {
-
-  def apiCall[T](request: Request[T, Unit])(implicit trace: Trace): UIO[SlackResponse[T]] =
-    makeCall(request.toRequest(baseUrl))
-
   def apiCall[T, A](
     request: Request[T, A]
   )(implicit ev: HasAuth[A], tag: Tag[A], trace: Trace): URIO[A, SlackResponse[T]] =
-    ZIO.service[A].flatMap(auth => makeCall(ev(request.toRequest(baseUrl))(auth)))
+    ZIO.service[A].flatMap(auth => makeCall(request.toRequest(baseUrl, auth)))
 
   private def makeCall[A](
     request: RequestT[Identity, SlackResponse[A], Any]

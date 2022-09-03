@@ -3,7 +3,7 @@ package com.github.dapperware.slack
 import com.github.dapperware.slack.Slack.request
 import com.github.dapperware.slack.generated.GeneratedSearch
 import io.circe.Json
-import zio.{Trace, URIO, ZIO}
+import zio.{ Trace, URIO, ZIO }
 
 trait Search { self: SlackApiBase =>
 
@@ -27,6 +27,8 @@ trait Search { self: SlackApiBase =>
           "page"      -> page
         )
         .as[Json]
+        .auth
+        .accessToken
     )
 
   // TODO: Return proper search results (not JsValue)
@@ -49,6 +51,8 @@ trait Search { self: SlackApiBase =>
           "page"      -> page
         )
         .as[Json]
+        .auth
+        .accessToken
     )
 
   def searchMessages(
@@ -70,6 +74,8 @@ trait Search { self: SlackApiBase =>
           "page"      -> page
         )
         .as[Json]
+        .auth
+        .accessToken
     )
 }
 

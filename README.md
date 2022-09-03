@@ -16,7 +16,7 @@ Add the following dependency to your project's build file
 For Scala 2.12.x and 2.13.x
 
 ```scala
-"com.github.dapperware" %% "zio-slack-api-web" % "0.9.5"
+"com.github.dapperware" %% "zio-slack-api-web" % "1.0.0-RC1"
 ```
 
 zio-slack is a library for interfacing with slack using an idiomatic and easily discoverable interface.
@@ -28,13 +28,11 @@ Usage
 
 Usage is quite simple. First you can define how you would like to interact with slack. For instance, say you periodically wanted to send Chuck Norris jokes to random channels (...please don't).
 
-Since we will be sending messages we will be using the `chats` api which we can import like so:
+All the APIs are contained under a single root object `Slack`.
 
 ```scala
-import com.github.dapperware.slack.api.chats._
+import com.github.dapperware.Slack
 ```
-
-Note that you can pull in the functionality piecemeal like above or all at once using `slack.api.web._` you can even pull in individual methods! The beauty of ZIO is that all the methods just return effects so there is no need to instantiate anything until you are ready to execute it.
 
 We'll use the STTP library since it is what zio-slack is built with. First lets makes a small request to fetch chuck norris jokes:
 
@@ -49,49 +47,78 @@ Next lets build a small program that would send these jokes to our slack workspa
 
 ```scala
 (for {
-  resp <- SttpClient.send(getJoke)
+  resp <- ZIO.serviceWithZIO[SttpBackend[Task, Any]](_.send(getJoke))
   joke <- IO.fromEither(resp.body) >>= IO.fromEither
-  _    <- postChatMessage("<channel_id>", joke)
+  _    <- Slack.postChatMessage("<channel_id>", joke)
 } yield ()).repeat(Schedule.fixed(3.hours))
 ```
 
-Almost there. 
+In order to wire up our application we'll need to provide a couple things:
 
-You may have noticed that this is now returning compiler errors saying that it expects a `Clock with SlackEnvDefinition.this.SlackEnv` this is expected, ZIO is telling us that we need to supply our Slack environment in order to run, lets add that now, for completeness we'll throw the whole thing into a `ManagedApp`:
+1. A `Slack` implementation (the easiest one to use is the `Slack.http` layer)
+2. A token (you can get one from https://api.slack.com/apps)
+3. An http implementation
+
+That's it.
+
+We can see how we can use this approach in a full application below:
 
 ```scala
 import io.circe
 import io.circe.Json
-import com.github.dapperware.slack.api.chats._
-import com.github.dapperware.slack.access.AccessToken
-import com.github.dapperware.slack.core.client.SlackClient
+import com.github.dapperware.slack._
 import sttp.client._
 import sttp.client.asynchttpclient.zio.AsyncHttpClientZioBackend
 import sttp.client.circe._
-import zio.duration._
-import zio.{ IO, App, Schedule, ExitCode }
+import zio._
 
-object JokeApp extends App {
+object JokeApp extends ZIOAppDefault {
 
   // Builds a request which will fetch a new chuck norris joke
-  val getJoke: Request[Either[ResponseError[circe.Error], Either[DecodingFailure, String]], Nothing] = basicRequest
-    .get(uri"https://api.chucknorris.io/jokes/random")
-    .response(asJson[Json])
-    .mapResponseRight(_.hcursor.downField("value").as[String])
-    
-  // Creates our static environmental layer
-  val envLayer = AsyncHttpClientZioBackend.layer() >>> SlackClient.live
+  val getJokeReq: Request[Either[ResponseException[String, circe.Error], Either[DecodingFailure, String]], Any] =
+    basicRequest
+      .get(uri"https://api.chucknorris.io/jokes/random")
+      .response(asJson[Json])
+      .mapResponseRight(_.hcursor.downField("value").as[String])
 
-  override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, ExitCode] =
+  val getJoke = ZIO
+    .serviceWithZIO[SttpBackend[Task, Any]](_.send(getJokeReq))
+    .map(_.body)
+    .absolve
+    .absolve
+    .mapError(SlackError.fromThrowable)
+  
+  override val run =
     (for {
-      resp <- SttpClient.send(getJoke)                    // Gets a new joke
-      joke <- IO.fromEither(resp.body) >>= IO.fromEither  // Decodes the joke response
-      _    <- postChatMessage("<your-channel-id>", joke)  // Sends the joke to the channel of your choice
+      joke <- getJoke                    // Gets a new joke
+      _    <- Slack.postChatMessage("<your-channel-id>", joke)  // Sends the joke to the channel of your choice
       } yield ())
        .repeat(Schedule.fixed(3.hours)) // Repeat every three hours
-       .provideCustomLayer(envLayer ++ AccessToken.make("xoxb-<your-token>").toLayer) // Add the token used to authorize requests to slack
-       .exitCode
+       .provide(
+         botToken,
+         Slack.http,
+         AsyncHttpClientZioBackend.layer(),
+         ZLayer.succeed(AccessToken("xoxb-<your-token>"))  // The access token for your bot if you will be using slack globally
+       )
 }
 ```
+
+All API methods will return a `SlackResponse[A]` where the `A` is the body of the value returned by the API. It will also contain
+any errors or warnings that the API call returned. It also contains helpful methods to turn it into an `Either` or to convert a
+`Throwable` into it for improve composition.
+
+Realtime
+--
+
+If you have used zio-slack prior to 1.0.0 then you may have used the realtime API. That has been removed as Slack has [deprecated it](https://api.slack.com/rtm). Instead, you can now use the `Socket mode` which provides a similar experience.
+
+
+Methods
+--
+
+I have done my best to include as many APIs as possible, however it is a challenging task for parttime work as there are well over 100 different APIs
+If you find one missing or buggy, please submit an issue or PR.
+
+
 
 

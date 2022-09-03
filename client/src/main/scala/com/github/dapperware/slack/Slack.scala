@@ -2,13 +2,10 @@ package com.github.dapperware.slack
 
 import io.circe.Decoder
 import sttp.client3.SttpBackend
-import zio.{ Tag, Task, Trace, UIO, URIO, ZIO, ZLayer }
+import zio.{ Tag, Task, Trace, URIO, ZIO, ZLayer }
 
 trait SlackApiBase {
   def client: SlackClient
-
-  def apiCall[T](request: Request[T, Unit])(implicit trace: Trace): UIO[SlackResponse[T]] =
-    client.apiCall(request)
 
   def apiCall[T, A](
     request: Request[T, A]
@@ -21,6 +18,7 @@ trait SlackApiBase {
  */
 trait Slack
     extends SlackApiBase
+    with Api
     with Apps
     with Auth
     with Bots
@@ -46,7 +44,8 @@ trait Slack
     with Views
 
 object Slack
-    extends AppsAccessors
+    extends ApiAccessors
+    with AppsAccessors
     with AuthAccessors
     with BotsAccessors
     with CallsAccessors
@@ -87,5 +86,4 @@ object Slack
 
   val http: ZLayer[SttpBackend[Task, Any], Nothing, Slack] =
     HttpSlack.layer >>> ZLayer(make)
-
 }

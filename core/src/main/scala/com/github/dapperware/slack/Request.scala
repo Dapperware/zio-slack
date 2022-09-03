@@ -60,8 +60,9 @@ case class Request[+T, Auth](
   def partBody(parts: List[Part[BasicRequestBody]]): Request[T, Auth]                        = copy(body = SlackBody.PartBody(parts))
 
   def toRequest[T1 >: T: IsOption](
-    baseUri: String
-  ): RequestT[Identity, SlackResponse[T1], Any] = {
+    baseUri: String,
+    auth: Auth
+  )(implicit hasAuth: HasAuth[Auth]): RequestT[Identity, SlackResponse[T1], Any] = {
     val respond: ResponseAs[SlackResponse[T], Any] =
       respondWith(
         deserializeJson(SlackResponse.decodeWith(responseAs), implicitly[IsOption[SlackResponse[T]]])
@@ -76,7 +77,7 @@ case class Request[+T, Auth](
         case (Right(response), _)                                 => response
       }
 
-    (body match {
+    hasAuth(body match {
       case SlackBody.JsonBody(json)                =>
         basicRequest.post(uri"$baseUri/${method.name}").body(json.deepDropNullValues)
       case SlackBody.MixedBody(form, Some(entity)) =>
@@ -85,7 +86,7 @@ case class Request[+T, Auth](
         basicRequest.post(uri"$baseUri/${method.name}").body(form)
       case SlackBody.PartBody(parts)               =>
         basicRequest.post(uri"$baseUri/${method.name}").multipartBody(parts)
-    }).tag("Slack-MethodName", method.name).response(respond)
+    })(auth).tag("Slack-MethodName", method.name).response(respond)
   }
 }
 
@@ -95,7 +96,7 @@ object Request {
     def clientSecret: Request[T, ClientSecret] = request.asInstanceOf[Request[T, ClientSecret]]
     def accessToken: Request[T, AccessToken]   = request.asInstanceOf[Request[T, AccessToken]]
     def appToken: Request[T, AppToken]         = request.asInstanceOf[Request[T, AppToken]]
-    def none: Request[T, Unit]                 = request.asInstanceOf[Request[T, Unit]]
+    def none: Request[T, NoAuth]               = request.asInstanceOf[Request[T, NoAuth]]
 
   }
 

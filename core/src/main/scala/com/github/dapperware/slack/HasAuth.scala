@@ -23,4 +23,9 @@ object HasAuth {
       req.auth.bearer(a.token)
   }
 
+  implicit val unitAuth: HasAuth[NoAuth] = new HasAuth[NoAuth] {
+    override def apply[U[_], T, S](req: RequestT[U, T, S])(a: NoAuth): RequestT[U, T, S] =
+      req
+  }
+
 }
