@@ -10,9 +10,9 @@ inThisBuild(
     licenses := List(
       "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")
     ),
-    pgpPassphrase := sys.env.get("PGP_PASSWORD").map(_.toArray),
-    pgpPublicRing := file("/tmp/public.asc"),
-    pgpSecretRing := file("/tmp/secret.asc"),
+//    pgpPassphrase := sys.env.get("PGP_PASSWORD").map(_.toArray),
+//    pgpPublicRing := file("/tmp/public.asc"),
+//    pgpSecretRing := file("/tmp/secret.asc"),
     scmInfo := Some(
       ScmInfo(
         url("https://github.com/dapperware/zio-slack/"),
@@ -26,13 +26,12 @@ inThisBuild(
         "",
         url("https://github.com/paulpdaniels")
       )
-    ),
-    crossScalaVersions := allScala
+    )
   )
 )
 
 ThisBuild / scalaVersion := mainScala
-ThisBuild / gitVersioningSnapshotLowerBound := "0.8.0"
+//ThisBuild / gitVersioningSnapshotLowerBound := "0.8.0"
 
 resolvers +=
   "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"

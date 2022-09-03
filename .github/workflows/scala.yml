@@ -22,4 +22,4 @@ jobs:
         distribution: 'adopt'
         cache: 'sbt'
     - name: Run tests
-      run: sbt ++test
+      run: sbt test

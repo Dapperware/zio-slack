@@ -75,6 +75,8 @@ object Slack
   def request[A: Decoder](name: String, args: (String, SlackParamMagnet)*): Request[A, Unit] =
     Request.make(MethodName(name)).formBody(args: _*).as[A]
 
+  def client: ZIO[Slack, Nothing, SlackClient] = ZIO.serviceWith[Slack](_.client)
+
   def make: ZIO[SlackClient, Nothing, Slack] =
     ZIO
       .serviceWith[SlackClient](c =>
@@ -83,7 +85,7 @@ object Slack
         }
       )
 
-  val http: ZLayer[SttpBackend[Task, Any], Nothing, SlackClient with Slack] =
-    HttpSlack.layer >+> ZLayer(make)
+  val http: ZLayer[SttpBackend[Task, Any], Nothing, Slack] =
+    HttpSlack.layer >>> ZLayer(make)
 
 }
