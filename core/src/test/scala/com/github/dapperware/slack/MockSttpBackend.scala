@@ -2,10 +2,10 @@ package com.github.dapperware.slack
 
 import sttp.client3.impl.zio.RIOMonadAsyncError
 import sttp.client3.testing.SttpBackendStub
-import sttp.client3.{ Response, SttpBackend }
+import sttp.client3.{ Response, SttpBackend, Request => SttpRequest }
 import sttp.model.StatusCode
 import sttp.monad.MonadError
-import sttp.{ capabilities, client3 }
+import sttp.capabilities
 import zio.stm.TQueue
 import zio.{ Layer, Ref, Task, URIO, ZEnvironment, ZIO, ZLayer }
 
@@ -30,7 +30,7 @@ object SttpStubbing {
    *
    * Note that the stubs are immutable, and each new specification that is added yields a new stub instance.
    */
-  def whenRequestMatches(p: client3.Request[_, _] => Boolean): WhenRequest =
+  def whenRequestMatches(p: SttpRequest[_, _] => Boolean): WhenRequest =
     new WhenRequest(p)
 
   /**
@@ -46,11 +46,11 @@ object SttpStubbing {
    * Note that the stubs are immutable, and each new specification that is added yields a new stub instance.
    */
   def whenRequestMatchesPartial(
-    partial: PartialFunction[client3.Request[_, _], Response[_]]
+    partial: PartialFunction[SttpRequest[_, _], Response[_]]
   ): ZIO[SttpStubbing, Nothing, Unit] =
     ZIO.serviceWithZIO[SttpStubbing](_.stub.update(_.whenRequestMatchesPartial(partial)))
 
-  class WhenRequest(p: client3.Request[_, _] => Boolean) {
+  class WhenRequest(p: SttpRequest[_, _] => Boolean) {
     def thenRespondOk(): URIO[SttpStubbing, Unit] =
       ZIO.serviceWithZIO[SttpStubbing](_.stub.update(_.whenRequestMatches(p).thenRespondWithCode(StatusCode.Ok, "OK")))
 
@@ -92,15 +92,15 @@ object SttpStubbing {
     }
 
     def thenRespondZIO(resp: => Task[Response[_]]): ZIO[SttpStubbing, Nothing, Unit] = {
-      val m: PartialFunction[client3.Request[_, _], Task[Response[_]]] = {
+      val m: PartialFunction[SttpRequest[_, _], Task[Response[_]]] = {
         case r if p(r) => resp
       }
 
       ZIO.serviceWithZIO[SttpStubbing](_.stub.update(_.whenRequestMatches(p).thenRespondF(m)))
     }
 
-    def thenRespondZIO(resp: client3.Request[_, _] => Task[Response[_]]): ZIO[SttpStubbing, Nothing, Unit] = {
-      val m: PartialFunction[client3.Request[_, _], Task[Response[_]]] = {
+    def thenRespondZIO(resp: SttpRequest[_, _] => Task[Response[_]]): ZIO[SttpStubbing, Nothing, Unit] = {
+      val m: PartialFunction[SttpRequest[_, _], Task[Response[_]]] = {
         case r if p(r) => resp(r)
       }
       ZIO.serviceWithZIO[SttpStubbing](_.stub.update(_.whenRequestMatches(p).thenRespondF(m)))
@@ -114,7 +114,7 @@ object SttpStubbing {
       }
 
       val proxy: SttpBackend[Task, Any] = new SttpBackend[Task, Any] {
-        override def send[T, R >: capabilities.Effect[Task]](request: client3.Request[T, R]): Task[Response[T]] =
+        override def send[T, R >: capabilities.Effect[Task]](request: SttpRequest[T, R]): Task[Response[T]] =
           stub0.get.flatMap(_.send(request))
 
         override def close(): Task[Unit] = stubber.stub.get.flatMap(_.close())

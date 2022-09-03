@@ -2,7 +2,7 @@ ThisBuild / name := "zio-slack"
 ThisBuild / organization := "com.github.dapperware"
 
 val mainScala = "2.12.15"
-val allScala  = Seq("2.13.8", mainScala, "3.1.2")
+val allScala  = Seq("2.13.8", mainScala, "3.1.3")
 
 inThisBuild(
   List(
@@ -43,52 +43,53 @@ val sttpV  = "3.7.6"
 
 ThisBuild / publishTo := sonatypePublishToBundle.value
 
-lazy val root = (project in file("."))
+lazy val root = (projectMatrix in file("."))
   .aggregate(core, client, examples)
   .settings(publish / skip := true)
   .settings(historyPath := None)
 
-lazy val core = project
+lazy val core = projectMatrix
   .in(file("core"))
   .settings(name := "zio-slack-core")
-  .settings(commonSettings)
-  .settings(
-    testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
-    libraryDependencies ++= Seq(
-      "dev.zio"                       %% "zio"                           % zioV,
-      "dev.zio"                       %% "zio-test"                      % zioV  % Test,
-      "dev.zio"                       %% "zio-test-sbt"                  % zioV  % Test,
-      "com.softwaremill.sttp.client3" %% "core"                          % sttpV,
-      "com.softwaremill.sttp.client3" %% "zio"                           % sttpV,
-      "com.softwaremill.sttp.client3" %% "circe"                         % sttpV,
-      "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio" % sttpV % "test"
+  .jvmPlatform(
+    scalaVersions = allScala,
+    settings = commonSettings ++ List(
+      testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
+      libraryDependencies ++= Seq(
+        "dev.zio"                       %% "zio"                           % zioV,
+        "dev.zio"                       %% "zio-test"                      % zioV  % Test,
+        "dev.zio"                       %% "zio-test-sbt"                  % zioV  % Test,
+        "com.softwaremill.sttp.client3" %% "core"                          % sttpV,
+        "com.softwaremill.sttp.client3" %% "zio"                           % sttpV,
+        "com.softwaremill.sttp.client3" %% "circe"                         % sttpV,
+        "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio" % sttpV % "test"
+      )
     )
   )
 
-lazy val client = project
+lazy val client = projectMatrix
   .in(file("client"))
-  .dependsOn(core % "compile->compile;test->test")
   .settings(name := "zio-slack-api-web")
-  .settings(commonSettings)
-  .settings(
-    testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
-    libraryDependencies ++= Seq(
-      "io.circe"                      %% "circe-generic"                 % circeV,
-      "dev.zio"                       %% "zio-test"                      % zioV  % "it,test",
-      "dev.zio"                       %% "zio-test-sbt"                  % zioV  % "it,test",
-      "com.softwaremill.sttp.client3" %% "core"                          % sttpV,
-      "com.softwaremill.sttp.client3" %% "zio"                           % sttpV,
-      "com.softwaremill.sttp.client3" %% "circe"                         % sttpV,
-      "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio" % sttpV % "test"
+  .dependsOn(core % "compile->compile;test->test")
+  .jvmPlatform(
+    scalaVersions = allScala,
+    settings = commonSettings ++ List(
+      testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
+      libraryDependencies ++= Seq(
+        "io.circe"                      %% "circe-generic"                 % circeV,
+        "dev.zio"                       %% "zio-test"                      % zioV  % "test",
+        "dev.zio"                       %% "zio-test-sbt"                  % zioV  % "test",
+        "com.softwaremill.sttp.client3" %% "core"                          % sttpV,
+        "com.softwaremill.sttp.client3" %% "zio"                           % sttpV,
+        "com.softwaremill.sttp.client3" %% "circe"                         % sttpV,
+        "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio" % sttpV % "test"
+      )
     )
-    // addCompilerPlugin("org.typelevel" %% "kind-projector"     % "0.10.3"),
-    // addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.1")
   )
-  .configs(IntegrationTest)
-  .settings(Defaults.itSettings)
 
-lazy val examples = project
+lazy val examples = projectMatrix
   .in(file("examples"))
+  .jvmPlatform(scalaVersions = Seq(mainScala))
   .dependsOn(client, core)
   .settings(commonSettings)
   .settings(
@@ -97,8 +98,7 @@ lazy val examples = project
       "dev.zio"                       %% "zio-config"                    % "3.0.2",
       "dev.zio"                       %% "zio-config-typesafe"           % "3.0.2",
       "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio" % sttpV
-    ),
-    crossScalaVersions := Seq(mainScala)
+    )
   )
 
 scalacOptions ++= Seq(
@@ -159,6 +159,6 @@ val commonSettings = Def.settings(
         "-Ywarn-unused:patvars,-implicits",
         "-Ywarn-value-discard"
       )
-    case _             => Seq("-Ykind-projector:underscores") ++ Seq("-Xmax-inlines", "50")
+    case _             => Seq("-Xmax-inlines", "50")
   })
 )
