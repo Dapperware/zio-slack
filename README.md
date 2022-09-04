@@ -2,10 +2,12 @@
 An idiomatic slack client using zio
 
 [![Release Artifacts][Badge-SonatypeReleases]][Link-SonatypeReleases]
-[![CircleCI](https://circleci.com/gh/Dapperware/zio-slack.svg?style=svg)](https://circleci.com/gh/Dapperware/zio-slack)
+[![Snapshot Artifacts][Badge-SonatypeSnapshots]][Link-SonatypeSnapshots]
 
 [Link-SonatypeReleases]: https://oss.sonatype.org/content/repositories/releases/com/github/dapperware/zio-slack-api-web_2.12/ "Sonatype Releases"
 [Badge-SonatypeReleases]: https://img.shields.io/nexus/r/https/oss.sonatype.org/com.github.dapperware/zio-slack-api-web_2.12.svg "Sonatype Releases"
+[Link-SonatypeSnapshots]: https://oss.sonatype.org/content/repositories/snapshots/com/github/dapperware/zio-slack-api-web_2.12/ "Sonatype Snapshots"
+[Badge-SonatypeSnapshots]: https://img.shields.io/nexus/s/com.github.dapperware/zio-slack-api-web_2.13?server=https%3A%2F%2Foss.sonatype.org
 
 
 Installation
@@ -13,7 +15,7 @@ Installation
 
 Add the following dependency to your project's build file
 
-For Scala 2.12.x and 2.13.x
+For Scala 2.12.x, 2.13.x and 3
 
 ```scala
 "com.github.dapperware" %% "zio-slack-api-web" % "1.0.0-RC1"
