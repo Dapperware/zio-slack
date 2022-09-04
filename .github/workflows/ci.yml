@@ -2,8 +2,12 @@ name: CI
 
 on:
   pull_request:
+    paths-ignore:
+      - '**/README.md'
   push:
     branches: ['series/2.x']
+    paths-ignore:
+      - '**/README.md'
   release:
     types:
       - published
