@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: ['series/2.x']
+  release:
+    types:
+      - published
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: ['11', '14', '17']
+    name: Build project
+    steps:
+    - name: Checkout current branch
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: Set up ${{ matrix.java }}
+      uses: actions/setup-java@v3
+      with:
+        java-version: ${{ matrix.java }}
+        distribution: 'adopt'
+        cache: 'sbt'
+    - name: Cache scala dependencies
+      uses: coursier/cache-action@v6
+    - name: Run tests
+      run: sbt test
+
+  publish:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 60
+    needs: [test]
+    if: github.event_name != 'pull_request'
+    steps:
+      - name: Checkout current branch
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Setup Scala
+        uses: olafurpg/setup-scala@v13
+      - name: Release
+        run: sbt ci-release
+        env:
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+          PGP_SECRET: ${{ secrets.PGP_SECRET }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
