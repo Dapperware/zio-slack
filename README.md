@@ -112,8 +112,26 @@ any errors or warnings that the API call returned. It also contains helpful meth
 Realtime
 --
 
-If you have used zio-slack prior to 1.0.0 then you may have used the realtime API. That has been removed as Slack has [deprecated it](https://api.slack.com/rtm). Instead, you can now use the `Socket mode` which provides a similar experience.
+If you have used zio-slack prior to 1.0.0 then you may have used the realtime API. That has been removed as Slack has [deprecated it](https://api.slack.com/rtm). Instead, you can now use the [`Socket mode`](https://api.slack.com/apis/connections/socket) which provides a similar experience.
+You can set up a connection with the `SlackSocket`:
 
+```scala
+import com.github.dapperware.slack._
+
+SlackSocket().collectZIO {
+  case Right(payload) => // A standard payload event was received
+  case Left(control) => // Slack sent a control event to the socket which you can handle if you like
+}.provide(
+    SlackSocketLive.layer,
+    Slack.http,
+    AsyncHttpClientZioBackend.layer(),
+    ZLayer.succeed(AppToken("xoxb-<your-token>"))
+)
+```
+
+The socket can also be configured to handle replies by using the `onMessage` callback in the `apply` method. 
+
+Note to use the socket you will need to provide an "app-level token" instead of the user/bot token you would normally use.
 
 Methods
 --
