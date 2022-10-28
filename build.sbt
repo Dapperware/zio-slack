@@ -36,7 +36,7 @@ ThisBuild / scalaVersion := mainScala
 resolvers +=
   "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
-val circeV = "0.14.2"
+val circeV = "0.14.3"
 val zioV   = "2.0.2"
 val sttpV  = "3.8.3"
 
