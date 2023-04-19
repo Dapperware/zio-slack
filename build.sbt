@@ -2,7 +2,7 @@ ThisBuild / name := "zio-slack"
 ThisBuild / organization := "com.github.dapperware"
 
 val mainScala = "2.12.17"
-val allScala  = Seq("2.13.10", mainScala, "3.2.0")
+val allScala  = Seq("2.13.10", mainScala, "3.2.2")
 
 inThisBuild(
   List(
@@ -37,7 +37,7 @@ resolvers +=
   "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
 val circeV = "0.14.3"
-val zioV   = "2.0.3"
+val zioV   = "2.0.13"
 val sttpV  = "3.8.3"
 
 ThisBuild / publishTo := sonatypePublishToBundle.value
@@ -94,8 +94,8 @@ lazy val examples = projectMatrix
   .settings(
     publish / skip := true,
     libraryDependencies ++= Seq(
-      "dev.zio"                       %% "zio-config"                    % "3.0.2",
-      "dev.zio"                       %% "zio-config-typesafe"           % "3.0.2",
+      "dev.zio"                       %% "zio-config"                    % "3.0.7",
+      "dev.zio"                       %% "zio-config-typesafe"           % "3.0.7",
       "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio" % sttpV
     )
   )
